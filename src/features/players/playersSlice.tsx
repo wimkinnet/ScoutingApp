@@ -26,8 +26,13 @@ const initialState: PlayersState = {
 			firstName: 'Fernand',
 			lastName: 'Marien',
 		},
+		'pl-3': {
+			id: 'pl-3',
+			firstName: 'Boaz',
+			lastName: 'Coart',
+		},
 	},
-	ids: ['pl-1', 'pl-2'],
+	ids: ['pl-1', 'pl-2', 'pl-3'],
 };
 
 const slice = createSlice({

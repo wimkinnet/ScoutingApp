@@ -9,9 +9,9 @@ export default function PlayersIndex() {
   return (
     <section>
       <h2>Players</h2>
-      <div>
-        {players.ids.map(id => (
-          <Link className="btn" to={`/players/${id}`}>{players.entities[id].lastName} {players.entities[id].firstName}</Link>
+      <div className="namesList">
+        {[...players.ids].sort((a, b) => players.entities[a].lastName.localeCompare(players.entities[b].lastName)).map(id => (
+          <Link className="playerMiniCard" to={`/players/${id}`}>{players.entities[id].lastName} {players.entities[id].firstName}</Link>
         ))}
       </div>
     </section>
