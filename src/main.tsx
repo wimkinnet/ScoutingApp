@@ -10,16 +10,15 @@ import PlayersIndex from './pages/PlayersIndex'
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <Provider store={store}>
-        <BrowserRouter>
-          <Routes>
-            <Route index element={<AppLayout />} >
-							<Route path="players">
-								<Route index element={<PlayersIndex />} />
-//							<Route path=":playerId" element={<PlayerDetail />} />
-							</Route>
-            </Route>
-          </Routes>
-        </BrowserRouter>
+			<BrowserRouter>
+				<Routes>
+					<Route path="/" element={<AppLayout />} >
+						<Route path="players">
+							<Route index element={<PlayersIndex />} />
+						</Route>
+					</Route>
+				</Routes>
+			</BrowserRouter>
     </Provider>
   </StrictMode>
 )
