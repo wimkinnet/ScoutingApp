@@ -6,6 +6,7 @@ import { store } from './app/store'
 import './styles/index.css'
 import AppLayout from './routes/AppLayout'
 import PlayersIndex from './pages/PlayersIndex'
+import PlayerCard from './pages/PlayerCard'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -15,6 +16,7 @@ createRoot(document.getElementById('root')!).render(
 					<Route path="/" element={<AppLayout />} >
 						<Route path="players">
 							<Route index element={<PlayersIndex />} />
+							<Route path=":playerId" element={<PlayerCard />} />
 						</Route>
 					</Route>
 				</Routes>

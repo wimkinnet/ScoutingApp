@@ -1,5 +1,6 @@
 import { Link, Outlet, NavLink } from 'react-router-dom';
 import '../styles/index.css'
+import PlayerModal from '../modals/PlayerModal';
 
 export default function AppLayout() {
 	return (
@@ -18,7 +19,7 @@ export default function AppLayout() {
 			<main className="app-main">
 				<Outlet />
 			</main>
-
+			<PlayerModal />
 		</div>
   )
 }
