@@ -1,24 +1,27 @@
-import { Link, Outlet, NavLink } from 'react-router-dom';
+import { Link, Outlet , useLocation} from 'react-router-dom';
 import '../styles/index.css'
 import PlayerModal from '../modals/PlayerModal';
 
 export default function AppLayout() {
+	const location = useLocation();
+
 	return (
 		<div className="app">
 			<header className="app-header">
 				<div className="brand">
 					<span className="logo" aria-hidden>🏀</span>
-					<Link to="/" className="brand-title">ScoutingApp</Link>
+					<Link to="/" className="brand-title">SCOUTING APP</Link>
 				</div>
-
-				<nav className="toolbar">
-				  <NavLink to="/players" className="btn">Players</NavLink>
-				</nav>
 			</header>
-
+			
 			<main className="app-main">
+				<aside className="app-sidebar">
+					<Link className={location.pathname.startsWith("/players") ? "sidebar-link active" : "sidebar-link"} to="/players">PLAYERS</Link>
+					<Link className={location.pathname.startsWith("/teams") ? "sidebar-link active" : "sidebar-link"} to="/teams">TEAMS</Link>
+				</aside>
 				<Outlet />
 			</main>
+			
 			<PlayerModal />
 		</div>
   )

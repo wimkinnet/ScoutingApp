@@ -12,13 +12,13 @@ export default function PlayerModal() {
 
   const [lastName, setLastName] = useState(player?.lastName ?? '');
   const [firstName, setFirstName] = useState(player?.firstName ?? '');
-  const [dateOfBirth, setDateOfBirth] = useState(player?.dateOfBirth ?? '');
+  const [dateOfBirth, setDateOfBirth] = useState(player?.dateOfBirth ?? undefined);
 
   useEffect(() => {
     if (!isOpen) return;
     setLastName(player?.lastName ?? '');
     setFirstName(player?.firstName ?? '');
-    setDateOfBirth(player?.dateOfBirth ?? '');
+    setDateOfBirth(player?.dateOfBirth ?? undefined);
   }, [isOpen, mode, playerId]);
 
   const onClose = () => dispatch(closeModal());
@@ -56,7 +56,11 @@ export default function PlayerModal() {
           <div className="form-grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
             <div className="form-field"><label>Last name</label><input value={lastName} onChange={(e) => setLastName(e.target.value)} /></div>
             <div className="form-field"><label>First name</label><input value={firstName} onChange={(e) => setFirstName(e.target.value)} /></div>
-            <div className="form-field"><label>Date of birth</label><input type="date" value={dateOfBirth} onChange={(e) => setDateOfBirth(e.target.value)} /></div>
+            <div className="form-field"><label>Date of birth</label><input
+                type="date"
+                value={dateOfBirth ? dateOfBirth.toISOString().slice(0, 10) : ''}
+                onChange={(e) => setDateOfBirth(e.target.value ? new Date(e.target.value) : undefined)}
+            /></div>
           </div>
         </div>
 

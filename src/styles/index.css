@@ -5,15 +5,46 @@
 	gap: 20px;
 	align-items: center;
 	padding: 10px;
-	background: rgba(255,255,255,0.9);
+	background: var(--bg);
 }
 
-.brand { display: flex; align-items: center; gap: 12px; }
+.brand { display: flex; align-items: center; justify-content: center; gap: 12px; }
+.brand .logo { font-size: 2rem; }
 .brand-title { 
 	font-size: 2rem;  
-	color: black;
+	color: var(--text-inverse-bg);
 	text-decoration: none;
 }
+
+.app-main {
+	display: flex;
+	min-height: calc(100vh - 100px);
+	gap: 30px;
+}
+
+.app-sidebar {
+	position: sticky; top: 0; z-index: 100;
+	display: flex; flex-direction: column;
+	width: 150px;
+	min-height: 100%;
+	padding: 20px;
+	background: var(--bg);
+	gap: 20px;
+}
+
+.sidebar-link {
+	display: block; 
+	color: var(--text-inverse-bg);
+	text-decoration: none;
+	font-size: 1rem;
+	padding: 20px;
+}
+
+.sidebar-link:hover, .sidebar-link.active {
+	background: var(--bg-soft);
+	border-radius: var(--radius);
+}
+
 .content { display: grid; gap: 20px; }
 
 .btn {

@@ -8,7 +8,7 @@ export default function PlayerCard() {
   const player = useSelector((s: RootState) => playerId ? s.players.entities[playerId] : null);
   const dispatch = useDispatch();
 
-  if (!player) return <div className="content">Player not found</div>;
+  if (!player) return <div>Player not found</div>;
 
   return (
     <section>
@@ -16,7 +16,7 @@ export default function PlayerCard() {
         <h3>Details</h3>
         <p>Last Name: {player.lastName}</p>
         <p>First Name: {player.firstName}</p>
-        {player.dateOfBirth && <p>Date of Birth: {player.dateOfBirth}</p>}
+        {player.dateOfBirth && <p>Date of Birth: {player.dateOfBirth.toLocaleDateString()}</p>}
       </div>
 
       <div style={{ display:'flex', gap: 12}}>

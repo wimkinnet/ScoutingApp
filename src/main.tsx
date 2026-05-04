@@ -15,8 +15,7 @@ createRoot(document.getElementById('root')!).render(
 			<BrowserRouter>
 				<Routes>
 					<Route path="/" element={<AppLayout />} >
-						<Route path="players">
-							<Route index element={<PlayersIndex />} />
+						<Route path="players" element={<PlayersIndex />} >
 							<Route path=":playerId" element={<PlayerCard />} />
 						</Route>
 					</Route>

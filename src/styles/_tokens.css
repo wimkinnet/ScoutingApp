@@ -1,6 +1,7 @@
 :root {
   /* Colors */
-  --bg: #0f1216;
+  --bg: #203653;
+  --text-inverse-bg: #e9eef7;
   --bg-soft: #246b8e8a;
   --surface: #1b222c;
   --surface-2: #222a36;

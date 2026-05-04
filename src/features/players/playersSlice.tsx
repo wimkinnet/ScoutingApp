@@ -6,7 +6,7 @@
 //
 
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
-import type Player from '../../app/types'
+import type { Player } from '../../app/types'
 
 interface PlayersState {
 	entities: Record<string, Player>;
@@ -19,7 +19,7 @@ const initialState: PlayersState = {
 			id: 'pl-1',
 			firstName: 'Laurens',
 			lastName: 'Kinnet',
-			dateOfBirth: '22/09/2016',
+			dateOfBirth: new Date(2016, 8, 22),
 		},
 		'pl-2': {
 			id: 'pl-2',
@@ -39,12 +39,10 @@ const slice = createSlice({
 	name: 'players',
 	initialState,
 	reducers: {
-		addPlayer: {
-			reducer(state, action: PayloadAction<Player>) {
-				const pl = action.payload;
-				state.entities[pl.id] = pl;
-				state.ids.push(pl.id);
-			},
+		addPlayer(state, action: PayloadAction<Player>) {
+			const pl = action.payload;
+			state.entities[pl.id] = pl;
+			state.ids.push(pl.id);
 		},
 		updatePlayer(state, action: PayloadAction<{ id: string; changes: Partial<Player> }>) {
 			const { id, changes } = action.payload;
