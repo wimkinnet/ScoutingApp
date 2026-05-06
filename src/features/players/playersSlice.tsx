@@ -1,10 +1,3 @@
-//
-//  playersSlice.ts
-//  
-//
-//  Created by Wim Kinnet on 03/05/2026.
-//
-
 import { createSlice, nanoid, type PayloadAction } from '@reduxjs/toolkit'
 import type { Player } from '../../app/types'
 

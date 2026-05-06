@@ -21,7 +21,8 @@
     display: flex;
     padding: 1px;
     background-color: #fff;
-    margin-bottom: 10px;
+    margin: 20px 0 5px 0;
+    border-bottom: 1px solid #666;
 }
 
 .listRow:hover {
@@ -34,6 +35,15 @@
     margin: 0;
     font-size: 0.9rem;
     color: #666;
+}
+
+.listAction {
+    display: flex;
+    width: 150px;
+    margin: 0;
+    font-size: 0.9rem;
+    color: #666;
+    gap: 5px;
 }
 
 .listHeaderItem {

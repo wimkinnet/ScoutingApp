@@ -3,29 +3,39 @@ import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 interface ModalState {
   isOpen: boolean;
   mode: 'add' | 'edit';
-  playerId: string | null;
+  id: string | null;
 }
 
 interface UIState {
-  modal: ModalState;
+  playerModal: ModalState;
+  clubModal: ModalState;
+  seasonModal: ModalState;
 }
 
 const initialState: UIState = {
-  modal: { isOpen: false, mode: 'add', playerId: null },
+  playerModal: { isOpen: false, mode: 'add', id: null},
+  clubModal: { isOpen: false, mode: 'add', id: null},
+  seasonModal: { isOpen: false, mode: 'add', id: null},
 };
 
 const slice = createSlice({
   name: 'ui',
   initialState,
   reducers: {
-    openAddPlayerModal(state) { state.modal = { isOpen: true, mode: 'add', playerId: null }; },
-    openEditPlayerModal(state, action: PayloadAction<string>) { state.modal = { isOpen: true, mode: 'edit', playerId: action.payload }; },
-    closeModal(state) { state.modal.isOpen = false; state.modal.playerId = null; },
+    openAddPlayerModal(state) { state.playerModal = { isOpen: true, mode: 'add', id: null }; },
+    openEditPlayerModal(state, action: PayloadAction<string>) { state.playerModal = { isOpen: true, mode: 'edit', id: action.payload}; },
+    openAddClubModal(state) { state.clubModal = { isOpen: true, mode: 'add', id: null }; },
+    openEditClubModal(state, action: PayloadAction<string>) { state.clubModal = { isOpen: true, mode: 'edit', id: action.payload }; },
+    openAddSeasonModal(state) { state.seasonModal = { isOpen: true, mode: 'add', id: null }; },
+    openEditSeasonModal(state, action: PayloadAction<string>) { state.seasonModal = { isOpen: true, mode: 'edit', id: action.payload}; },
+    closeModal(state) { state.playerModal.isOpen = false; state.clubModal.isOpen = false; state.seasonModal.isOpen = false;},
   },
 });
 
 export const {
-  openAddPlayerModal, openEditPlayerModal, closeModal
+  openAddPlayerModal, openEditPlayerModal, openAddClubModal, 
+  openEditClubModal, openAddSeasonModal, openEditSeasonModal,
+  closeModal
 } = slice.actions;
 
 export default slice.reducer;

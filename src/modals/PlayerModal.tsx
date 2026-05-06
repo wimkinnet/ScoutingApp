@@ -9,8 +9,8 @@ import '../styles/_tokens.css'
 
 export default function PlayerModal() {
   const dispatch = useDispatch();
-  const { isOpen, mode, playerId } = useSelector((s: RootState) => s.ui.modal);
-  const player = useSelector((s: RootState) => (mode === 'edit' && playerId) ? s.players.entities[playerId] : null);
+  const { isOpen, mode, id } = useSelector((s: RootState) => s.ui.playerModal);
+  const player = useSelector((s: RootState) => (mode === 'edit' && id) ? s.players.entities[id] : null);
 
   const [lastName, setLastName] = useState(player?.lastName ?? '');
   const [firstName, setFirstName] = useState(player?.firstName ?? '');
@@ -21,7 +21,7 @@ export default function PlayerModal() {
     setLastName(player?.lastName ?? '');
     setFirstName(player?.firstName ?? '');
     setDateOfBirth(player?.dateOfBirth ?? undefined);
-  }, [isOpen, mode, playerId]);
+  }, [isOpen, mode, id]);
 
   const onClose = () => dispatch(closeModal());
   const onSave = () => {

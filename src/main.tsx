@@ -7,6 +7,8 @@ import './styles/index.css'
 import './styles/_tokens.css'
 import AppLayout from './routes/AppLayout'
 import Players from './pages/Players'
+import Clubs from './pages/Clubs'
+import Seasons from './pages/Seasons'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -14,8 +16,9 @@ createRoot(document.getElementById('root')!).render(
 			<BrowserRouter>
 				<Routes>
 					<Route path="/" element={<AppLayout />} >
-						<Route path="players" element={<Players />} >
-						</Route>
+						<Route path="players" element={<Players />} ></Route>
+						<Route path="clubs" element={<Clubs />} ></Route>
+						<Route path="seasons" element={<Seasons />} ></Route>
 					</Route>
 				</Routes>
 			</BrowserRouter>
