@@ -4,6 +4,8 @@ import type { RootState } from '../app/store';
 import { addPlayer, updatePlayer } from '../features/players/playersSlice';
 import { closeModal } from '../features/ui/uiSlice';
 import './Modal.css';
+import '../styles/index.css'
+import '../styles/_tokens.css'
 
 export default function PlayerModal() {
   const dispatch = useDispatch();
@@ -27,7 +29,7 @@ export default function PlayerModal() {
     if (!lastName.trim()) return alert('Last name is mandatory');
 
     const payload = {
-      firstName: firstName || undefined,
+      firstName,
       lastName,
       dateOfBirth: dateOfBirth || undefined,
     };
@@ -66,7 +68,7 @@ export default function PlayerModal() {
 
         <footer className="modal-footer">
           <button className="btn" onClick={onClose}>Cancel</button>
-          <button className="btn primary" onClick={onSave}>{mode === 'add' ? 'Add' : 'Save'}</button>
+          <button className="btn" onClick={onSave}>{mode === 'add' ? 'Add' : 'Save'}</button>
         </footer>
       </div>
     </div>

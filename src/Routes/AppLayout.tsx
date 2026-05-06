@@ -1,5 +1,6 @@
 import { Link, Outlet , useLocation} from 'react-router-dom';
 import '../styles/index.css'
+import '../styles/_tokens.css'
 import PlayerModal from '../modals/PlayerModal';
 
 export default function AppLayout() {

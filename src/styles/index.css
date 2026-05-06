@@ -6,6 +6,7 @@
 	align-items: center;
 	padding: 10px;
 	background: var(--bg);
+	height: 35px;
 }
 
 .brand { display: flex; align-items: center; justify-content: center; gap: 12px; }
@@ -18,7 +19,7 @@
 
 .app-main {
 	display: flex;
-	min-height: calc(100vh - 100px);
+	height: calc(100vh - 110px);
 	gap: 30px;
 }
 
@@ -29,7 +30,6 @@
 	min-height: 100%;
 	padding: 20px;
 	background: var(--bg);
-	gap: 20px;
 }
 
 .sidebar-link {
@@ -38,6 +38,7 @@
 	text-decoration: none;
 	font-size: 1rem;
 	padding: 20px;
+	margin: 5px;
 }
 
 .sidebar-link:hover, .sidebar-link.active {
@@ -48,19 +49,31 @@
 .content { display: grid; gap: 20px; }
 
 .btn {
-	background: green;
-	color: whitesmoke;
-	border: 1px solid white;
+	background: var(--bg-soft);
+	color: var(--text-inverse-bg);
+	border: 1px solid var(--bg-soft);
 	border-radius: 4px;
-	padding: 10px 14px;
+	padding: 5px 5px;
 	cursor: pointer;
 }
 .btn:hover { 
-	background: white; 
-	color: black;
-	border-color: green;
+	background: var(--bg-soft); 
+	color: var(--text-inverse-bg);
+	border-color: var(--bg-soft);
 }
 .btn.primary { background: var(--primary); border-color: var(--primary-600); }
 .btn.primary:hover { background: var(--primary-600); }
 .btn.secondary { background: var(--accent); border-color: #2c7ec4; color: #10141a; }
 .btn.small { padding: 6px 10px; font-size: 0.6rem; }
+
+.form-grid { display: grid; gap: var(--gap-2); }
+.form-field { display: grid; gap: 6px; }
+.form-field input,
+.form-field select,
+.form-field textarea {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+}
