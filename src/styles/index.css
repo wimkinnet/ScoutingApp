@@ -71,9 +71,12 @@
 .form-field input,
 .form-field select,
 .form-field textarea {
-  background: var(--surface);
-  color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 10px 12px;
+  	-webkit-appearance: none;
+  	-moz-appearance: none;
+	appearance: none;
+	background: var(--surface);
+  	color: var(--text);
+  	border: 1px solid var(--border);
+  	border-radius: var(--radius-sm);
+  	padding: 10px 10px;
 }

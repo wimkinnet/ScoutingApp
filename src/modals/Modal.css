@@ -1,7 +1,7 @@
 .modal { position: fixed; inset: 0; display: none; }
 .modal[aria-hidden="false"] { display: grid; place-items: center; }
 .modal-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.6); }
-.modal-content { position: relative; z-index: 1; width: min(400px, 92vw); background: var(--bg-soft); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-1); overflow: hidden; }
+.modal-content { position: relative; z-index: 1; width: min(500px, 92vw); background: var(--bg-soft); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-1); overflow: hidden; }
 .modal-header, .modal-footer { display: flex; align-items: center; justify-content: space-between; padding: 8px; background: var(--surface-2); }
 .modal-body {
     max-height: 50vh;
@@ -14,3 +14,8 @@ h2 {
     color: var(--text-inverse-bg);
     margin: 10px;;
 }
+ label {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--text-inverse-bg);
+ }
