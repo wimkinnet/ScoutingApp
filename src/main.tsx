@@ -14,7 +14,7 @@ import Teams from './pages/Teams'
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <Provider store={store}>
-			<BrowserRouter>
+			<BrowserRouter basename="/">
 				<Routes>
 					<Route path="/" element={<AppLayout />} >
 						<Route path="players" element={<Players />} ></Route>
