@@ -5,6 +5,7 @@ import PlayerModal from '../modals/PlayerModal';
 import ClubModal from '../modals/ClubModal';
 import SeasonModal from '../modals/SeasonModal';
 import TeamModal from '../modals/TeamModal';
+import GameModal from '../modals/GameModal';
 
 export default function AppLayout() {
 	const location = useLocation();
@@ -24,6 +25,7 @@ export default function AppLayout() {
 					<Link className={location.pathname.startsWith("/clubs") ? "sidebar-link active" : "sidebar-link"} to="/clubs">CLUBS</Link>
 					<Link className={location.pathname.startsWith("/seasons") ? "sidebar-link active" : "sidebar-link"} to="/seasons">SEASONS</Link>
 					<Link className={location.pathname.startsWith("/teams") ? "sidebar-link active" : "sidebar-link"} to="/teams">TEAMS</Link>
+					<Link className={location.pathname.startsWith("/games") ? "sidebar-link active" : "sidebar-link"} to="/games">GAMES</Link>
 				</aside>
 				<Outlet />
 			</main>
@@ -31,6 +33,7 @@ export default function AppLayout() {
 			<ClubModal />
 			<SeasonModal />
 			<TeamModal />
+			<GameModal />
 		</div>
-  )
+	)
 }

@@ -10,20 +10,22 @@ import Players from './pages/Players'
 import Clubs from './pages/Clubs'
 import Seasons from './pages/Seasons'
 import Teams from './pages/Teams'
+import Games from './pages/Games'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <Provider store={store}>
-			<BrowserRouter basename="/ScoutingApp/">
-				<Routes>
-					<Route path="/" element={<AppLayout />} >
-						<Route path="players" element={<Players />} ></Route>
-						<Route path="clubs" element={<Clubs />} ></Route>
-						<Route path="seasons" element={<Seasons />} ></Route>
-						<Route path="teams" element={<Teams />} ></Route>
-					</Route>
-				</Routes>
-			</BrowserRouter>
+		<BrowserRouter basename="/ScoutingApp/">
+			<Routes>
+				<Route path="/" element={<AppLayout />} >
+					<Route path="players" element={<Players />} ></Route>
+					<Route path="clubs" element={<Clubs />} ></Route>
+					<Route path="seasons" element={<Seasons />} ></Route>
+					<Route path="teams" element={<Teams />} ></Route>
+					<Route path="games" element={<Games />} ></Route>
+				</Route>
+			</Routes>
+		</BrowserRouter>
     </Provider>
   </StrictMode>
 )

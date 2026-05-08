@@ -15,16 +15,11 @@ const initialState: ClubsState = {
 		},
 		'cl-2': {
 			id: 'cl-2',
-			name: 'Club 2',
-			registrationNumber: '987654321',
-		},
-		'cl-3': {
-			id: 'cl-3',
-			name: 'Club 3',
-			registrationNumber: '555555555',
+			name: 'Bonheiden',
+			registrationNumber: '1310',
 		},
 	},
-	ids: ['cl-1', 'cl-2', 'cl-3'],
+	ids: ['cl-1', 'cl-2'],
 };
 
 const slice = createSlice({

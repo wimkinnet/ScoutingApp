@@ -37,6 +37,14 @@
     color: #666;
 }
 
+.listHeaderItem.game {
+    width: 250px;
+}
+
+.listItem.game {
+    width: 250px;
+}
+
 .listAction {
     display: flex;
     width: 150px;

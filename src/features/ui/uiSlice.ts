@@ -11,6 +11,7 @@ interface UIState {
   clubModal: ModalState;
   seasonModal: ModalState;
   teamModal: ModalState;
+  gameModal: ModalState;
 }
 
 const initialState: UIState = {
@@ -18,6 +19,7 @@ const initialState: UIState = {
   clubModal: { isOpen: false, mode: 'add', id: null},
   seasonModal: { isOpen: false, mode: 'add', id: null},
   teamModal: { isOpen: false, mode: 'add', id: null},
+  gameModal: { isOpen: false, mode: 'add', id: null},
 };
 
 const slice = createSlice({
@@ -32,7 +34,9 @@ const slice = createSlice({
     openEditSeasonModal(state, action: PayloadAction<string>) { state.seasonModal = { isOpen: true, mode: 'edit', id: action.payload}; },
     openAddTeamModal(state) { state.teamModal = { isOpen: true, mode: 'add', id: null }; },
     openEditTeamModal(state, action: PayloadAction<string>) { state.teamModal = { isOpen: true, mode: 'edit', id: action.payload}; },
-    closeModal(state) { state.playerModal.isOpen = false; state.clubModal.isOpen = false; state.seasonModal.isOpen = false; state.teamModal.isOpen = false;},
+    openAddGameModal(state) { state.gameModal = { isOpen: true, mode: 'add', id: null }; },
+    openEditGameModal(state, action: PayloadAction<string>) { state.gameModal = { isOpen: true, mode: 'edit', id: action.payload}; },
+    closeModal(state) { state.playerModal.isOpen = false; state.clubModal.isOpen = false; state.seasonModal.isOpen = false; state.teamModal.isOpen = false; state.gameModal.isOpen = false;},
   },
 });
 
@@ -41,6 +45,7 @@ export const {
   openAddClubModal, openEditClubModal,
   openAddSeasonModal, openEditSeasonModal,
   openAddTeamModal, openEditTeamModal,
+  openAddGameModal, openEditGameModal,
   closeModal
 } = slice.actions;
 

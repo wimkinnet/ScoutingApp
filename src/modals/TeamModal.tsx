@@ -129,7 +129,7 @@ export default function TeamModal() {
                   </select>
                 </div>
                 <div className="buttons" style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                  <button className="btn small" onClick={addSelected} disabled={!availableSelection.length}>Add &gt;</button>
+                  <button className="btn small" onClick={addSelected} disabled={!availableSelection.length}>&gt;<br />Add</button>
                   <button className="btn small" onClick={removeSelected} disabled={!selectedSelection.length}>&lt; Remove</button>
                 </div>
                 <div className="list">

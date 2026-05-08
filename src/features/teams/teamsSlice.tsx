@@ -15,8 +15,15 @@ const initialState: TeamsState = {
 			seasonId: 'se-1',
 			playerIds: ['pl-1', 'pl-2', 'pl-3', 'pl-4', 'pl-5', 'pl-6', 'pl-7', 'pl-8', 'pl-9'],
 		},
+		't-2': {
+			id: 't-2',
+			name: 'G12 A',
+			clubId: 'cl-2',
+			seasonId: 'se-1',
+			playerIds: [],
+		},
 	},
-	ids: ['t-1'],
+	ids: ['t-1', 't-2'],
 };
 
 const slice = createSlice({

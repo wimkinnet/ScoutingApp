@@ -3,6 +3,7 @@ import playerReducer from '../features/players/playersSlice';
 import clubReducer from '../features/clubs/clubsSlice';
 import seasonReducer from '../features/seasons/seasonsSlice';
 import teamReducer from '../features/teams/teamsSlice';
+import gameReducer from '../features/games/gamesSlice';
 import uiReducer from '../features/ui/uiSlice';
 
 export const store = configureStore({
@@ -11,6 +12,7 @@ export const store = configureStore({
     clubs: clubReducer,
     seasons: seasonReducer,
     teams: teamReducer,
+    games: gameReducer,
     ui: uiReducer,
  }
 });
