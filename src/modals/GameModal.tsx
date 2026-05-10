@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import type { RootState } from '../app/store';
 import { addGame, updateGame } from '../features/games/gamesSlice';
 import { closeModal } from '../features/ui/uiSlice';
+import type { GamePlayer } from '../app/types';
 import './Modal.css';
 import '../styles/index.css'
 import '../styles/_tokens.css'
@@ -12,11 +13,22 @@ export default function GameModal() {
   const { isOpen, mode, id } = useSelector((s: RootState) => s.ui.gameModal);
   const game = useSelector((s: RootState) => (mode === 'edit' && id) ? s.games.entities[id] : null);
   const teams = useSelector((s: RootState) => s.teams);
-
+  const seasons = useSelector((s: RootState) => s.seasons);
+  const clubs = useSelector((s: RootState) => s.clubs);
+  const players = useSelector((s: RootState) => s.players);
   const [scoutTeamId, setScoutTeamId] = useState(game?.scoutTeamId ?? '');
   const [otherTeamId, setOtherTeamId] = useState(game?.otherTeamId ?? '');
+  const [scoutClubId, setScoutClubId] = useState(game ? teams.entities[game.scoutTeamId].clubId : '');
+  const [otherClubId, setOtherClubId] = useState(game ? teams.entities[game.otherTeamId].clubId : '');
   const [date, setDate] = useState(game?.date ?? undefined);
   const [scoutHome, setScoutHome] = useState(game?.scoutHome ?? true);
+  const [seasonId, setSeasonId] = useState(game ? teams.entities[game.scoutTeamId].seasonId : '');
+  const [scoutTeamVisible, setScoutTeamVisible] = useState(false);
+  const [otherTeamVisible, setOtherTeamVisible] = useState(false);
+  const [scoutClubVisible, setScoutClubVisible] = useState(false);
+  const [otherClubVisible, setOtherClubVisible] = useState(false);
+  const [availableSelection, setAvailableSelection] = useState<string[]>([]);
+  const [selectedSelection, setSelectedSelection] = useState<string[]>([]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -24,6 +36,15 @@ export default function GameModal() {
     setOtherTeamId(game?.otherTeamId ?? '');
     setDate(game?.date ?? undefined);
     setScoutHome(game?.scoutHome ?? true);
+    setSeasonId(game ? teams.entities[game.scoutTeamId].seasonId : '');
+    setScoutClubId(game ? teams.entities[game.scoutTeamId].clubId : '');
+    setOtherClubId(game ? teams.entities[game.otherTeamId].clubId : '');
+    setSelectedSelection(game?.scoutPlayers?.map(sp => sp.playerId) ?? []);
+    setAvailableSelection(game ? teams.entities[game.scoutTeamId].playerIds : []);
+    setScoutTeamVisible(mode === 'edit' ? true : false);
+    setOtherTeamVisible(mode === 'edit' ? true : false);
+    setScoutClubVisible(mode === 'edit' ? true : false);
+    setOtherClubVisible(mode === 'edit' ? true : false);
   }, [isOpen, mode, id]);
 
   const onClose = () => dispatch(closeModal());
@@ -33,11 +54,19 @@ export default function GameModal() {
     if (!date) return alert('Date is mandatory');
     if (scoutHome === undefined) return alert('Scout home/away is mandatory');
 
+    const scoutPlayers: GamePlayer[] = selectedSelection.map((id) => {
+        const player = players.entities[id];
+        return {
+            playerId: player.id,
+            shirtNumber: 0, // You can replace this with the actual shirt number if needed
+        };
+    });
     const payload = {
       scoutTeamId,
       otherTeamId,
       date,
       scoutHome,
+      scoutPlayers,
     };
 
     try {
@@ -62,10 +91,39 @@ export default function GameModal() {
 
         <div className="modal-body">
           <div className="form-grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
-            <div className="form-field"><label>Scout Team ID</label>
-              <select value={scoutTeamId} onChange={(e) => setScoutTeamId(e.target.value)}>
+            <div className="form-field"><label>Season</label>
+              <select value={seasonId} onChange={(e) => (setSeasonId(e.target.value), !(e.target.value === "") ? (setScoutClubVisible(true), setOtherClubVisible(true)) : (setScoutClubVisible(false), setOtherClubVisible(false),setScoutTeamVisible(false), setOtherTeamVisible(false)))}>
+                <option value="">Select Season</option>
+                {seasons.ids.map((id) => {
+                  const season = seasons.entities[id];
+                  return (
+                    <option key={season.id} value={season.id}>
+                      {season.name}
+                    </option>
+                  );
+                })}
+              </select>
+            </div>
+            <div className="form-field"></div>
+            {scoutClubVisible &&
+            <div className="form-field"><label>Scout Club</label>
+              <select value={scoutClubId} onChange={(e) => (setScoutClubId(e.target.value), !(e.target.value === "") ? setScoutTeamVisible(true) : setScoutTeamVisible(false), setScoutTeamId(''), setAvailableSelection([]), setSelectedSelection([]) )}>
                 <option value="">Select Team</option>
-                {teams.ids.map((id) => {
+                {clubs.ids.map((id) => {
+                  const club = clubs.entities[id];
+                  return (
+                    <option key={club.id} value={club.id}>
+                      {club.name}
+                    </option>
+                  );
+                })}
+              </select>
+            </div>}
+            {scoutTeamVisible &&
+            <div className="form-field"><label>Scout Team</label>
+              <select value={scoutTeamId} onChange={(e) => (setScoutTeamId(e.target.value), setAvailableSelection(teams.entities[e.target.value]?.playerIds || []), setSelectedSelection([]))}>
+                <option value="">Select Team</option>
+                {teams.ids.filter((id) => ((teams.entities[id].seasonId === seasonId) && (teams.entities[id].clubId === scoutClubId))).map((id) => {
                   const team = teams.entities[id];
                   return (
                     <option key={team.id} value={team.id}>
@@ -74,11 +132,27 @@ export default function GameModal() {
                   );
                 })}
               </select>
-            </div>
-            <div className="form-field"><label>Other Team ID</label>
+            </div>}
+            {!(scoutTeamVisible) && <div className="form-field"></div>}
+            {otherClubVisible &&
+            <div className="form-field"><label>Other Club</label>
+              <select value={otherClubId} onChange={(e) => (setOtherClubId(e.target.value), !(e.target.value === "") ? setOtherTeamVisible(true) : setOtherTeamVisible(false), setOtherTeamId(''))}>
+                <option value="">Select Team</option>
+                {clubs.ids.map((id) => {
+                  const club = clubs.entities[id];
+                  return (
+                    <option key={club.id} value={club.id}>
+                      {club.name}
+                    </option>
+                  );
+                })}
+              </select>
+            </div>}
+            {otherTeamVisible &&
+            <div className="form-field"><label>Other Team</label>
               <select value={otherTeamId} onChange={(e) => setOtherTeamId(e.target.value)}>
                 <option value="">Select Team</option>
-                {teams.ids.map((id) => {
+                {teams.ids.filter((id) => ((teams.entities[id].seasonId === seasonId) && (teams.entities[id].clubId === otherClubId))).map((id) => {
                   const team = teams.entities[id];
                   return (
                     <option key={team.id} value={team.id}>
@@ -87,7 +161,8 @@ export default function GameModal() {
                   );
                 })}
               </select>
-            </div>
+            </div>}
+            {!(otherTeamVisible) && <div className="form-field"></div>}
             <div className="form-field">
               <label>Date</label><input
                 type="date"
@@ -101,6 +176,35 @@ export default function GameModal() {
                 <option value="false">Away</option>
               </select>
             </div>
+            <label>Selected players and numbers</label>
+            <label></label>
+            {availableSelection.map((id) => {
+              const player = players.entities[id];
+              return (
+                <div className="form-field-player-check">
+                  <input
+                    type="checkbox"
+                    id={`player-${player.id}`}
+                    checked={selectedSelection.includes(player.id)}
+                    onChange={() => {
+                      if (selectedSelection.includes(player.id)) {
+                        setSelectedSelection(selectedSelection.filter((pid) => pid !== player.id));
+                      } else {
+                        setSelectedSelection([...selectedSelection, player.id]);
+                      }
+                    }}
+                  />
+                  <label htmlFor={`player-${player.id}`}>
+                    {player.firstName} {player.lastName}
+                  </label>
+                  {selectedSelection.includes(player.id) && 
+                    <div className="form-field-number">
+                      <input value={0} placeholder="Shirt Number" onChange={() => {}} />
+                    </div>
+                  }
+                </div>
+              )}
+            )}
           </div>
         </div>
 

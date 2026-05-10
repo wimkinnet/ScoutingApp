@@ -1,5 +1,5 @@
 import { createSlice, nanoid, type PayloadAction } from '@reduxjs/toolkit'
-import type { Game } from '../../app/types'
+import type { Game, GamePlayer } from '../../app/types'
 
 interface GamesState {
 	entities: Record<string, Game>;
@@ -14,6 +14,16 @@ const initialState: GamesState = {
 			otherTeamId: 't-2',
 			date: new Date(2026, 8, 30),
 			scoutHome: true,
+			scoutPlayers: [
+                {
+                    playerId: 'pl-1',
+                    shirtNumber: 4,
+                },
+                {
+                    playerId: 'pl-2',
+                    shirtNumber: 5,
+                },
+            ],
 		},
 	},
 	ids: ['ga-1'],
