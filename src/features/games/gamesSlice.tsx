@@ -23,6 +23,22 @@ const initialState: GamesState = {
                     playerId: 'pl-2',
                     shirtNumber: 5,
                 },
+                {
+                    playerId: 'pl-3',
+                    shirtNumber: 6,
+                },
+                {
+                    playerId: 'pl-4',
+                    shirtNumber: 7,
+                },
+                {
+                    playerId: 'pl-5',
+                    shirtNumber: 8,
+                },
+                {
+                    playerId: 'pl-6',
+                    shirtNumber: 9,
+                },
             ],
 		},
 	},

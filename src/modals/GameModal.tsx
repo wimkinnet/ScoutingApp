@@ -29,6 +29,7 @@ export default function GameModal() {
   const [otherClubVisible, setOtherClubVisible] = useState(false);
   const [availableSelection, setAvailableSelection] = useState<string[]>([]);
   const [selectedSelection, setSelectedSelection] = useState<string[]>([]);
+  const [shirtNumbers, setShirtNumbers] = useState<{ [playerId: string]: number }>({});
 
   useEffect(() => {
     if (!isOpen) return;
@@ -41,6 +42,7 @@ export default function GameModal() {
     setOtherClubId(game ? teams.entities[game.otherTeamId].clubId : '');
     setSelectedSelection(game?.scoutPlayers?.map(sp => sp.playerId) ?? []);
     setAvailableSelection(game ? teams.entities[game.scoutTeamId].playerIds : []);
+    setShirtNumbers(game?.scoutPlayers?.reduce((acc, sp) => ({ ...acc, [sp.playerId]: sp.shirtNumber }), {}) ?? {});
     setScoutTeamVisible(mode === 'edit' ? true : false);
     setOtherTeamVisible(mode === 'edit' ? true : false);
     setScoutClubVisible(mode === 'edit' ? true : false);
@@ -49,18 +51,25 @@ export default function GameModal() {
 
   const onClose = () => dispatch(closeModal());
   const onSave = () => {
-    if (!scoutTeamId.trim()) return alert('Scout team ID is mandatory');
-    if (!otherTeamId.trim()) return alert('Other team ID is mandatory');
-    if (!date) return alert('Date is mandatory');
-    if (scoutHome === undefined) return alert('Scout home/away is mandatory');
-
+    
     const scoutPlayers: GamePlayer[] = selectedSelection.map((id) => {
         const player = players.entities[id];
         return {
             playerId: player.id,
-            shirtNumber: 0, // You can replace this with the actual shirt number if needed
+            shirtNumber: shirtNumbers[player.id] ?? 0,
         };
     });
+    
+    if (!scoutTeamId.trim()) return alert('Scout team ID is mandatory');
+    if (!otherTeamId.trim()) return alert('Other team ID is mandatory');
+    if (!date) return alert('Date is mandatory');
+    if (scoutHome === undefined) return alert('Scout home/away is mandatory');
+    if (scoutPlayers.length < 5) return alert('At least five scout players must be selected');
+    if (scoutPlayers.some(sp => sp.shirtNumber <= 0)) return alert('All selected players must have a shirt number assigned');
+    
+    const uniqueShirtNumbers = new Set(scoutPlayers.map(sp => sp.shirtNumber));
+    if (uniqueShirtNumbers.size !== scoutPlayers.length) return alert('Shirt numbers must be unique among selected players');
+
     const payload = {
       scoutTeamId,
       otherTeamId,
@@ -107,7 +116,7 @@ export default function GameModal() {
             <div className="form-field"></div>
             {scoutClubVisible &&
             <div className="form-field"><label>Scout Club</label>
-              <select value={scoutClubId} onChange={(e) => (setScoutClubId(e.target.value), !(e.target.value === "") ? setScoutTeamVisible(true) : setScoutTeamVisible(false), setScoutTeamId(''), setAvailableSelection([]), setSelectedSelection([]) )}>
+              <select value={scoutClubId} onChange={(e) => (setScoutClubId(e.target.value), !(e.target.value === "") ? setScoutTeamVisible(true) : setScoutTeamVisible(false), setScoutTeamId(''), setAvailableSelection([]), setSelectedSelection([]), setShirtNumbers({}))}>
                 <option value="">Select Team</option>
                 {clubs.ids.map((id) => {
                   const club = clubs.entities[id];
@@ -121,7 +130,7 @@ export default function GameModal() {
             </div>}
             {scoutTeamVisible &&
             <div className="form-field"><label>Scout Team</label>
-              <select value={scoutTeamId} onChange={(e) => (setScoutTeamId(e.target.value), setAvailableSelection(teams.entities[e.target.value]?.playerIds || []), setSelectedSelection([]))}>
+              <select value={scoutTeamId} onChange={(e) => (setScoutTeamId(e.target.value), setAvailableSelection(teams.entities[e.target.value]?.playerIds || []), setSelectedSelection([]), setShirtNumbers({}))}>
                 <option value="">Select Team</option>
                 {teams.ids.filter((id) => ((teams.entities[id].seasonId === seasonId) && (teams.entities[id].clubId === scoutClubId))).map((id) => {
                   const team = teams.entities[id];
@@ -182,24 +191,32 @@ export default function GameModal() {
               const player = players.entities[id];
               return (
                 <div className="form-field-player-check">
-                  <input
-                    type="checkbox"
-                    id={`player-${player.id}`}
-                    checked={selectedSelection.includes(player.id)}
-                    onChange={() => {
-                      if (selectedSelection.includes(player.id)) {
-                        setSelectedSelection(selectedSelection.filter((pid) => pid !== player.id));
-                      } else {
-                        setSelectedSelection([...selectedSelection, player.id]);
-                      }
-                    }}
-                  />
-                  <label htmlFor={`player-${player.id}`}>
-                    {player.firstName} {player.lastName}
-                  </label>
+                  <div className="checkbox-label-space">
+                    <input
+                      type="checkbox"
+                      id={`player-${player.id}`}
+                      checked={selectedSelection.includes(player.id)}
+                      onChange={() => {
+                        if (selectedSelection.includes(player.id)) {
+                          setSelectedSelection(selectedSelection.filter((pid) => pid !== player.id));
+                        } else {
+                          setSelectedSelection([...selectedSelection, player.id]);
+                        }
+                      }}
+                    />
+                    <label htmlFor={`player-${player.id}`}>
+                      {player.firstName} {player.lastName}
+                    </label>
+                  </div>
                   {selectedSelection.includes(player.id) && 
                     <div className="form-field-number">
-                      <input value={0} placeholder="Shirt Number" onChange={() => {}} />
+                      <input value={shirtNumbers[player.id] ?? ''} placeholder="#" onChange={(e) => {
+                        const value = e.target.value;
+                        setShirtNumbers({
+                          ...shirtNumbers,
+                          [player.id]: value ? parseInt(value) : 0
+                        });
+                      }} />
                     </div>
                   }
                 </div>

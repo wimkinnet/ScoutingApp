@@ -3,7 +3,7 @@ import type { RootState } from '../app/store';
 import './Lists.css';
 import '../styles/index.css'
 import '../styles/_tokens.css'
-import { openAddGameModal, openEditGameModal } from '../features/ui/uiSlice';
+import { openAddGameModal, openEditGameModal, openScoutModal } from '../features/ui/uiSlice';
 import { removeGame } from '../features/games/gamesSlice';
 
 export default function GamesIndex() {
@@ -31,7 +31,7 @@ export default function GamesIndex() {
           <div className="listItem game" onClick={() => dispatch(openEditGameModal(games.entities[id].id))}>{games.entities[id].date.toLocaleDateString()}</div>
           <div className="listItem game" onClick={() => dispatch(openEditGameModal(games.entities[id].id))}>{games.entities[id].scoutHome ? "Home" : "Away"}</div>
           <div className="listAction">
-            <button className="btn" onClick={() => {}}>
+            <button className="btn" onClick={() => {dispatch(openScoutModal(games.entities[id].id))}}>
               Open
             </button>
             <button className="btn" onClick={() => {dispatch(openEditGameModal(games.entities[id].id))}}>

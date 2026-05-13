@@ -1,8 +1,65 @@
-.modal { position: fixed; inset: 0; display: none; }
-.modal[aria-hidden="false"] { display: grid; place-items: center; }
-.modal-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.6); }
-.modal-content { position: relative; z-index: 1; width: min(500px, 92vw); background: var(--bg-soft); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-1); overflow: hidden; }
-.modal-header, .modal-footer { display: flex; align-items: center; justify-content: space-between; padding: 8px; background: var(--surface-2); }
+.modal, .scout-modal { 
+    position: fixed; 
+    inset: 0; 
+    display: none; 
+}
+
+.modal[aria-hidden="false"] { 
+    display: grid; 
+    place-items: center; 
+}
+
+.scout-modal[aria-hidden="false"] { 
+    display: grid; 
+    place-items: start;
+    z-index: 2; 
+}
+
+.modal-backdrop { 
+    position: absolute; 
+    inset: 0; 
+    background: rgba(0,0,0,0.6); 
+}
+
+.scout-modal .modal-backdrop { 
+    position: absolute; 
+    inset: 0; 
+    background: rgba(0,0,0,1); 
+}
+
+.modal-content { 
+    position: relative;
+    width: min(500px, 92vw); 
+    background: var(--bg-soft); 
+    border: 1px solid var(--border); 
+    border-radius: var(--radius-lg); 
+    box-shadow: var(--shadow-1);
+    overflow: hidden;
+}
+
+.scout-modal .modal-content { 
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    top: 5%; 
+    left: 5%; 
+    width: 90vw;
+    height: 90vh;
+    background: var(--bg-soft); 
+    border: 1px solid var(--border); 
+    border-radius: var(--radius-lg); 
+    box-shadow: var(--shadow-1);
+    overflow: hidden;
+}
+
+.modal-header, .modal-footer {
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between; 
+    padding: 8px; 
+    background: var(--surface-2); 
+}
+
 .modal-body {
     max-height: 50vh;
     overflow-y: auto;
@@ -24,9 +81,21 @@ h2 {
      display: flex;
      gap: 10px;
      font-size: 0.7rem;
+     justify-content: space-between;
  }
+
+.checkbox-label-space {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
 
  .checkbox {
     width: 8px;
     height: 8px;
+ }
+
+ canvas {
+    flex-grow: 1;
+    overflow-y: auto;
  }
