@@ -76,10 +76,10 @@ export default function ScoutModal() {
       boardW: 0.03
     };
 
-    const cssW = canvas.clientWidth;
-    const cssH = canvas.clientHeight;
-    canvas.width = cssW * devicePixelRatio;
-    canvas.height = cssH * devicePixelRatio;
+    const cssW = canvas ? canvas.clientWidth : 0;
+    const cssH = canvas ? canvas.clientHeight : 0;
+    canvas && (canvas.width = cssW ? cssW * devicePixelRatio : 0);
+    canvas && (canvas.height = cssH ? cssH * devicePixelRatio : 0);
     ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
     const MarginPx = 40;
     const usableW = cssW - 2 * MarginPx;
