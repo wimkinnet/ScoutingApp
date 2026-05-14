@@ -204,7 +204,7 @@ export default function ScoutModal() {
 
   if (!isOpen) return null;
 
-  const HomeBenchClick = (e) => {
+  const HomeBenchClick = (e: any) => {
     const shirt = e.target.id;
     const playerIn = benchPlayersHome.find((pl) => pl.shirtNumber === Number(shirt))
 
