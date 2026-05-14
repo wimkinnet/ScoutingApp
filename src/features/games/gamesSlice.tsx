@@ -14,22 +14,22 @@ const initialState: GamesState = {
 			otherTeamId: 't-2',
 			date: new Date(2026, 8, 30),
 			scoutHome: true,
-			scoutPlayers: [
+			homePlayers: [
                 {
                     playerId: 'pl-1',
                     shirtNumber: 4,
                 },
                 {
                     playerId: 'pl-2',
-                    shirtNumber: 5,
+                    shirtNumber: 17,
                 },
                 {
                     playerId: 'pl-3',
-                    shirtNumber: 6,
+                    shirtNumber: 99,
                 },
                 {
                     playerId: 'pl-4',
-                    shirtNumber: 7,
+                    shirtNumber: 23,
                 },
                 {
                     playerId: 'pl-5',
@@ -37,9 +37,59 @@ const initialState: GamesState = {
                 },
                 {
                     playerId: 'pl-6',
-                    shirtNumber: 9,
+                    shirtNumber: 77,
                 },
             ],
+			awayPlayers: [
+                {
+                    playerId: 'pl-10',
+                    shirtNumber: 4,
+                },
+                {
+                    playerId: 'pl-11',
+                    shirtNumber: 17,
+                },
+                {
+                    playerId: 'pl-12',
+                    shirtNumber: 99,
+                },
+                {
+                    playerId: 'pl-13',
+                    shirtNumber: 23,
+                },
+                {
+                    playerId: 'pl-14',
+                    shirtNumber: 8,
+                },
+                {
+                    playerId: 'pl-15',
+                    shirtNumber: 77,
+                },
+				{
+                    playerId: 'pl-16',
+                    shirtNumber: 1,
+                },
+				{
+                    playerId: 'pl-17',
+                    shirtNumber: 9,
+                },
+				{
+                    playerId: 'pl-18',
+                    shirtNumber: 14,
+                },
+				{
+                    playerId: 'pl-19',
+                    shirtNumber: 81,
+                },
+				{
+                    playerId: 'pl-20',
+                    shirtNumber: 37,
+                },
+				{
+                    playerId: 'pl-21',
+                    shirtNumber: 45,
+                },
+			],
 		},
 	},
 	ids: ['ga-1'],

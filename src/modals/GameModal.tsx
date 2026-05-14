@@ -40,9 +40,9 @@ export default function GameModal() {
     setSeasonId(game ? teams.entities[game.scoutTeamId].seasonId : '');
     setScoutClubId(game ? teams.entities[game.scoutTeamId].clubId : '');
     setOtherClubId(game ? teams.entities[game.otherTeamId].clubId : '');
-    setSelectedSelection(game?.scoutPlayers?.map(sp => sp.playerId) ?? []);
+    setSelectedSelection(game?.homePlayers?.map(sp => sp.playerId) ?? []);
     setAvailableSelection(game ? teams.entities[game.scoutTeamId].playerIds : []);
-    setShirtNumbers(game?.scoutPlayers?.reduce((acc, sp) => ({ ...acc, [sp.playerId]: sp.shirtNumber }), {}) ?? {});
+    setShirtNumbers(game?.homePlayers?.reduce((acc, sp) => ({ ...acc, [sp.playerId]: sp.shirtNumber }), {}) ?? {});
     setScoutTeamVisible(mode === 'edit' ? true : false);
     setOtherTeamVisible(mode === 'edit' ? true : false);
     setScoutClubVisible(mode === 'edit' ? true : false);
@@ -52,7 +52,7 @@ export default function GameModal() {
   const onClose = () => dispatch(closeModal());
   const onSave = () => {
     
-    const scoutPlayers: GamePlayer[] = selectedSelection.map((id) => {
+    const homePlayers: GamePlayer[] = selectedSelection.map((id) => {
         const player = players.entities[id];
         return {
             playerId: player.id,
@@ -64,18 +64,18 @@ export default function GameModal() {
     if (!otherTeamId.trim()) return alert('Other team ID is mandatory');
     if (!date) return alert('Date is mandatory');
     if (scoutHome === undefined) return alert('Scout home/away is mandatory');
-    if (scoutPlayers.length < 5) return alert('At least five scout players must be selected');
-    if (scoutPlayers.some(sp => sp.shirtNumber <= 0)) return alert('All selected players must have a shirt number assigned');
+    if (homePlayers.length < 5) return alert('At least five scout players must be selected');
+    if (homePlayers.some(sp => sp.shirtNumber <= 0)) return alert('All selected players must have a shirt number assigned');
     
-    const uniqueShirtNumbers = new Set(scoutPlayers.map(sp => sp.shirtNumber));
-    if (uniqueShirtNumbers.size !== scoutPlayers.length) return alert('Shirt numbers must be unique among selected players');
+    const uniqueShirtNumbers = new Set(homePlayers.map(sp => sp.shirtNumber));
+    if (uniqueShirtNumbers.size !== homePlayers.length) return alert('Shirt numbers must be unique among selected players');
 
     const payload = {
       scoutTeamId,
       otherTeamId,
       date,
       scoutHome,
-      scoutPlayers,
+      homePlayers,
     };
 
     try {

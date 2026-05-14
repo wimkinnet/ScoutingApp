@@ -54,8 +54,70 @@ const initialState: PlayersState = {
 			firstName: 'Jasper',
 			lastName: 'Ceulemans',
 		},
+		'pl-10': {
+			id: 'pl-10',
+			firstName: 'Dummy',
+			lastName: 'Player',
+		},
+		'pl-11': {
+			id: 'pl-11',
+			firstName: 'Dummy',
+			lastName: 'Player',
+		},
+		'pl-12': {
+			id: 'pl-12',
+			firstName: 'Dummy',
+			lastName: 'Player',
+		},
+		'pl-13': {
+			id: 'pl-13',
+			firstName: 'Dummy',
+			lastName: 'Player',
+		},
+		'pl-14': {
+			id: 'pl-14',
+			firstName: 'Dummy',
+			lastName: 'Player',
+		},
+		'pl-15': {
+			id: 'pl-15',
+			firstName: 'Dummy',
+			lastName: 'Player',
+		},
+		'pl-16': {
+			id: 'pl-16',
+			firstName: 'Dummy',
+			lastName: 'Player',
+		},
+		'pl-17': {
+			id: 'pl-17',
+			firstName: 'Dummy',
+			lastName: 'Player',
+		},
+		'pl-18': {
+			id: 'pl-18',
+			firstName: 'Dummy',
+			lastName: 'Player',
+		},
+		'pl-19': {
+			id: 'pl-19',
+			firstName: 'Dummy',
+			lastName: 'Player',
+		},
+		'pl-20': {
+			id: 'pl-20',
+			firstName: 'Dummy',
+			lastName: 'Player',
+		},
+		'pl-21': {
+			id: 'pl-21',
+			firstName: 'Dummy',
+			lastName: 'Player',
+		},
 	},
-	ids: ['pl-1', 'pl-2', 'pl-3', 'pl-4', 'pl-5', 'pl-6', 'pl-7', 'pl-8', 'pl-9'],
+	ids: ['pl-1', 'pl-2', 'pl-3', 'pl-4', 'pl-5', 'pl-6', 'pl-7', 'pl-8', 'pl-9',
+		  'pl-10', 'pl-11', 'pl-12', 'pl-13', 'pl-14', 'pl-15', 'pl-16', 'pl-17', 'pl-18', 'pl-19', 'pl-20', 'pl-21',
+	],
 };
 
 const slice = createSlice({

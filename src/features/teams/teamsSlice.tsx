@@ -20,7 +20,7 @@ const initialState: TeamsState = {
 			name: 'G12 A',
 			clubId: 'cl-2',
 			seasonId: 'se-1',
-			playerIds: [],
+			playerIds: ['pl-10', 'pl-11', 'pl-12', 'pl-13', 'pl-14', 'pl-15', 'pl-16', 'pl-17', 'pl-18', 'pl-19', 'pl-20', 'pl-21'],
 		},
 	},
 	ids: ['t-1', 't-2'],

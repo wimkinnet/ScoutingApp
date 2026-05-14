@@ -64,7 +64,8 @@ export interface Game {
 	otherTeamId: string;
 	date: Date;
 	scoutHome: boolean;
-	scoutPlayers: GamePlayer[];
+	homePlayers: GamePlayer[];
+	awayPlayers: GamePlayer[];
 }
 
 export interface ScoutingAction {

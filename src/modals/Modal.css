@@ -60,10 +60,23 @@
     background: var(--surface-2); 
 }
 
+.scout-modal .modal-header {
+    justify-content: right;
+}
+
 .modal-body {
     max-height: 50vh;
     overflow-y: auto;
     padding: 16px;
+}
+
+.scout-modal .modal-body {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    overflow-y: auto;
+    min-width: 90%;
+    min-height: 90%;
 }
 
 h2 {
@@ -95,7 +108,125 @@ h2 {
     height: 8px;
  }
 
+ .scoreboard {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px;
+    background: var(--surface-2);
+    color: var(--text-inverse-bg);
+    font-size: 1.2rem;
+ }
+
+ .team-name-left {
+    width: 15%;
+    text-align: left;
+ }
+ 
  canvas {
+    width: 90%;
+ }
+
+ .team-players-left {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 5px;
+    width: 30%;
+    justify-content: left;
+ }
+
+ .team-player {
+    height: 20px;
+    width: 20px;
+    align-content: center;
+    text-align: center;
+    border: 1px solid var(--bg-soft);
+    font-size: 0.7rem;
+    cursor: pointer;
+    color: white;
+ }
+
+ .player-tooltip {
+    visibility: hidden;
+    color: #ffffff;
+    background-color: var(--bg-soft);
+    padding: 5px 0;
+    border-radius: 6px;
+    position: absolute;
+    z-index: 3;
+    width: 130px;
+    top: 90px;
+ }
+
+ .team-player:hover .player-tooltip {
+    visibility: visible;
+ }
+
+ .score {
+    width: 10%;
+    text-align: center;
+ }
+
+ .team-name-right {
+    width: 15%;
+    text-align: right;
+ }
+
+ .team-players-right {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 5px;
+    width: 30%;
+    justify-content: right;
+ }
+
+ .court-container {
+    display: flex;
+    flex-direction: row;
     flex-grow: 1;
     overflow-y: auto;
+ }
+
+ .court-players {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    width: 5%;
+    padding: 50px 0;
+    gap: 30px;
+ }
+
+ .court-player {
+    height: 50px;
+    width: 50px;
+    align-content: center;
+    text-align: center;
+    border: 1px solid white;
+    font-size: 2rem;
+    cursor: pointer;
+    color: white;
+    position: relative;
+ }
+
+ .court-player-tooltip {
+    visibility: hidden;
+    color: #ffffff;
+    background-color: var(--bg-soft);
+    padding: 5px 0;
+    border-radius: 6px;
+    position: absolute;
+    z-index: 3;
+    width: 130px;
+    top: 100%;
+    left: 100%;
+    margin-left: 0;
+    font-size: 0.7rem;
+    margin-left: -50px;
+ }
+
+ .court-player:hover .court-player-tooltip {
+    visibility: visible;
  }

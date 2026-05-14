@@ -1,11 +1,11 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { RootState } from '../app/store';
-/*import { addPlayer, updatePlayer } from '../features/players/playersSlice';*/
 import { closeModal } from '../features/ui/uiSlice';
 import './Modal.css';
 import '../styles/index.css'
 import '../styles/_tokens.css'
+import type { GamePlayer } from '../app/types';
 
 export default function ScoutModal() {
   const dispatch = useDispatch();
@@ -13,22 +13,24 @@ export default function ScoutModal() {
   const game = useSelector((s: RootState) => (id) ? s.games.entities[id] : null);
   const teams = useSelector((s: RootState) => s.teams);
   const clubs = useSelector((s: RootState) => s.clubs);
+  const players = useSelector((s: RootState) => s.players);
+  
+  const HomeTeam = game ? (game.scoutHome ? `${clubs.entities[teams.entities[game.scoutTeamId].clubId].name}` : `${clubs.entities[teams.entities[game.otherTeamId].clubId].name}`) : null;
+  const AwayTeam = game ? (game.scoutHome ? `${clubs.entities[teams.entities[game.otherTeamId].clubId].name}` : `${clubs.entities[teams.entities[game.scoutTeamId].clubId].name}`) : null;
 
-  const HomeTeam = game ? (game.scoutHome ? `${clubs.entities[teams.entities[game.scoutTeamId].clubId].name} ${teams.entities[game.scoutTeamId].name}` : `${clubs.entities[teams.entities[game.otherTeamId].clubId].name} ${teams.entities[game.otherTeamId].name}`) : null;
-  const AwayTeam = game ? (game.scoutHome ? `${clubs.entities[teams.entities[game.otherTeamId].clubId].name} ${teams.entities[game.otherTeamId].name}` : `${clubs.entities[teams.entities[game.scoutTeamId].clubId].name} ${teams.entities[game.scoutTeamId].name}`) : null;
+  const [benchPlayersHome, setBenchPlayersHome] = useState<GamePlayer[]>([]);
+  const [courtPlayersHome, setCourtPlayersHome] = useState<GamePlayer[]>([])
 
-  const Header = `${HomeTeam} vs ${AwayTeam} - ${game?.date.toLocaleDateString()}`;
-
-  /*const [lastName, setLastName] = useState(player?.lastName ?? '');
-  const [firstName, setFirstName] = useState(player?.firstName ?? '');
-  const [dateOfBirth, setDateOfBirth] = useState(player?.dateOfBirth ?? undefined);
+  const [benchPlayersAway, setBenchPlayersAway] = useState<GamePlayer[]>([]);
+  const [courtPlayersAway, setCourtPlayersAway] = useState<GamePlayer[]>([])
 
   useEffect(() => {
     if (!isOpen) return;
-    setLastName(player?.lastName ?? '');
-    setFirstName(player?.firstName ?? '');
-    setDateOfBirth(player?.dateOfBirth ?? undefined);
-  }, [isOpen, id]);*/
+    setBenchPlayersHome(game?.homePlayers ?? []);
+    setCourtPlayersHome([])
+    setBenchPlayersAway(game?.awayPlayers ?? []);
+    setCourtPlayersAway([])
+  }, [isOpen, id]);
 
   const onClose = () => dispatch(closeModal());
   /*const onSave = () => {
@@ -63,18 +65,19 @@ export default function ScoutModal() {
       LaneW: 4.90,
       ftLaneFromEnd: 5.80,
       threePtR: 6.75,
+      CentreRimFromEnd: 1.60,
       ftCircleR: 1.80,
-      treePtMinSide: 0.90,
+      treePtMinSide: 0.75,
       restrictedR: 1.25,
     };
 
-    /*const Equip = {
+    const Equip = {
       backboardFromEnd: 1.20,
-      rimFromBoard: 0.15,
+      rimFromBoard: 0.175,
       rimR: 0.225,
-      boardH: 1.05,
+      boardH: 1.83,
       boardW: 0.03
-    };*/
+    };
 
     const cssW = canvas ? canvas.clientWidth : 0;
     const cssH = canvas ? canvas.clientHeight : 0;
@@ -91,10 +94,92 @@ export default function ScoutModal() {
       y: (cssH - M.W * scale) / 2,
     };
 
+    const mx = (m: number) => origin.x + m * scale;
+    const my = (m: number) => origin.y + m * scale;
+
     ctx.clearRect(0, 0, cssW, cssH);
     
-    ctx.strokeStyle = 'var(--bg-soft)';
-    ctx.strokeRect(origin.x, origin.y, M.L * scale, M.W * scale);
+    ctx.strokeStyle = 'white';
+    ctx.lineWidth = 2;
+    
+    // outer lines
+    ctx.strokeRect(mx(0), my(0), M.L * scale, M.W * scale);
+
+    // center line
+    ctx.beginPath();
+    ctx.moveTo(mx(M.L / 2), my(0));
+    ctx.lineTo(mx(M.L / 2), my(M.W));
+    ctx.stroke();
+
+    // center circle
+    ctx.beginPath();
+    ctx.arc(mx(M.L / 2), my(M.W / 2), M.centreCircleR * scale, 0, 2 * Math.PI);
+    ctx.stroke();
+
+    // free throw lanes
+    ctx.strokeRect(mx(0), my((M.W - M.LaneW) / 2), M.ftLaneFromEnd * scale, M.LaneW * scale);
+    ctx.strokeRect(mx(M.L - M.ftLaneFromEnd), my((M.W - M.LaneW) / 2), M.ftLaneFromEnd * scale, M.LaneW * scale);
+    
+    // free throw circles
+    [0, M.L].forEach(x => {
+      const dir = x === 0 ? 1 : -1;
+      ctx.beginPath();
+      ctx.arc(mx(x + dir * M.ftLaneFromEnd), my(M.W / 2), M.ftCircleR * scale, Math.PI / 2, -Math.PI / 2, x === 0);
+      ctx.stroke();
+    });
+
+    // three point lines
+    [0, M.L].forEach(x => {
+      const dir = x === 0 ? 1 : -1;
+      ctx.beginPath();
+      ctx.moveTo(mx(x), my(M.treePtMinSide));
+      ctx.lineTo(mx(x + dir * M.CentreRimFromEnd), my(M.treePtMinSide));
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(mx(x), my(M.W - M.treePtMinSide));
+      ctx.lineTo(mx(x + dir * M.CentreRimFromEnd), my(M.W - M.treePtMinSide));
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.arc(mx(x + dir * M.CentreRimFromEnd), my(M.W / 2), M.threePtR * scale, Math.PI / 2, -Math.PI / 2, x === 0);
+      ctx.stroke();
+    });
+
+    // restricted areas
+    [0, M.L].forEach(x => {
+      const dir = x === 0 ? 1 : -1;
+      ctx.beginPath();
+      ctx.arc(mx(x + dir * M.CentreRimFromEnd), my(M.W / 2), M.restrictedR * scale, Math.PI / 2, -Math.PI / 2, x === 0);
+      ctx.stroke();
+    });
+
+    //backboards
+    [0, M.L].forEach(x => {
+      const dir = x === 0 ? 1 : -1;
+      ctx.beginPath();
+      ctx.moveTo(mx(x + dir * Equip.backboardFromEnd), my((M.W - Equip.boardH) / 2));
+      ctx.lineTo(mx(x + dir * Equip.backboardFromEnd), my((M.W + Equip.boardH) / 2));
+      ctx.stroke();
+    });
+
+    // rims
+    [0, M.L].forEach(x => {
+      const dir = x === 0 ? 1 : -1;
+      ctx.beginPath();
+      ctx.arc(mx(x + dir * (Equip.backboardFromEnd + Equip.rimFromBoard + Equip.rimR)), my(M.W / 2), Equip.rimR * scale, 0, 2 * Math.PI);
+      ctx.stroke();
+    });
+
+    // from board to rim line
+    [0, M.L].forEach(x => {
+      const dir = x === 0 ? 1 : -1;
+      ctx.beginPath();
+      ctx.moveTo(mx(x + dir * (Equip.backboardFromEnd + Equip.boardW)), my(M.W / 2));
+      ctx.lineTo(mx(x + dir * (Equip.backboardFromEnd + Equip.rimFromBoard)), my(M.W / 2));
+      ctx.stroke();
+    });
+
   };
 
   useEffect(() => {
@@ -119,15 +204,77 @@ export default function ScoutModal() {
 
   if (!isOpen) return null;
 
+  const HomeBenchClick = (e) => {
+    const shirt = e.target.id;
+    const playerIn = benchPlayersHome.find((pl) => pl.shirtNumber === Number(shirt))
+
+    if (playerIn && (courtPlayersHome.length < 5) && !(courtPlayersHome.includes(playerIn))) {
+      setCourtPlayersHome([...courtPlayersHome, playerIn].sort((a,b) => {
+        if (a.shirtNumber < b.shirtNumber) return -1;
+        if (a.shirtNumber > b.shirtNumber) return 1;
+        return 0;
+      }));
+      setBenchPlayersHome(benchPlayersHome.filter((player) => player !== playerIn))
+    }
+  }
+  
   return (
     <div className="modal scout-modal" aria-hidden={isOpen ? 'false' : 'true'} role="dialog" aria-labelledby="GameModalTitle">
       <div className="modal-backdrop" onClick={onClose} />
       <div className="modal-content">
         <header className="modal-header">
-          <h2>{Header}</h2>
           <button className="btn small" onClick={onClose} aria-label="Close">✕</button>
         </header>
-        <canvas ref={canvasRef} />
+        <div className="modal-body">
+          <div className="scoreboard">
+            <div className="team-name-left">{HomeTeam}</div>
+            <div className='team-players-left'>
+              {benchPlayersHome.map((pl) => (
+                <div className='team-player' id={pl.shirtNumber.toString()} onClick={(e) => HomeBenchClick(e)}>{pl.shirtNumber}
+                  <span className='player-tooltip'>{players.entities[pl.playerId].firstName} {players.entities[pl.playerId].lastName}</span>
+                </div>
+              ))}
+              <div className='team-player' >AC
+                <span className='player-tooltip'>Assistent Coach</span>
+              </div>
+              <div className='team-player' >C
+                <span className='player-tooltip'>Coach</span>
+              </div>
+            </div>
+            <div className="score">0 - 0</div>
+            <div className='team-players-right'>
+              <div className='team-player' >C
+                <span className='player-tooltip'>Coach</span>
+              </div>
+              <div className='team-player' >AC
+                <span className='player-tooltip'>Assistent Coach</span>
+              </div>
+              {benchPlayersAway.map((pl) => (
+                <div className='team-player' >{pl.shirtNumber}
+                  <span className='player-tooltip'>{players.entities[pl.playerId].firstName} {players.entities[pl.playerId].lastName}</span>
+                </div>
+              ))}
+            </div>
+            <div className="team-name-right">{AwayTeam}</div>
+          </div>       
+          <div className='court-container'>
+            <div className='court-players'>
+              {courtPlayersHome.map((pl) => (
+                <div className='court-player' >{pl.shirtNumber}
+                  <span className='court-player-tooltip'>{players.entities[pl.playerId].firstName} {players.entities[pl.playerId].lastName}</span>
+                </div>
+              ))}
+            </div>
+            <canvas ref={canvasRef} />
+            <div className='court-players'>
+              {courtPlayersAway.map((pl) => (
+                <div className='court-player' >{pl.shirtNumber}
+                  <span className='court-player-tooltip'>{players.entities[pl.playerId].firstName} {players.entities[pl.playerId].lastName}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
