@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { RootState } from '../app/store';
-import { addPlayer, updatePlayer } from '../features/players/playersSlice';
+/*import { addPlayer, updatePlayer } from '../features/players/playersSlice';*/
 import { closeModal } from '../features/ui/uiSlice';
 import './Modal.css';
 import '../styles/index.css'
@@ -68,13 +68,13 @@ export default function ScoutModal() {
       restrictedR: 1.25,
     };
 
-    const Equip = {
+    /*const Equip = {
       backboardFromEnd: 1.20,
       rimFromBoard: 0.15,
       rimR: 0.225,
       boardH: 1.05,
       boardW: 0.03
-    };
+    };*/
 
     const cssW = canvas ? canvas.clientWidth : 0;
     const cssH = canvas ? canvas.clientHeight : 0;

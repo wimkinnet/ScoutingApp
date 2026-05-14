@@ -1,5 +1,5 @@
 import { createSlice, nanoid, type PayloadAction } from '@reduxjs/toolkit'
-import type { Game, GamePlayer } from '../../app/types'
+import type { Game } from '../../app/types'
 
 interface GamesState {
 	entities: Record<string, Game>;
