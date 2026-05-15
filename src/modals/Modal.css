@@ -21,6 +21,12 @@
     background: rgba(0,0,0,0.6); 
 }
 
+.modal-backdrop.action { 
+    position: absolute; 
+    inset: 0; 
+    background: rgba(0,0,0,0.2); 
+}
+
 .scout-modal .modal-backdrop { 
     position: absolute; 
     inset: 0; 
@@ -232,4 +238,8 @@ h2 {
  .court-player.selected {
     color: var(--bg-soft);
     background-color: white;
+ }
+
+ .modal.action {
+    z-index: 5;
  }

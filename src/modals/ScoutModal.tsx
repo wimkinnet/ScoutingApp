@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { RootState } from '../app/store';
-import { closeModal } from '../features/ui/uiSlice';
+import { openActionModal, closeModal } from '../features/ui/uiSlice';
 import './Modal.css';
 import '../styles/index.css'
 import '../styles/_tokens.css'
@@ -288,6 +288,12 @@ export default function ScoutModal() {
       if ((x > 0) && (x < 28) && (y > 0) && (y < 15) && selectedPlayer) {
         setX(x);
         setY(y);
+        const payload = {
+          playerId: selectedPlayer?.playerId,
+          posX: x,
+          posY: y,
+        };
+        dispatch(openActionModal(payload))
       } else {
         setX(null);
         setY(null);

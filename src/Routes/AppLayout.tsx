@@ -7,6 +7,7 @@ import SeasonModal from '../modals/SeasonModal';
 import TeamModal from '../modals/TeamModal';
 import GameModal from '../modals/GameModal';
 import ScoutModal from '../modals/ScoutModal';
+import ActionModal from '../modals/ActionModal'
 
 export default function AppLayout() {
 	const location = useLocation();
@@ -36,6 +37,7 @@ export default function AppLayout() {
 			<TeamModal />
 			<GameModal />
 			<ScoutModal />
+			<ActionModal />
 		</div>
 	)
 }
