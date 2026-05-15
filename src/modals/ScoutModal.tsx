@@ -289,7 +289,7 @@ export default function ScoutModal() {
         setX(x);
         setY(y);
         const payload = {
-          playerId: selectedPlayer?.playerId,
+          player: selectedPlayer,
           posX: x,
           posY: y,
         };

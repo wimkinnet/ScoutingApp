@@ -1,4 +1,5 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import type { GamePlayer } from '../../app/types';
 
 interface ModalState {
   isOpen: boolean;
@@ -13,7 +14,7 @@ interface UIState {
   teamModal: ModalState;
   gameModal: ModalState;
   scoutModal: { isOpen: boolean; id: string | null };
-  actionModal: { isOpen: boolean; playerId: string | null; posX: number | null, posY: number | null}
+  actionModal: { isOpen: boolean; player: GamePlayer | null; posX: number | null, posY: number | null}
 }
 
 const initialState: UIState = {
@@ -23,7 +24,7 @@ const initialState: UIState = {
   teamModal: { isOpen: false, mode: 'add', id: null},
   gameModal: { isOpen: false, mode: 'add', id: null},
   scoutModal: { isOpen: false, id: null},
-  actionModal: { isOpen: false, playerId: null, posX: null, posY: null}
+  actionModal: { isOpen: false, player: null, posX: null, posY: null}
 };
 
 const slice = createSlice({
@@ -42,8 +43,10 @@ const slice = createSlice({
     openEditGameModal(state, action: PayloadAction<string>) { state.gameModal = { isOpen: true, mode: 'edit', id: action.payload}; },
     openScoutModal(state, action: PayloadAction<string>) { state.scoutModal = { isOpen: true, id: action.payload}; },
     openActionModal(state, action) { 
-      const { playerId, posX, posY } = action.payload;
-      state.actionModal = { isOpen: true, playerId: playerId, posX: posX, posY: posY};
+      const { player, posX, posY } = action.payload;
+      console.log(player);
+      console.log(player.playerId);
+      state.actionModal = { isOpen: true, player: player, posX: posX, posY: posY};
     },
     closeModal(state) { 
       state.playerModal.isOpen = false; 
