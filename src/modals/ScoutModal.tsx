@@ -26,6 +26,13 @@ export default function ScoutModal() {
 
   const [selectedPlayer, setSelectedPlayer] = useState<GamePlayer>();
 
+  const [originX, setOriginX] = useState<number | null>(null);
+  const [originY, setOriginY] = useState<number | null>(null);
+  const [scale, setScale] = useState<number | null>(null);
+
+  const [x, setX] = useState<number | null>(null);
+  const [y, setY] = useState<number | null>(null);
+
   useEffect(() => {
     if (!isOpen) return;
     setBenchPlayersHome(game?.homePlayers ?? []);
@@ -95,6 +102,10 @@ export default function ScoutModal() {
       x: (cssW - M.L * scale) / 2,
       y: (cssH - M.W * scale) / 2,
     };
+
+    setOriginX(origin.x);
+    setOriginY(origin.y);
+    setScale(scale);
 
     const mx = (m: number) => origin.x + m * scale;
     const my = (m: number) => origin.y + m * scale;
@@ -182,6 +193,16 @@ export default function ScoutModal() {
       ctx.stroke();
     });
 
+    if (x && y) { 
+      ctx.strokeStyle = 'rgba(215, 110, 50, 0.8)';
+      ctx.beginPath();
+      ctx.arc(mx(x), my(y), 0.05 * scale, 0, 2 * Math.PI);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(mx(x), my(y), 0.2 * scale, 0, 2 * Math.PI);
+      ctx.stroke();
+    };
+
   };
 
   useEffect(() => {
@@ -221,7 +242,9 @@ export default function ScoutModal() {
         if (a.shirtNumber > b.shirtNumber) return 1;
         return 0;
       }))
-    }
+    };
+    setX(null);
+    setY(null);
   }
 
   const AwayBenchClick = (e: any) => {
@@ -239,7 +262,9 @@ export default function ScoutModal() {
         if (a.shirtNumber > b.shirtNumber) return 1;
         return 0;
       }))
-    }
+    };
+    setX(null);
+    setY(null);
   }
 
   const CourtPlayerClick = (e: any) => {
@@ -248,7 +273,27 @@ export default function ScoutModal() {
     const player = courtPlayers.find((pl) => pl.playerId === playerId)
 
     selectedPlayer !== player ? setSelectedPlayer(player) : setSelectedPlayer(undefined);
+    setX(null);
+    setY(null);
   }
+
+  const CourtClick = (e: any) => {
+    const canvas = document.getElementById('court');
+    const rect = canvas?.getBoundingClientRect(); // Absolute position of canvas
+    // relative to top left corner of the court
+    if (originX && originY && scale) {
+      const x = rect ? (e.clientX - rect.left - originX) / scale : 0; 
+      const y = rect ? (e.clientY - rect.top - originY) / scale : 0;
+
+      if ((x > 0) && (x < 28) && (y > 0) && (y < 15) && selectedPlayer) {
+        setX(x);
+        setY(y);
+      } else {
+        setX(null);
+        setY(null);
+      }
+    };
+  } 
 
   return (
     <div className="modal scout-modal" aria-hidden={isOpen ? 'false' : 'true'} role="dialog" aria-labelledby="GameModalTitle">
@@ -307,7 +352,7 @@ export default function ScoutModal() {
                 )
               })}
             </div>
-            <canvas ref={canvasRef} />
+            <canvas id='court' ref={canvasRef} onClick={(e) => CourtClick(e)}/>
             <div className='court-players'>
               {courtPlayersAway.map((pl) => {
                 const isSelected = (selectedPlayer === pl);
