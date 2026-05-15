@@ -61,7 +61,25 @@
 }
 
 .scout-modal .modal-header {
-    justify-content: right;
+    justify-content: flex-start;
+}
+
+.header-blank {
+    width: 2%;
+}
+
+.header-team {
+    width: 38%;
+    text-align: center;
+    color: white;
+    font-size: 1.5rem;
+}
+
+.header-score {
+    width: 20%;
+    text-align: center;
+    color: white;
+    font-size: 1.5rem;
 }
 
 .modal-body {
@@ -118,11 +136,6 @@ h2 {
     color: var(--text-inverse-bg);
     font-size: 1.2rem;
  }
-
- .team-name-left {
-    width: 15%;
-    text-align: left;
- }
  
  canvas {
     width: 90%;
@@ -133,17 +146,18 @@ h2 {
     flex-direction: row;
     align-items: flex-start;
     gap: 5px;
-    width: 30%;
+    width: 45%;
     justify-content: left;
  }
 
  .team-player {
-    height: 20px;
-    width: 20px;
+    position: relative;
+    height: 30px;
+    width: 30px;
     align-content: center;
     text-align: center;
     border: 1px solid var(--bg-soft);
-    font-size: 0.7rem;
+    font-size: 1rem;
     cursor: pointer;
     color: white;
  }
@@ -157,10 +171,19 @@ h2 {
     position: absolute;
     z-index: 3;
     width: 130px;
-    top: 90px;
+    bottom: -15px;
+    font-size: 0.7rem;
+ }
+
+ .player-tooltip.right {
+    left: -120px;
  }
 
  .team-player:hover .player-tooltip {
+    visibility: visible;
+ }
+
+ .court-player:hover .player-tooltip {
     visibility: visible;
  }
 
@@ -169,17 +192,12 @@ h2 {
     text-align: center;
  }
 
- .team-name-right {
-    width: 15%;
-    text-align: right;
- }
-
  .team-players-right {
     display: flex;
     flex-direction: row;
     align-items: flex-start;
     gap: 5px;
-    width: 30%;
+    width: 45%;
     justify-content: right;
  }
 
@@ -211,22 +229,7 @@ h2 {
     position: relative;
  }
 
- .court-player-tooltip {
-    visibility: hidden;
-    color: #ffffff;
-    background-color: var(--bg-soft);
-    padding: 5px 0;
-    border-radius: 6px;
-    position: absolute;
-    z-index: 3;
-    width: 130px;
-    top: 100%;
-    left: 100%;
-    margin-left: 0;
-    font-size: 0.7rem;
-    margin-left: -50px;
- }
-
- .court-player:hover .court-player-tooltip {
-    visibility: visible;
+ .court-player.selected {
+    color: var(--bg-soft);
+    background-color: white;
  }
