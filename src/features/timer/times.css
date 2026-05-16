@@ -1,0 +1,122 @@
+.retro-timer-wrapper {
+    background-color: #111;
+    padding: 5px;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: row;
+    border: 4px solid #222;
+    box-shadow: inset 0 0 20px #000, 0 10px 30px rgba(0,0,0,0.7);
+    font-family: monospace;
+    color: #ff5500;
+  }
+  
+  .display-panel {
+    background-color: #050505;
+    padding: 5px 20px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    box-shadow: inset 0 0 15px rgba(0,0,0,1);
+    border: 1px solid #1a1a1a;
+  }
+
+  /* 7-Segment Layout Configuration */
+  .digit-container {
+    position: relative;
+    width: 14px;
+    height: 26px;
+  }
+
+  .segment {
+    position: absolute;
+    background-color: #220a00; /* Dim unlit segment color */
+    border-radius: 2px;
+    transition: background-color 0.1s ease, box-shadow 0.1s ease;
+  }
+
+  /* Glowing lit active state */
+  .segment.active {
+    background-color: #ff4500; 
+    box-shadow: 0 0 12px #ff4500, 0 0 4px #ff8700;
+  }
+
+  /* Segment Positions forming an 8 */
+  .segment-a { top: 0; left: 2px; width: 10px; height: 2px; }
+  .segment-b { top: 2px; right: 0; width: 2px; height: 10px; }
+  .segment-c { bottom: 2px; right: 0; width: 2px; height: 10px; }
+  .segment-d { bottom: 0; left: 2px; width: 10px; height: 2px; }
+  .segment-e { bottom: 2px; left: 0; width: 2px; height: 10px; }
+  .segment-f { top: 2px; left: 0; width: 2px; height: 10px; }
+  .segment-g { top: 12px; left: 2px; width: 10px; height: 2px; }
+
+  /* Blinking Center Dots */
+  .colon {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .dot {
+    width: 4px;
+    height: 4px;
+    background-color: #ff4500;
+    box-shadow: 0 0 12px #ff4500;
+    border-radius: 50%;
+  }
+  .colon.blinking {
+    animation: pulse 1s infinite;
+  }
+  @keyframes pulse {
+    0%, 49% { opacity: 1; }
+    50%, 100% { opacity: 0.25; }
+  }
+
+  /* Retro Buttons and Forms */
+  .controls { 
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+  }
+
+  .btn-retro {
+    background: #222;
+    color: #ff8700;
+    border: 2px solid #333;
+    padding: 5px 5px;
+    font-weight: bold;
+    cursor: pointer;
+    margin: 5px;
+    border-radius: 4px;
+    box-shadow: 0 3px 0 #111;
+  }
+  .btn-retro:active {
+    transform: translateY(3px);
+    box-shadow: none;
+  }
+  .btn-retro.sm { padding: 4px 10px; font-size: 12px; }
+  
+  .input-form {
+    display: flex;
+    margin-left: 5px;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    font-size: 10px;
+    color: #888;
+    align-items: center;
+  }
+  .input-form input {
+    background: #000;
+    border: 1px solid #333;
+    color: #ff4500;
+    padding: 4px;
+    width: 40px;
+    text-align: center;
+    margin-left: 4px;
+    border-radius: 3px;
+  }
+
+  .timer-label {
+    color: #ff4500;
+  }

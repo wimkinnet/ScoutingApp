@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { RootState } from '../app/store';
 import { openActionModal, closeModal } from '../features/ui/uiSlice';
+import Timer from '../features/timer/timer';
 import './Modal.css';
 import '../styles/index.css'
 import '../styles/_tokens.css'
@@ -33,6 +34,8 @@ export default function ScoutModal() {
   const [x, setX] = useState<number | null>(null);
   const [y, setY] = useState<number | null>(null);
 
+  const [secondsLeft, setSecondsLeft] = useState(600);
+
   useEffect(() => {
     if (!isOpen) return;
     setBenchPlayersHome(game?.homePlayers ?? []);
@@ -42,24 +45,6 @@ export default function ScoutModal() {
   }, [isOpen, id]);
 
   const onClose = () => dispatch(closeModal());
-  /*const onSave = () => {
-    if (!firstName.trim()) return alert('First name is mandatory');
-    if (!lastName.trim()) return alert('Last name is mandatory');
-
-    const payload = {
-      firstName,
-      lastName,
-      dateOfBirth: dateOfBirth || undefined,
-    };
-
-    try {
-      if (mode === 'add') dispatch(addPlayer(payload as any));
-      else if (mode === 'edit' && player?.id) dispatch(updatePlayer({ id: player.id, changes: payload }));
-      onClose();
-    } catch (err: any) {
-      alert(err?.message || 'Could not save player');
-    }
-  };*/
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -225,8 +210,6 @@ export default function ScoutModal() {
     drawCourt(ctx);
   });
 
-  if (!isOpen) return null;
-
   const HomeBenchClick = (e: any) => {
     const shirt = e.target.id;
     const playerIn = benchPlayersHome.find((pl) => pl.shirtNumber === Number(shirt))
@@ -299,7 +282,9 @@ export default function ScoutModal() {
         setY(null);
       }
     };
-  } 
+  }
+
+  if (!isOpen) return null;
 
   return (
     <div className="modal scout-modal" aria-hidden={isOpen ? 'false' : 'true'} role="dialog" aria-labelledby="GameModalTitle">
@@ -313,6 +298,9 @@ export default function ScoutModal() {
           <button className="btn small" onClick={onClose} aria-label="Close">✕</button>
         </header>
         <div className="modal-body">
+          <div className="timer">
+            <Timer secondsLeft={secondsLeft} setSecondsLeft={setSecondsLeft} />
+          </div>
           <div className="scoreboard">
             <div className='team-players-left'>
               {benchPlayersHome.map((pl) => (

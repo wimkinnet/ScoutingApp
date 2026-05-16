@@ -36,7 +36,7 @@
 
 .modal-content { 
     position: relative;
-    width: min(525px, 92vw); 
+    width: min(525px, 40vw); 
     background: var(--bg-soft); 
     border: 1px solid var(--border); 
     border-radius: var(--radius-lg); 
@@ -161,6 +161,18 @@ h2 {
     background: var(--surface-2);
     color: var(--text-inverse-bg);
     font-size: 1.2rem;
+ }
+
+ .timer {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+    padding: 8px;
+    background: var(--surface-2);
+    color: var(--text-inverse-bg);
+    font-size: 1.2rem;
+    margin-bottom: 10px;
  }
  
  canvas {
