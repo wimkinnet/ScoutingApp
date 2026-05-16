@@ -16,6 +16,8 @@ export default function ScoutModal() {
   const clubs = useSelector((s: RootState) => s.clubs);
   const players = useSelector((s: RootState) => s.players);
   
+  const HomeClub: string = game ? clubs.entities[teams.entities[game.scoutTeamId].clubId].id : "";
+  // const AwayClub: string = game ? clubs.entities[teams.entities[game.otherTeamId].clubId].id : "";
   const HomeTeam = game ? (game.scoutHome ? `${clubs.entities[teams.entities[game.scoutTeamId].clubId].name}` : `${clubs.entities[teams.entities[game.otherTeamId].clubId].name}`) : null;
   const AwayTeam = game ? (game.scoutHome ? `${clubs.entities[teams.entities[game.otherTeamId].clubId].name}` : `${clubs.entities[teams.entities[game.scoutTeamId].clubId].name}`) : null;
   
@@ -35,6 +37,12 @@ export default function ScoutModal() {
   const [y, setY] = useState<number | null>(null);
 
   const [secondsLeft, setSecondsLeft] = useState(600);
+
+  const quarters: number[] = [1,2,3,4,5];
+  const possessions: string[] = [HomeTeam ? HomeTeam : '', AwayTeam ? AwayTeam : '']
+  
+  const [quarter, setQuarter] = useState<number>(1);
+  const [possession, setPossession] = useState<string>(HomeClub)
 
   useEffect(() => {
     if (!isOpen) return;
@@ -260,6 +268,17 @@ export default function ScoutModal() {
     setY(null);
   }
 
+  const QuarterClick = (e: any) => {
+    setQuarter(Number(e.target.id));
+  }
+
+  const PossessionClick = (e: any) => {
+    const clickedClub = clubs.ids.find((cl) => clubs.entities[cl].name === e.target.id);
+    if (clickedClub) {
+      setPossession(clubs.entities[clickedClub].id)
+    }
+  }
+
   const CourtClick = (e: any) => {
     const canvas = document.getElementById('court');
     const rect = canvas?.getBoundingClientRect(); // Absolute position of canvas
@@ -298,10 +317,7 @@ export default function ScoutModal() {
           <button className="btn small" onClick={onClose} aria-label="Close">✕</button>
         </header>
         <div className="modal-body">
-          <div className="timer">
-            <Timer secondsLeft={secondsLeft} setSecondsLeft={setSecondsLeft} />
-          </div>
-          <div className="scoreboard">
+          <div className='info-container'>
             <div className='team-players-left'>
               {benchPlayersHome.map((pl) => (
                 <div className='team-player' id={pl.shirtNumber.toString()} onClick={(e) => HomeBenchClick(e)}>{pl.shirtNumber}
@@ -315,7 +331,39 @@ export default function ScoutModal() {
                 <span className='player-tooltip'>Coach</span>
               </div>
             </div>
-            <div className="clock"></div>
+            <div className='possession-selector'>
+              <div className='possession-header'>Ball possession</div>
+              <div className='possession-container'>
+                {possessions.map((pos) => {
+                  const isSelected = (clubs.entities[possession].name === pos);
+                  return isSelected ? (
+                    <div className='possession selected'>{pos}</div>
+                  ) : (
+                    <div className='possession' id={pos} onClick={(e) => PossessionClick(e)}>{pos}</div>
+                  )
+                })}
+              </div>
+            </div>
+            <div className="timer">
+              <Timer secondsLeft={secondsLeft} setSecondsLeft={setSecondsLeft} />
+            </div>
+            <div className='quarter-direction'>
+              <div className='quarter-header'>Current quarter</div>
+              <div className='quarter-container'>
+                {quarters.map((q) => {
+                  const isSelected = (quarter === q);
+                  return isSelected ? (
+                    <div className='quarter selected'>{q}</div>
+                  ) : (
+                    <div className='quarter' id={q.toLocaleString()} onClick={(e) => QuarterClick(e)}>{q}</div>
+                  )
+                })}
+              </div>
+              <div className='direction-header'>Away direction</div>
+              <div className='direction-container'>
+                <div className='direction'></div>
+              </div>
+            </div>
             <div className='team-players-right'>
               <div className='team-player right' >C
                 <span className='player-tooltip right'>Coach</span>
@@ -327,14 +375,13 @@ export default function ScoutModal() {
                 <div className='team-player' id={pl.shirtNumber.toString()} onClick={(e) => AwayBenchClick(e)}>{pl.shirtNumber}
                   <span className='player-tooltip right'>{players.entities[pl.playerId].firstName} {players.entities[pl.playerId].lastName}</span>
                 </div>
-              ))}
-            </div>
+                ))}
+              </div>
           </div>       
           <div className='court-container'>
             <div className='court-players'>
               {courtPlayersHome.map((pl) => {
                 const isSelected = (selectedPlayer === pl);
-
                 return isSelected ? (
                   <div className='court-player selected' id={pl.playerId} onClick={(e) => CourtPlayerClick(e)}>{pl.shirtNumber}
                     <span className='player-tooltip'>{players.entities[pl.playerId].firstName} {players.entities[pl.playerId].lastName}</span>
@@ -350,7 +397,6 @@ export default function ScoutModal() {
             <div className='court-players'>
               {courtPlayersAway.map((pl) => {
                 const isSelected = (selectedPlayer === pl);
-
                 return isSelected ? (
                   <div className='court-player selected' id={pl.playerId} onClick={(e) => CourtPlayerClick(e)}>{pl.shirtNumber}
                     <span className='player-tooltip right'>{players.entities[pl.playerId].firstName} {players.entities[pl.playerId].lastName}</span>

@@ -152,12 +152,12 @@ h2 {
     height: 8px;
  }
 
- .scoreboard {
+ .info-container {
     display: flex;
     flex-direction: row;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
-    padding: 8px;
+    padding: 0;
     background: var(--surface-2);
     color: var(--text-inverse-bg);
     font-size: 1.2rem;
@@ -172,7 +172,7 @@ h2 {
     background: var(--surface-2);
     color: var(--text-inverse-bg);
     font-size: 1.2rem;
-    margin-bottom: 10px;
+    margin-bottom: 2px;
  }
  
  canvas {
@@ -183,9 +183,12 @@ h2 {
     display: flex;
     flex-direction: row;
     align-items: flex-start;
+    flex-wrap: wrap;
     gap: 5px;
-    width: 45%;
+    width: 20%;
     justify-content: left;
+    padding-left: 10px;
+    margin-top: 10px;
  }
 
  .team-player {
@@ -233,10 +236,13 @@ h2 {
  .team-players-right {
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
     align-items: flex-start;
     gap: 5px;
-    width: 45%;
+    width: 20%;
     justify-content: right;
+    padding-right: 10px;
+    margin-top: 10px;;
  }
 
  .court-container {
@@ -244,6 +250,10 @@ h2 {
     flex-direction: row;
     flex-grow: 1;
     overflow-y: auto;
+ }
+
+ .timer {
+    width: 30%;
  }
 
  .court-players {
@@ -270,4 +280,103 @@ h2 {
  .court-player.selected {
     color: var(--bg-soft);
     background-color: white;
+ }
+
+ .quarter-direction {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    width: 15%;
+    justify-content: flex-start;
+    height: 100%;
+ }
+
+ .quarter-header {
+    font-size: 0.8rem;
+    text-align: center;
+    margin: 10px 0 5px 0;
+ }
+
+ .quarter-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+ }
+
+ .quarter {
+    height: 20px;
+    width: 20px;
+    align-content: center;
+    text-align: center;
+    border: 1px solid var(--bg-soft);
+    font-size: 0.8rem;
+    cursor: pointer;
+    color: white;
+ }
+
+ .quarter.selected {
+    color: var(--bg-soft);
+    background-color: white;
+ }
+
+ .possession-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    width: 15%;
+    justify-content: flex-start;
+    height: 100%;
+ }
+
+ .possession-header {
+    font-size: 0.8rem;
+    text-align: center;
+    margin: 10px 0 5px 0;
+ }
+
+ .possession-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 10px;
+ }
+
+ .possession {
+    height: 15px;
+    align-content: center;
+    text-align: center;
+    border: 1px solid var(--bg-soft);
+    font-size: 0.8rem;
+    cursor: pointer;
+    color: white;
+    padding: 8px;
+    width: auto;
+ }
+
+ .possession.selected {
+    color: var(--bg-soft);
+    background-color: white;
+ }
+
+ .direction-header {
+    font-size: 0.8rem;
+    text-align: center;
+    margin: 10px 0 5px 0;
+ }
+
+ .direction-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+ }
+
+ .direction {
+    height: 20px;
+    width: 40px;
+    align-content: center;
+    text-align: center;
+    border: 1px solid var(--bg-soft);
+    font-size: 0.8rem;
+    cursor: pointer;
+    color: white;
  }
