@@ -368,6 +368,7 @@ h2 {
     display: flex;
     flex-direction: row;
     justify-content: center;
+    gap: 5px;
  }
 
  .direction {
@@ -379,4 +380,9 @@ h2 {
     font-size: 0.8rem;
     cursor: pointer;
     color: white;
+ }
+
+ .direction.selected {
+    color: var(--bg-soft);
+    background-color: white;
  }

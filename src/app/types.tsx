@@ -56,6 +56,7 @@ export const ActionTypes: ActionType[] = [
 export interface GamePlayer {
 	playerId: string;
 	shirtNumber: number;
+	homeTeam: boolean;
 }
 
 export interface Game {

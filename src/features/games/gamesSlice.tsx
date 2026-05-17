@@ -18,76 +18,94 @@ const initialState: GamesState = {
                 {
                     playerId: 'pl-1',
                     shirtNumber: 4,
+					homeTeam: true,
                 },
                 {
                     playerId: 'pl-2',
                     shirtNumber: 17,
+					homeTeam: true,
                 },
                 {
                     playerId: 'pl-3',
                     shirtNumber: 99,
+					homeTeam: true,
                 },
                 {
                     playerId: 'pl-4',
                     shirtNumber: 23,
+					homeTeam: true,
                 },
                 {
                     playerId: 'pl-5',
                     shirtNumber: 8,
+					homeTeam: true,
                 },
                 {
                     playerId: 'pl-6',
                     shirtNumber: 77,
+					homeTeam: true,
                 },
             ],
 			awayPlayers: [
                 {
                     playerId: 'pl-10',
                     shirtNumber: 4,
+					homeTeam: false,
                 },
                 {
                     playerId: 'pl-11',
                     shirtNumber: 17,
+					homeTeam: false,
                 },
                 {
                     playerId: 'pl-12',
                     shirtNumber: 99,
+					homeTeam: false,
                 },
                 {
                     playerId: 'pl-13',
                     shirtNumber: 23,
+					homeTeam: false,
                 },
                 {
                     playerId: 'pl-14',
                     shirtNumber: 8,
+					homeTeam: false,
                 },
                 {
                     playerId: 'pl-15',
                     shirtNumber: 77,
+					homeTeam: false,
                 },
 				{
                     playerId: 'pl-16',
                     shirtNumber: 1,
+					homeTeam: false,
                 },
 				{
                     playerId: 'pl-17',
                     shirtNumber: 9,
+					homeTeam: false,
                 },
 				{
                     playerId: 'pl-18',
                     shirtNumber: 14,
+					homeTeam: false,
                 },
 				{
                     playerId: 'pl-19',
                     shirtNumber: 81,
+					homeTeam: false,
                 },
 				{
                     playerId: 'pl-20',
                     shirtNumber: 37,
+					homeTeam: false,
                 },
 				{
                     playerId: 'pl-21',
                     shirtNumber: 45,
+					homeTeam: false,
                 },
 			],
 		},

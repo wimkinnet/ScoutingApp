@@ -57,6 +57,7 @@ export default function GameModal() {
         return {
             playerId: player.id,
             shirtNumber: shirtNumbers[player.id] ?? 0,
+            homeTeam: true,
         };
     });
     

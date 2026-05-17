@@ -16,8 +16,8 @@ export default function ScoutModal() {
   const clubs = useSelector((s: RootState) => s.clubs);
   const players = useSelector((s: RootState) => s.players);
   
-  const HomeClub: string = game ? clubs.entities[teams.entities[game.scoutTeamId].clubId].id : "";
-  // const AwayClub: string = game ? clubs.entities[teams.entities[game.otherTeamId].clubId].id : "";
+  const HomeClub = game ? clubs.entities[teams.entities[game.scoutTeamId].clubId].id : "";
+  const AwayClub = game ? clubs.entities[teams.entities[game.otherTeamId].clubId].id : "";
   const HomeTeam = game ? (game.scoutHome ? `${clubs.entities[teams.entities[game.scoutTeamId].clubId].name}` : `${clubs.entities[teams.entities[game.otherTeamId].clubId].name}`) : null;
   const AwayTeam = game ? (game.scoutHome ? `${clubs.entities[teams.entities[game.otherTeamId].clubId].name}` : `${clubs.entities[teams.entities[game.scoutTeamId].clubId].name}`) : null;
   
@@ -39,17 +39,20 @@ export default function ScoutModal() {
   const [secondsLeft, setSecondsLeft] = useState(600);
 
   const quarters: number[] = [1,2,3,4,5];
-  const possessions: string[] = [HomeTeam ? HomeTeam : '', AwayTeam ? AwayTeam : '']
+  const possessions = [HomeClub ? clubs.entities[HomeClub].name : "", AwayClub ? clubs.entities[AwayClub].name : ""]
+  const directions = ["Left", "Right"];
   
   const [quarter, setQuarter] = useState<number>(1);
-  const [possession, setPossession] = useState<string>(HomeClub)
+  const [possession, setPossession] = useState<string>("");
+  const [awayDir, setAwayDir] = useState<string>("Right");
 
   useEffect(() => {
     if (!isOpen) return;
     setBenchPlayersHome(game?.homePlayers ?? []);
-    setCourtPlayersHome([])
+    setCourtPlayersHome([]);
     setBenchPlayersAway(game?.awayPlayers ?? []);
-    setCourtPlayersAway([])
+    setCourtPlayersAway([]);
+    setPossession(HomeClub);
   }, [isOpen, id]);
 
   const onClose = () => dispatch(closeModal());
@@ -279,6 +282,10 @@ export default function ScoutModal() {
     }
   }
 
+  const DirectionClick = (e: any) => {
+    setAwayDir(e.target.id)
+  }
+
   const CourtClick = (e: any) => {
     const canvas = document.getElementById('court');
     const rect = canvas?.getBoundingClientRect(); // Absolute position of canvas
@@ -294,6 +301,10 @@ export default function ScoutModal() {
           player: selectedPlayer,
           posX: x,
           posY: y,
+          possession: possession,
+          direction: awayDir,
+          quarter: quarter,
+          secRem: secondsLeft,
         };
         dispatch(openActionModal(payload))
       } else {
@@ -335,7 +346,7 @@ export default function ScoutModal() {
               <div className='possession-header'>Ball possession</div>
               <div className='possession-container'>
                 {possessions.map((pos) => {
-                  const isSelected = (clubs.entities[possession].name === pos);
+                  const isSelected = (possession ? clubs.entities[possession].name === pos : false);
                   return isSelected ? (
                     <div className='possession selected'>{pos}</div>
                   ) : (
@@ -361,7 +372,14 @@ export default function ScoutModal() {
               </div>
               <div className='direction-header'>Away direction</div>
               <div className='direction-container'>
-                <div className='direction'></div>
+                {directions.map((dir) => {
+                const isSelected = (awayDir === dir);
+                return isSelected ? (
+                  <div className='direction selected'>{dir}</div>
+                ) : (
+                  <div className='direction' id={dir} onClick={(e) => DirectionClick(e)}>{dir}</div>
+                )
+                })}
               </div>
             </div>
             <div className='team-players-right'>

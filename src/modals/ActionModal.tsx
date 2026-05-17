@@ -8,7 +8,7 @@ import '../styles/_tokens.css'
 
 export default function ActionModal() {
   const dispatch = useDispatch();
-  const { isOpen , player, posX} = useSelector((s: RootState) => s.ui.actionModal);
+  const { isOpen , player, posX, posY, possession, direction, quarter, secRem} = useSelector((s: RootState) => s.ui.actionModal);
 
   const players = useSelector((s: RootState) => s.players);
   
@@ -33,8 +33,18 @@ export default function ActionModal() {
     }
   };*/
 
-  const isLeft = (posX ? posX < 14 : false) 
-
+  const isLeft = (posX ? posX < 14 : false)
+  console.log(direction);
+  console.log(player?.homeTeam);
+  console.log(quarter);
+  console.log(secRem);
+  const defensiveCourtIsLeft = ((player?.homeTeam && direction === "Left") || (!(player?.homeTeam) && direction === "Right"));
+  const outTreePointCircleLeft = ((posX && posY) ? (((posX - 1.60) ** 2 + (posY - 7.5) ** 2 > (6.75 ** 2)) && (posX > 1.60)) : false);
+  const outTreePointCircleRight = ((posX && posY) ? (((26.40 - posX) ** 2 + (posY - 7.5) ** 2 > (6.75 ** 2)) && (posX < 26.40)) : false);
+  const outTreePointCircle = (outTreePointCircleLeft && !(defensiveCourtIsLeft)) || (outTreePointCircleRight && defensiveCourtIsLeft);
+  const aboveThreePoint = ((posX && posY) ? ((posY < 0.75) && ((posX < 1.60) || (posX > 26.40))) : false);
+  const underThreePoint = ((posX && posY) ? ((posY > 14.25) && ((posX < 1.60) || (posX > 26.40))) : false);
+  const isTreePointRange = outTreePointCircle || aboveThreePoint || underThreePoint
   if (!isOpen) return null;
 
   return (
@@ -45,6 +55,7 @@ export default function ActionModal() {
           <div id="ActionModalTitle">Select Action for {players.entities[player?.playerId ? player.playerId : 0].firstName} {players.entities[player?.playerId ? player.playerId : 0].lastName} # {player?.shirtNumber}</div>
           <button className="btn small" onClick={onClose} aria-label="Close">✕</button>
         </header>
+        <div>{isTreePointRange ? "True" : "False"}</div>
       </div>
     </div>
   );
