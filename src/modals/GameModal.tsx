@@ -16,67 +16,84 @@ export default function GameModal() {
   const seasons = useSelector((s: RootState) => s.seasons);
   const clubs = useSelector((s: RootState) => s.clubs);
   const players = useSelector((s: RootState) => s.players);
-  const [scoutTeamId, setScoutTeamId] = useState(game?.scoutTeamId ?? '');
-  const [otherTeamId, setOtherTeamId] = useState(game?.otherTeamId ?? '');
-  const [scoutClubId, setScoutClubId] = useState(game ? teams.entities[game.scoutTeamId].clubId : '');
-  const [otherClubId, setOtherClubId] = useState(game ? teams.entities[game.otherTeamId].clubId : '');
+  const [homeTeamId, setHomeTeamId] = useState(game?.homeTeamId ?? '');
+  const [awayTeamId, setAwayTeamId] = useState(game?.awayTeamId ?? '');
+  const [homeClubId, setHomeClubId] = useState(game ? teams.entities[game.homeTeamId].clubId : '');
+  const [awayClubId, setAwayClubId] = useState(game ? teams.entities[game.awayTeamId].clubId : '');
   const [date, setDate] = useState(game?.date ?? undefined);
-  const [scoutHome, setScoutHome] = useState(game?.scoutHome ?? true);
-  const [seasonId, setSeasonId] = useState(game ? teams.entities[game.scoutTeamId].seasonId : '');
-  const [scoutTeamVisible, setScoutTeamVisible] = useState(false);
-  const [otherTeamVisible, setOtherTeamVisible] = useState(false);
-  const [scoutClubVisible, setScoutClubVisible] = useState(false);
-  const [otherClubVisible, setOtherClubVisible] = useState(false);
-  const [availableSelection, setAvailableSelection] = useState<string[]>([]);
-  const [selectedSelection, setSelectedSelection] = useState<string[]>([]);
-  const [shirtNumbers, setShirtNumbers] = useState<{ [playerId: string]: number }>({});
+  const [seasonId, setSeasonId] = useState(game ? teams.entities[game.homeTeamId].seasonId : '');
+  const [homeTeamVisible, setHomeTeamVisible] = useState(false);
+  const [awayTeamVisible, setAwayTeamVisible] = useState(false);
+  const [homeClubVisible, setHomeClubVisible] = useState(false);
+  const [awayClubVisible, setAwayClubVisible] = useState(false);
+  const [homeAvailableSelection, setHomeAvailableSelection] = useState<string[]>([]);
+  const [homeSelectedSelection, setHomeSelectedSelection] = useState<string[]>([]);
+  const [homeShirtNumbers, setHomeShirtNumbers] = useState<{ [playerId: string]: number }>({});
+  const [awayAvailableSelection, setAwayAvailableSelection] = useState<string[]>([]);
+  const [awaySelectedSelection, setAwaySelectedSelection] = useState<string[]>([]);
+  const [awayShirtNumbers, setAwayShirtNumbers] = useState<{ [playerId: string]: number }>({});
 
   useEffect(() => {
     if (!isOpen) return;
-    setScoutTeamId(game?.scoutTeamId ?? '');
-    setOtherTeamId(game?.otherTeamId ?? '');
+    setHomeTeamId(game?.homeTeamId ?? '');
+    setAwayTeamId(game?.awayTeamId ?? '');
     setDate(game?.date ?? undefined);
-    setScoutHome(game?.scoutHome ?? true);
-    setSeasonId(game ? teams.entities[game.scoutTeamId].seasonId : '');
-    setScoutClubId(game ? teams.entities[game.scoutTeamId].clubId : '');
-    setOtherClubId(game ? teams.entities[game.otherTeamId].clubId : '');
-    setSelectedSelection(game?.homePlayers?.map(sp => sp.playerId) ?? []);
-    setAvailableSelection(game ? teams.entities[game.scoutTeamId].playerIds : []);
-    setShirtNumbers(game?.homePlayers?.reduce((acc, sp) => ({ ...acc, [sp.playerId]: sp.shirtNumber }), {}) ?? {});
-    setScoutTeamVisible(mode === 'edit' ? true : false);
-    setOtherTeamVisible(mode === 'edit' ? true : false);
-    setScoutClubVisible(mode === 'edit' ? true : false);
-    setOtherClubVisible(mode === 'edit' ? true : false);
+    setSeasonId(game ? teams.entities[game.homeTeamId].seasonId : '');
+    setHomeClubId(game ? teams.entities[game.homeTeamId].clubId : '');
+    setAwayClubId(game ? teams.entities[game.awayTeamId].clubId : '');
+    setHomeSelectedSelection(game?.homePlayers?.map(sp => sp.playerId) ?? []);
+    setHomeAvailableSelection(game ? teams.entities[game.homeTeamId].playerIds : []);
+    setHomeShirtNumbers(game?.homePlayers?.reduce((acc, sp) => ({ ...acc, [sp.playerId]: sp.shirtNumber }), {}) ?? {});
+    setAwaySelectedSelection(game?.awayPlayers?.map(sp => sp.playerId) ?? []);
+    setAwayAvailableSelection(game ? teams.entities[game.awayTeamId].playerIds : []);
+    setAwayShirtNumbers(game?.awayPlayers?.reduce((acc, sp) => ({ ...acc, [sp.playerId]: sp.shirtNumber }), {}) ?? {});
+    setHomeTeamVisible(mode === 'edit' ? true : false);
+    setAwayTeamVisible(mode === 'edit' ? true : false);
+    setHomeClubVisible(mode === 'edit' ? true : false);
+    setAwayClubVisible(mode === 'edit' ? true : false);
   }, [isOpen, mode, id]);
 
   const onClose = () => dispatch(closeModal());
   const onSave = () => {
     
-    const homePlayers: GamePlayer[] = selectedSelection.map((id) => {
+    const homePlayers: GamePlayer[] = homeSelectedSelection.map((id) => {
         const player = players.entities[id];
         return {
             playerId: player.id,
-            shirtNumber: shirtNumbers[player.id] ?? 0,
+            shirtNumber: homeShirtNumbers[player.id] ?? 0,
             homeTeam: true,
         };
     });
+
+    const awayPlayers: GamePlayer[] = awaySelectedSelection.map((id) => {
+        const player = players.entities[id];
+        return {
+            playerId: player.id,
+            shirtNumber: awayShirtNumbers[player.id] ?? 0,
+            homeTeam: false,
+        };
+    });
     
-    if (!scoutTeamId.trim()) return alert('Scout team ID is mandatory');
-    if (!otherTeamId.trim()) return alert('Other team ID is mandatory');
+    if (!homeTeamId.trim()) return alert('Home team ID is mandatory');
+    if (!awayTeamId.trim()) return alert('Away team ID is mandatory');
     if (!date) return alert('Date is mandatory');
-    if (scoutHome === undefined) return alert('Scout home/away is mandatory');
     if (homePlayers.length < 5) return alert('At least five scout players must be selected');
     if (homePlayers.some(sp => sp.shirtNumber <= 0)) return alert('All selected players must have a shirt number assigned');
+    if (awayPlayers.length < 5) return alert('At least five scout players must be selected');
+    if (awayPlayers.some(sp => sp.shirtNumber <= 0)) return alert('All selected players must have a shirt number assigned');
     
-    const uniqueShirtNumbers = new Set(homePlayers.map(sp => sp.shirtNumber));
-    if (uniqueShirtNumbers.size !== homePlayers.length) return alert('Shirt numbers must be unique among selected players');
+    const uniqueHomeShirtNumbers = new Set(homePlayers.map(sp => sp.shirtNumber));
+    if (uniqueHomeShirtNumbers.size !== homePlayers.length) return alert('Shirt numbers must be unique among selected players');
+
+    const uniqueAwayShirtNumbers = new Set(awayPlayers.map(sp => sp.shirtNumber));
+    if (uniqueAwayShirtNumbers.size !== awayPlayers.length) return alert('Shirt numbers must be unique among selected players');
 
     const payload = {
-      scoutTeamId,
-      otherTeamId,
+      homeTeamId,
+      awayTeamId,
       date,
-      scoutHome,
       homePlayers,
+      awayPlayers,
     };
 
     try {
@@ -102,7 +119,7 @@ export default function GameModal() {
         <div className="modal-body">
           <div className="form-grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
             <div className="form-field"><label>Season</label>
-              <select value={seasonId} onChange={(e) => (setSeasonId(e.target.value), !(e.target.value === "") ? (setScoutClubVisible(true), setOtherClubVisible(true)) : (setScoutClubVisible(false), setOtherClubVisible(false),setScoutTeamVisible(false), setOtherTeamVisible(false)))}>
+              <select value={seasonId} onChange={(e) => (setSeasonId(e.target.value), !(e.target.value === "") ? (setHomeClubVisible(true), setAwayClubVisible(true)) : (setHomeClubVisible(false), setAwayClubVisible(false),setHomeTeamVisible(false), setAwayTeamVisible(false)))}>
                 <option value="">Select Season</option>
                 {seasons.ids.map((id) => {
                   const season = seasons.entities[id];
@@ -114,115 +131,146 @@ export default function GameModal() {
                 })}
               </select>
             </div>
-            <div className="form-field"></div>
-            {scoutClubVisible &&
-            <div className="form-field"><label>Scout Club</label>
-              <select value={scoutClubId} onChange={(e) => (setScoutClubId(e.target.value), !(e.target.value === "") ? setScoutTeamVisible(true) : setScoutTeamVisible(false), setScoutTeamId(''), setAvailableSelection([]), setSelectedSelection([]), setShirtNumbers({}))}>
-                <option value="">Select Team</option>
-                {clubs.ids.map((id) => {
-                  const club = clubs.entities[id];
-                  return (
-                    <option key={club.id} value={club.id}>
-                      {club.name}
-                    </option>
-                  );
-                })}
-              </select>
-            </div>}
-            {scoutTeamVisible &&
-            <div className="form-field"><label>Scout Team</label>
-              <select value={scoutTeamId} onChange={(e) => (setScoutTeamId(e.target.value), setAvailableSelection(teams.entities[e.target.value]?.playerIds || []), setSelectedSelection([]), setShirtNumbers({}))}>
-                <option value="">Select Team</option>
-                {teams.ids.filter((id) => ((teams.entities[id].seasonId === seasonId) && (teams.entities[id].clubId === scoutClubId))).map((id) => {
-                  const team = teams.entities[id];
-                  return (
-                    <option key={team.id} value={team.id}>
-                      {team.name}
-                    </option>
-                  );
-                })}
-              </select>
-            </div>}
-            {!(scoutTeamVisible) && <div className="form-field"></div>}
-            {otherClubVisible &&
-            <div className="form-field"><label>Other Club</label>
-              <select value={otherClubId} onChange={(e) => (setOtherClubId(e.target.value), !(e.target.value === "") ? setOtherTeamVisible(true) : setOtherTeamVisible(false), setOtherTeamId(''))}>
-                <option value="">Select Team</option>
-                {clubs.ids.map((id) => {
-                  const club = clubs.entities[id];
-                  return (
-                    <option key={club.id} value={club.id}>
-                      {club.name}
-                    </option>
-                  );
-                })}
-              </select>
-            </div>}
-            {otherTeamVisible &&
-            <div className="form-field"><label>Other Team</label>
-              <select value={otherTeamId} onChange={(e) => setOtherTeamId(e.target.value)}>
-                <option value="">Select Team</option>
-                {teams.ids.filter((id) => ((teams.entities[id].seasonId === seasonId) && (teams.entities[id].clubId === otherClubId))).map((id) => {
-                  const team = teams.entities[id];
-                  return (
-                    <option key={team.id} value={team.id}>
-                      {team.name}
-                    </option>
-                  );
-                })}
-              </select>
-            </div>}
-            {!(otherTeamVisible) && <div className="form-field"></div>}
             <div className="form-field">
               <label>Date</label><input
                 type="date"
                 value={date ? date.toISOString().slice(0, 10) : ''}
                 onChange={(e) => setDate(e.target.value ? new Date(e.target.value) : undefined)} />
             </div>
-            <div className="form-field">
-              <label>Scout Home/Away</label>
-              <select value={scoutHome ? 'true' : 'false'} onChange={(e) => setScoutHome(e.target.value === 'true')}>
-                <option value="true">Home</option>
-                <option value="false">Away</option>
+            {homeClubVisible &&
+            <div className="form-field"><label>Home Club</label>
+              <select value={homeClubId} onChange={(e) => (setHomeClubId(e.target.value), !(e.target.value === "") ? setHomeTeamVisible(true) : setHomeTeamVisible(false), setHomeTeamId(''), setHomeAvailableSelection([]), setHomeSelectedSelection([]), setHomeShirtNumbers({}))}>
+                <option value="">Select Team</option>
+                {clubs.ids.map((id) => {
+                  const club = clubs.entities[id];
+                  return (
+                    <option key={club.id} value={club.id}>
+                      {club.name}
+                    </option>
+                  );
+                })}
               </select>
-            </div>
-            <label>Selected players and numbers</label>
-            <label></label>
-            {availableSelection.map((id) => {
-              const player = players.entities[id];
-              return (
-                <div className="form-field-player-check">
-                  <div className="checkbox-label-space">
-                    <input
-                      type="checkbox"
-                      id={`player-${player.id}`}
-                      checked={selectedSelection.includes(player.id)}
-                      onChange={() => {
-                        if (selectedSelection.includes(player.id)) {
-                          setSelectedSelection(selectedSelection.filter((pid) => pid !== player.id));
-                        } else {
-                          setSelectedSelection([...selectedSelection, player.id]);
-                        }
-                      }}
-                    />
-                    <label htmlFor={`player-${player.id}`}>
-                      {player.firstName} {player.lastName}
-                    </label>
-                  </div>
-                  {selectedSelection.includes(player.id) && 
-                    <div className="form-field-number">
-                      <input value={shirtNumbers[player.id] ?? ''} placeholder="#" onChange={(e) => {
-                        const value = e.target.value;
-                        setShirtNumbers({
-                          ...shirtNumbers,
-                          [player.id]: value ? parseInt(value) : 0
-                        });
-                      }} />
+            </div>}
+            {awayClubVisible &&
+            <div className="form-field"><label>Away Club</label>
+              <select value={awayClubId} onChange={(e) => (setAwayClubId(e.target.value), !(e.target.value === "") ? setAwayTeamVisible(true) : setAwayTeamVisible(false), setAwayTeamId(''), setAwayAvailableSelection([]), setAwaySelectedSelection([]), setAwayShirtNumbers({}))}>
+                <option value="">Select Team</option>
+                {clubs.ids.map((id) => {
+                  const club = clubs.entities[id];
+                  return (
+                    <option key={club.id} value={club.id}>
+                      {club.name}
+                    </option>
+                  );
+                })}
+              </select>
+            </div>}
+            {homeTeamVisible &&
+            <div className="form-field"><label>Home Team</label>
+              <select value={homeTeamId} onChange={(e) => (setHomeTeamId(e.target.value), setHomeAvailableSelection(teams.entities[e.target.value]?.playerIds || []), setHomeSelectedSelection([]), setHomeShirtNumbers({}))}>
+                <option value="">Select Team</option>
+                {teams.ids.filter((id) => ((teams.entities[id].seasonId === seasonId) && (teams.entities[id].clubId === homeClubId))).map((id) => {
+                  const team = teams.entities[id];
+                  return (
+                    <option key={team.id} value={team.id}>
+                      {team.name}
+                    </option>
+                  );
+                })}
+              </select>
+            </div>}
+            {!(homeTeamVisible) && <div className="form-field"></div>}
+            {awayTeamVisible &&
+            <div className="form-field"><label>Away Team</label>
+              <select value={awayTeamId} onChange={(e) => (setAwayTeamId(e.target.value), setAwayAvailableSelection(teams.entities[e.target.value]?.playerIds || []), setAwaySelectedSelection([]), setAwayShirtNumbers({}))}>
+                <option value="">Select Team</option>
+                {teams.ids.filter((id) => ((teams.entities[id].seasonId === seasonId) && (teams.entities[id].clubId === awayClubId))).map((id) => {
+                  const team = teams.entities[id];
+                  return (
+                    <option key={team.id} value={team.id}>
+                      {team.name}
+                    </option>
+                  );
+                })}
+              </select>
+            </div>}
+            {!(awayTeamVisible) && <div className="form-field"></div>}
+            <label>Home team selection</label>
+            <label>Away team selection</label>
+            <div className="form-field">
+              {homeAvailableSelection.map((id) => {
+                const player = players.entities[id];
+                return (
+                  <div className="form-field-player-check">
+                    <div className="checkbox-label-space">
+                      <input
+                        type="checkbox"
+                        id={`player-${player.id}`}
+                        checked={homeSelectedSelection.includes(player.id)}
+                        onChange={() => {
+                          if (homeSelectedSelection.includes(player.id)) {
+                            setHomeSelectedSelection(homeSelectedSelection.filter((pid) => pid !== player.id));
+                          } else {
+                            setHomeSelectedSelection([...homeSelectedSelection, player.id]);
+                          }
+                        }}
+                      />
+                      <label htmlFor={`player-${player.id}`}>
+                        {player.firstName} {player.lastName}
+                      </label>
                     </div>
-                  }
-                </div>
+                    {homeSelectedSelection.includes(player.id) && 
+                      <div className="form-field-number">
+                        <input value={homeShirtNumbers[player.id] ?? ''} placeholder="#" onChange={(e) => {
+                          const value = e.target.value;
+                          setHomeShirtNumbers({
+                            ...homeShirtNumbers,
+                            [player.id]: value ? parseInt(value) : 0
+                          });
+                        }} />
+                      </div>
+                    }
+                  </div>
+                )}
               )}
-            )}
+            </div>
+            <div className="form-field">
+              {awayAvailableSelection.map((id) => {
+                const player = players.entities[id];
+                return (
+                  <div className="form-field-player-check">
+                    <div className="checkbox-label-space">
+                      <input
+                        type="checkbox"
+                        id={`player-${player.id}`}
+                        checked={awaySelectedSelection.includes(player.id)}
+                        onChange={() => {
+                          if (awaySelectedSelection.includes(player.id)) {
+                            setAwaySelectedSelection(awaySelectedSelection.filter((pid) => pid !== player.id));
+                          } else {
+                            setAwaySelectedSelection([...awaySelectedSelection, player.id]);
+                          }
+                        }}
+                      />
+                      <label htmlFor={`player-${player.id}`}>
+                        {player.firstName} {player.lastName}
+                      </label>
+                    </div>
+                    {awaySelectedSelection.includes(player.id) && 
+                      <div className="form-field-number">
+                        <input value={awayShirtNumbers[player.id] ?? ''} placeholder="#" onChange={(e) => {
+                          const value = e.target.value;
+                          setAwayShirtNumbers({
+                            ...awayShirtNumbers,
+                            [player.id]: value ? parseInt(value) : 0
+                          });
+                        }} />
+                      </div>
+                    }
+                  </div>
+                )}
+              )}
+            </div>
           </div>
         </div>
 

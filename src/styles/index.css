@@ -67,7 +67,7 @@
 .btn.small { padding: 6px 10px; font-size: 0.6rem; }
 
 .form-grid { display: grid; gap: 8px; }
-.form-field { display: grid; gap: 6px; }
+.form-field { display: grid; gap: 6px; align-content: flex-start;}
 .form-field input,
 .form-field select,
 .form-field textarea {
@@ -93,5 +93,6 @@
 	width: 12px;
 	font-size: 0.6rem;
 	text-align: center;
+	align-items: center;
 	margin-right: 5px;
 }

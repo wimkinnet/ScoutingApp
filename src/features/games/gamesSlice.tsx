@@ -10,10 +10,9 @@ const initialState: GamesState = {
 	entities: {
 		'ga-1': {
 			id: 'ga-1',
-			scoutTeamId: 't-1',
-			otherTeamId: 't-2',
+			homeTeamId: 't-1',
+			awayTeamId: 't-2',
 			date: new Date(2026, 8, 30),
-			scoutHome: true,
 			homePlayers: [
                 {
                     playerId: 'pl-1',

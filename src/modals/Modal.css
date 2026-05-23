@@ -109,7 +109,7 @@
 }
 
 .modal-body {
-    max-height: 50vh;
+    max-height: 90vh;
     overflow-y: auto;
     padding: 16px;
 }
@@ -128,7 +128,8 @@ h2 {
     color: var(--text-inverse-bg);
     margin: 10px;;
 }
- label {
+
+label {
     display: block;
     align-content: center;
     color: var(--text-inverse-bg);
@@ -139,6 +140,7 @@ h2 {
      gap: 10px;
      font-size: 0.7rem;
      justify-content: space-between;
+     align-items: center;
  }
 
 .checkbox-label-space {
@@ -147,12 +149,11 @@ h2 {
     gap: 5px;
 }
 
- .checkbox {
-    width: 8px;
-    height: 8px;
- }
+.checkbox-label-space input {
+    appearance: auto;
+}
 
- .info-container {
+.info-container {
     display: flex;
     flex-direction: row;
     align-items: flex-start;
@@ -161,9 +162,9 @@ h2 {
     background: var(--surface-2);
     color: var(--text-inverse-bg);
     font-size: 1.2rem;
- }
+}
 
- .timer {
+.timer {
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -173,13 +174,13 @@ h2 {
     color: var(--text-inverse-bg);
     font-size: 1.2rem;
     margin-bottom: 2px;
- }
- 
- canvas {
-    width: 90%;
- }
+}
 
- .team-players-left {
+canvas {
+    width: 90%;
+}
+
+.team-players-left {
     display: flex;
     flex-direction: row;
     align-items: flex-start;
@@ -189,200 +190,217 @@ h2 {
     justify-content: left;
     padding-left: 10px;
     margin-top: 10px;
- }
+}
 
- .team-player {
-    position: relative;
+.team-player {
+position: relative;
+height: 30px;
+width: 30px;
+align-content: center;
+text-align: center;
+border: 1px solid var(--bg-soft);
+font-size: 1rem;
+cursor: pointer;
+color: white;
+}
+
+.player-tooltip {
+visibility: hidden;
+color: #ffffff;
+background-color: var(--bg-soft);
+padding: 5px 0;
+border-radius: 6px;
+position: absolute;
+z-index: 3;
+width: 130px;
+bottom: -15px;
+font-size: 0.7rem;
+}
+
+.player-tooltip.right {
+left: -120px;
+}
+
+.team-player:hover .player-tooltip {
+visibility: visible;
+}
+
+.court-player:hover .player-tooltip {
+visibility: visible;
+}
+
+.score {
+width: 10%;
+text-align: center;
+}
+
+.team-players-right {
+display: flex;
+flex-direction: row;
+flex-wrap: wrap;
+align-items: flex-start;
+gap: 5px;
+width: 20%;
+justify-content: right;
+padding-right: 10px;
+margin-top: 10px;;
+}
+
+.court-container {
+display: flex;
+flex-direction: row;
+flex-grow: 1;
+overflow-y: auto;
+}
+
+.timer {
+width: 30%;
+}
+
+.court-players {
+display: flex;
+flex-direction: column;
+justify-content: flex-start;
+width: 5%;
+padding: 50px 0;
+gap: 30px;
+}
+
+.court-player {
+height: 50px;
+width: 50px;
+align-content: center;
+text-align: center;
+border: 1px solid white;
+font-size: 2rem;
+cursor: pointer;
+color: white;
+position: relative;
+}
+
+.court-player.selected {
+color: var(--bg-soft);
+background-color: white;
+}
+
+.quarter-direction {
+display: flex;
+flex-direction: column;
+gap: 5px;
+width: 15%;
+justify-content: flex-start;
+height: 100%;
+}
+
+.quarter-header {
+font-size: 0.8rem;
+text-align: center;
+margin: 10px 0 5px 0;
+}
+
+.quarter-container {
+display: flex;
+flex-direction: row;
+justify-content: space-around;
+}
+
+.quarter {
+height: 20px;
+width: 20px;
+align-content: center;
+text-align: center;
+border: 1px solid var(--bg-soft);
+font-size: 0.8rem;
+cursor: pointer;
+color: white;
+}
+
+.quarter.selected {
+color: var(--bg-soft);
+background-color: white;
+}
+
+.possession-selector {
+display: flex;
+flex-direction: column;
+gap: 5px;
+width: 15%;
+justify-content: flex-start;
+height: 100%;
+}
+
+.possession-header {
+font-size: 0.8rem;
+text-align: center;
+margin: 10px 0 5px 0;
+}
+
+.possession-container {
+display: flex;
+flex-direction: column;
+justify-content: flex-start;
+gap: 10px;
+}
+
+.possession {
+height: 15px;
+align-content: center;
+text-align: center;
+border: 1px solid var(--bg-soft);
+font-size: 0.8rem;
+cursor: pointer;
+color: white;
+padding: 8px;
+width: auto;
+}
+
+.possession.selected {
+color: var(--bg-soft);
+background-color: white;
+}
+
+.direction-header {
+font-size: 0.8rem;
+text-align: center;
+margin: 10px 0 5px 0;
+}
+
+.direction-container {
+display: flex;
+flex-direction: row;
+justify-content: center;
+gap: 5px;
+}
+
+.direction {
+height: 20px;
+width: 40px;
+align-content: center;
+text-align: center;
+border: 1px solid var(--bg-soft);
+font-size: 0.8rem;
+cursor: pointer;
+color: white;
+}
+
+.direction.selected {
+color: var(--bg-soft);
+background-color: white;
+}
+
+.info-container.action {
+    flex-wrap: wrap;
+    padding: 10px;
+    justify-content: flex-start;
+}
+
+.action-label {
+    border: 1px solid var(--bg-soft);
+    padding: 5px;
+    margin: 5px;
     height: 30px;
     width: 30px;
+    text-align: center;
     align-content: center;
-    text-align: center;
-    border: 1px solid var(--bg-soft);
-    font-size: 1rem;
-    cursor: pointer;
     color: white;
- }
-
- .player-tooltip {
-    visibility: hidden;
-    color: #ffffff;
-    background-color: var(--bg-soft);
-    padding: 5px 0;
-    border-radius: 6px;
-    position: absolute;
-    z-index: 3;
-    width: 130px;
-    bottom: -15px;
-    font-size: 0.7rem;
- }
-
- .player-tooltip.right {
-    left: -120px;
- }
-
- .team-player:hover .player-tooltip {
-    visibility: visible;
- }
-
- .court-player:hover .player-tooltip {
-    visibility: visible;
- }
-
- .score {
-    width: 10%;
-    text-align: center;
- }
-
- .team-players-right {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: flex-start;
-    gap: 5px;
-    width: 20%;
-    justify-content: right;
-    padding-right: 10px;
-    margin-top: 10px;;
- }
-
- .court-container {
-    display: flex;
-    flex-direction: row;
-    flex-grow: 1;
-    overflow-y: auto;
- }
-
- .timer {
-    width: 30%;
- }
-
- .court-players {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    width: 5%;
-    padding: 50px 0;
-    gap: 30px;
- }
-
- .court-player {
-    height: 50px;
-    width: 50px;
-    align-content: center;
-    text-align: center;
-    border: 1px solid white;
-    font-size: 2rem;
-    cursor: pointer;
-    color: white;
-    position: relative;
- }
-
- .court-player.selected {
-    color: var(--bg-soft);
-    background-color: white;
- }
-
- .quarter-direction {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    width: 15%;
-    justify-content: flex-start;
-    height: 100%;
- }
-
- .quarter-header {
-    font-size: 0.8rem;
-    text-align: center;
-    margin: 10px 0 5px 0;
- }
-
- .quarter-container {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-around;
- }
-
- .quarter {
-    height: 20px;
-    width: 20px;
-    align-content: center;
-    text-align: center;
-    border: 1px solid var(--bg-soft);
-    font-size: 0.8rem;
-    cursor: pointer;
-    color: white;
- }
-
- .quarter.selected {
-    color: var(--bg-soft);
-    background-color: white;
- }
-
- .possession-selector {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    width: 15%;
-    justify-content: flex-start;
-    height: 100%;
- }
-
- .possession-header {
-    font-size: 0.8rem;
-    text-align: center;
-    margin: 10px 0 5px 0;
- }
-
- .possession-container {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    gap: 10px;
- }
-
- .possession {
-    height: 15px;
-    align-content: center;
-    text-align: center;
-    border: 1px solid var(--bg-soft);
-    font-size: 0.8rem;
-    cursor: pointer;
-    color: white;
-    padding: 8px;
-    width: auto;
- }
-
- .possession.selected {
-    color: var(--bg-soft);
-    background-color: white;
- }
-
- .direction-header {
-    font-size: 0.8rem;
-    text-align: center;
-    margin: 10px 0 5px 0;
- }
-
- .direction-container {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    gap: 5px;
- }
-
- .direction {
-    height: 20px;
-    width: 40px;
-    align-content: center;
-    text-align: center;
-    border: 1px solid var(--bg-soft);
-    font-size: 0.8rem;
-    cursor: pointer;
-    color: white;
- }
-
- .direction.selected {
-    color: var(--bg-soft);
-    background-color: white;
- }
+}

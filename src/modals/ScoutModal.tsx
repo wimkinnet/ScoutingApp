@@ -16,10 +16,10 @@ export default function ScoutModal() {
   const clubs = useSelector((s: RootState) => s.clubs);
   const players = useSelector((s: RootState) => s.players);
   
-  const HomeClub = game ? clubs.entities[teams.entities[game.scoutTeamId].clubId].id : "";
-  const AwayClub = game ? clubs.entities[teams.entities[game.otherTeamId].clubId].id : "";
-  const HomeTeam = game ? (game.scoutHome ? `${clubs.entities[teams.entities[game.scoutTeamId].clubId].name}` : `${clubs.entities[teams.entities[game.otherTeamId].clubId].name}`) : null;
-  const AwayTeam = game ? (game.scoutHome ? `${clubs.entities[teams.entities[game.otherTeamId].clubId].name}` : `${clubs.entities[teams.entities[game.scoutTeamId].clubId].name}`) : null;
+  const HomeClub = game ? clubs.entities[teams.entities[game.homeTeamId].clubId].id : "";
+  const AwayClub = game ? clubs.entities[teams.entities[game.awayTeamId].clubId].id : "";
+  const HomeTeam = game ? (`${clubs.entities[teams.entities[game.homeTeamId].clubId].name}`) : null;
+  const AwayTeam = game ? (`${clubs.entities[teams.entities[game.awayTeamId].clubId].name}`) : null;
   
   const [benchPlayersHome, setBenchPlayersHome] = useState<GamePlayer[]>([]);
   const [courtPlayersHome, setCourtPlayersHome] = useState<GamePlayer[]>([])
@@ -43,8 +43,9 @@ export default function ScoutModal() {
   const directions = ["Left", "Right"];
   
   const [quarter, setQuarter] = useState<number>(1);
-  const [possession, setPossession] = useState<string>("");
-  const [awayDir, setAwayDir] = useState<string>("Right");
+  const [possession, setPossession] = useState<string | null>("");
+  const [posHomeAway, setPosHomeAway] = useState<string>("")
+  const [awayDir, setAwayDir] = useState<string>("");
 
   useEffect(() => {
     if (!isOpen) return;
@@ -52,7 +53,8 @@ export default function ScoutModal() {
     setCourtPlayersHome([]);
     setBenchPlayersAway(game?.awayPlayers ?? []);
     setCourtPlayersAway([]);
-    setPossession(HomeClub);
+    setPossession(null);
+    setPosHomeAway("");
   }, [isOpen, id]);
 
   const onClose = () => dispatch(closeModal());
@@ -280,6 +282,7 @@ export default function ScoutModal() {
     if (clickedClub) {
       setPossession(clubs.entities[clickedClub].id)
     }
+    game ? ((clickedClub === clubs.entities[teams.entities[game.homeTeamId].clubId].id) ? setPosHomeAway("Home") : setPosHomeAway("Away")) : setPosHomeAway ("");
   }
 
   const DirectionClick = (e: any) => {
@@ -298,10 +301,11 @@ export default function ScoutModal() {
         setX(x);
         setY(y);
         const payload = {
+          game: game?.id,
           player: selectedPlayer,
           posX: x,
           posY: y,
-          possession: possession,
+          possession: posHomeAway,
           direction: awayDir,
           quarter: quarter,
           secRem: secondsLeft,

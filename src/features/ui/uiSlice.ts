@@ -15,7 +15,7 @@ interface UIState {
   gameModal: ModalState;
   scoutModal: { isOpen: boolean; id: string | null };
   actionModal: { 
-    isOpen: boolean; player: GamePlayer | null; posX: number | null, posY: number | null,
+    isOpen: boolean; game: string | null; player: GamePlayer | null; posX: number | null, posY: number | null,
     possession: string | null, direction: string | null, quarter: number | null, secRem: number | null
   }
 }
@@ -27,7 +27,7 @@ const initialState: UIState = {
   teamModal: { isOpen: false, mode: 'add', id: null},
   gameModal: { isOpen: false, mode: 'add', id: null},
   scoutModal: { isOpen: false, id: null},
-  actionModal: { isOpen: false, player: null, posX: null, posY: null, possession: null, direction: null, quarter: null, secRem: null}
+  actionModal: { isOpen: false, game: null, player: null, posX: null, posY: null, possession: null, direction: null, quarter: null, secRem: null}
 };
 
 const slice = createSlice({
@@ -46,8 +46,8 @@ const slice = createSlice({
     openEditGameModal(state, action: PayloadAction<string>) { state.gameModal = { isOpen: true, mode: 'edit', id: action.payload}; },
     openScoutModal(state, action: PayloadAction<string>) { state.scoutModal = { isOpen: true, id: action.payload}; },
     openActionModal(state, action) { 
-      const { player, posX, posY, possession, direction, quarter, secRem } = action.payload;
-      state.actionModal = { isOpen: true, player: player, posX: posX, posY: posY, possession: possession, direction: direction, quarter: quarter, secRem: secRem};
+      const { game, player, posX, posY, possession, direction, quarter, secRem } = action.payload;
+      state.actionModal = { isOpen: true, game: game, player: player, posX: posX, posY: posY, possession: possession, direction: direction, quarter: quarter, secRem: secRem};
     },
     closeModal(state) { 
       state.playerModal.isOpen = false; 
