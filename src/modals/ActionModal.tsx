@@ -40,7 +40,7 @@ export default function ActionModal() {
   ];
 
   const [probableActions, setProbableActions] = useState<number[]>([]);
-  const [otherActions, setOtherActions] = useState<number[]>([]);
+  //const [otherActions, setOtherActions] = useState<number[]>([]);
   const [isLeft, setIsLeft] = useState<boolean>(false)
 
   useEffect(() => {
@@ -83,7 +83,7 @@ export default function ActionModal() {
     const playerpossession = (player?.homeTeam && possession === "Home") || (!(player?.homeTeam) && possession === "Away")
     const possessionOffense = playerpossession && ((defensiveCourtIsLeft && isLeft === false) || (!defensiveCourtIsLeft && isLeft === true))
     setProbableActions([]);
-    setOtherActions([]);
+    //setOtherActions([]);
     if (playerpossession && isFreeThrowRange) {
       setProbableActions([1, 2, 3, 4, 7, 8, 11, 17]);
     };

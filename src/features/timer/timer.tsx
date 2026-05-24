@@ -71,6 +71,19 @@ const Timer = ({ secondsLeft, setSecondsLeft }: TimerProps) => {
 
   const toggleTimer = () => setIsActive(!isActive);
 
+  useEffect(() => {
+    const handleKeyDown = (event: any) => {
+      if (event.repeat) return;
+      (event.keyCode === 32) ? toggleTimer() : null;
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  });
+
   const resetTimer = () => {
     clearInterval(intervalRef.current);
     setIsActive(false);

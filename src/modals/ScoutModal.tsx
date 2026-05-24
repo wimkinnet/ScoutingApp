@@ -15,6 +15,7 @@ export default function ScoutModal() {
   const teams = useSelector((s: RootState) => s.teams);
   const clubs = useSelector((s: RootState) => s.clubs);
   const players = useSelector((s: RootState) => s.players);
+  const actions = useSelector((s: RootState) => s.actions);
   
   const HomeClub = game ? clubs.entities[teams.entities[game.homeTeamId].clubId].id : "";
   const AwayClub = game ? clubs.entities[teams.entities[game.awayTeamId].clubId].id : "";
@@ -47,6 +48,21 @@ export default function ScoutModal() {
   const [posHomeAway, setPosHomeAway] = useState<string>("")
   const [awayDir, setAwayDir] = useState<string>("");
 
+  const homePlayersId = game?.homePlayers.map ((player) => (player.playerId));
+  const awayPlayersId = game?.awayPlayers.map ((player) => (player.playerId));
+  const gameActions = actions.ids.filter((i) => actions.entities[i].gameId === id);
+  const freeThrows = gameActions.filter((i) => actions.entities[i].actionId === "1");
+  const twoPoints = gameActions.filter((i) => actions.entities[i].actionId === "3");
+  const threePoints = gameActions.filter((i) => actions.entities[i].actionId === "5");
+  const homeFreeThrows = freeThrows.filter((i) => homePlayersId?.includes(actions.entities[i].playerId));
+  const awayFreeThrows = freeThrows.filter((i) => awayPlayersId?.includes(actions.entities[i].playerId));
+  const homeTwoPoints = twoPoints.filter((i) => homePlayersId?.includes(actions.entities[i].playerId));
+  const awayTwoPoints = twoPoints.filter((i) => awayPlayersId?.includes(actions.entities[i].playerId));
+  const homeThreePoints = threePoints.filter((i) => homePlayersId?.includes(actions.entities[i].playerId));
+  const awayThreePoints = threePoints.filter((i) => awayPlayersId?.includes(actions.entities[i].playerId));
+  const homeScore = homeFreeThrows.length + homeTwoPoints.length * 2 + homeThreePoints.length * 3;
+  const awayScore = awayFreeThrows.length + awayTwoPoints.length * 2 + awayThreePoints.length * 3;
+  
   useEffect(() => {
     if (!isOpen) return;
     setBenchPlayersHome(game?.homePlayers ?? []);
@@ -285,6 +301,11 @@ export default function ScoutModal() {
     game ? ((clickedClub === clubs.entities[teams.entities[game.homeTeamId].clubId].id) ? setPosHomeAway("Home") : setPosHomeAway("Away")) : setPosHomeAway ("");
   }
 
+  const PossessionSwitch = () => {
+    (possession === HomeClub) ? setPossession(AwayClub) : setPossession(HomeClub);
+    (posHomeAway === "Home") ? setPosHomeAway("Away") : setPosHomeAway("Home");
+  }
+
   const DirectionClick = (e: any) => {
     setAwayDir(e.target.id)
   }
@@ -316,8 +337,21 @@ export default function ScoutModal() {
         setY(null);
       }
     };
-  }
+  };
 
+  useEffect(() => {
+    const handleKeyDown = (event: any) => {
+      if (event.repeat) return;
+      (event.key === 'p') ? PossessionSwitch() : null;
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  });
+    
   if (!isOpen) return null;
 
   return (
@@ -327,7 +361,8 @@ export default function ScoutModal() {
         <header className="modal-header">
           <div className='header-blank'></div>
           <div className='header-team'>{HomeTeam}</div>
-          <div className="header-score">0 - 0</div>
+          <div className="header-score">{homeScore} - {awayScore}
+          </div>
           <div className='header-team'>{AwayTeam}</div>
           <button className="btn small" onClick={onClose} aria-label="Close">✕</button>
         </header>

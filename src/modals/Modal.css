@@ -395,7 +395,7 @@ background-color: white;
 }
 
 .action-label {
-    border: 1px solid var(--bg-soft);
+    border: 1px solid white;
     padding: 5px;
     margin: 5px;
     height: 30px;
@@ -403,4 +403,5 @@ background-color: white;
     text-align: center;
     align-content: center;
     color: white;
+    cursor: pointer;
 }
