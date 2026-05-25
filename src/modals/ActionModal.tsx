@@ -34,20 +34,23 @@ export default function ActionModal() {
     { "id": 17, "name": "Offensive foul", "label": "OF" },
     { "id": 18, "name": "Technical foul", "label": "TF" },
     { "id": 19, "name": "Unsportmanlike foul", "label": "UF" },
-    { "id": 20, "name": "Exclusion foul-e", "label": "EF" },
-    { "id": 21, "name": "Player in", "label": "In" },
-    { "id": 22, "name": "Player out", "label": "Out" },
+    { "id": 20, "name": "Exclusion foul", "label": "EF" },
   ];
 
+  const allActions = ActionTypes.map((a) => a.id);
   const [probableActions, setProbableActions] = useState<number[]>([]);
-  //const [otherActions, setOtherActions] = useState<number[]>([]);
+  const [otherActions, setOtherActions] = useState<number[]>([]);
   const [isLeft, setIsLeft] = useState<boolean>(false)
 
   useEffect(() => {
     if (!isOpen) return;
   }, [isOpen]);
 
-  const onClose = () => dispatch(closeActionModal());
+  const onClose = () => {
+    dispatch(closeActionModal());
+    setProbableActions([]);
+    //setOtherActions([]);
+  };
   const onSave = (e: any) => {
     const action = e.target.id;
     const payload = {
@@ -82,14 +85,19 @@ export default function ActionModal() {
     const isFreeThrowRange = (inFreeThrowCircleLeft && !(defensiveCourtIsLeft)) || (inFreeThrowCircleRight && defensiveCourtIsLeft);
     const playerpossession = (player?.homeTeam && possession === "Home") || (!(player?.homeTeam) && possession === "Away")
     const possessionOffense = playerpossession && ((defensiveCourtIsLeft && isLeft === false) || (!defensiveCourtIsLeft && isLeft === true))
-    setProbableActions([]);
-    //setOtherActions([]);
+    let probable: number[] = [];
     if (playerpossession && isFreeThrowRange) {
-      setProbableActions([1, 2, 3, 4, 7, 8, 11, 17]);
+      probable = [1, 2, 3, 4, 7, 8, 11, 17];
     };
-    if (playerpossession && possessionOffense && !isTreePointRange && !isFreeThrowRange) 
-      setProbableActions([3, 4, 7, 8, 11, 17]);
-  }, [posX, posY, possession, player]);
+    if (playerpossession && possessionOffense && !isTreePointRange && !isFreeThrowRange) {
+      probable = [3, 4, 7, 8, 11, 17];
+    };
+    if (playerpossession && possessionOffense && isTreePointRange) {
+      probable = [5, 6, 7, 8, 11, 17];
+    };
+    setProbableActions(probable);
+    setOtherActions(allActions.filter((a) => !probable.includes(a)));
+  }, [posX, posY, possession, player, direction]);
 
   if (!isOpen) return null;
 
@@ -103,14 +111,26 @@ export default function ActionModal() {
         </header>
         <div className="modal-body">
           <div className='info-container action'>
-            {probableActions.map((action) => {
-              const type = ActionTypes.filter((a) => (a.id === action));
-              return (
-                <div className="action-label" id={type[0].id.toLocaleString()} onClick={onSave} >
-                  {type[0].label}
-                </div>
-              );
-            })}
+            <div className="action-set">
+              {probableActions.map((action) => {
+                const type = ActionTypes.filter((a) => (a.id === action));
+                return (
+                  <div className="action-label" id={type[0].id.toLocaleString()} onClick={onSave} >{type[0].label}
+                    <span className='action-tooltip'>{type[0].name}</span>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="action-set">
+              {otherActions.map((action) => {
+                const type = ActionTypes.filter((a) => (a.id === action));
+                return (
+                  <div className="action-label other" id={type[0].id.toLocaleString()} onClick={onSave} >{type[0].label}
+                    <span className='action-tooltip'>{type[0].name}</span>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>

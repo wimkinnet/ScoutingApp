@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { RootState } from '../app/store';
 import { openActionModal, closeModal } from '../features/ui/uiSlice';
+import { addAction } from '../features/actions/actionsSlice';
 import Timer from '../features/timer/timer';
 import './Modal.css';
 import '../styles/index.css'
@@ -34,19 +35,21 @@ export default function ScoutModal() {
   const [originY, setOriginY] = useState<number | null>(null);
   const [scale, setScale] = useState<number | null>(null);
 
-  const [x, setX] = useState<number | null>(null);
-  const [y, setY] = useState<number | null>(null);
-
   const [secondsLeft, setSecondsLeft] = useState(600);
 
   const quarters: number[] = [1,2,3,4,5];
   const possessions = [HomeClub ? clubs.entities[HomeClub].name : "", AwayClub ? clubs.entities[AwayClub].name : ""]
   const directions = ["Left", "Right"];
   
+  const [x, setX] = useState<number | null>(null);
+  const [y, setY] = useState<number | null>(null);
+  
   const [quarter, setQuarter] = useState<number>(1);
   const [possession, setPossession] = useState<string | null>("");
-  const [posHomeAway, setPosHomeAway] = useState<string>("")
+  const [posHomeAway, setPosHomeAway] = useState<string>("");
   const [awayDir, setAwayDir] = useState<string>("");
+
+  const [playerInSelected, setPlayerInSelected] = useState<GamePlayer>()
 
   const homePlayersId = game?.homePlayers.map ((player) => (player.playerId));
   const awayPlayersId = game?.awayPlayers.map ((player) => (player.playerId));
@@ -62,6 +65,24 @@ export default function ScoutModal() {
   const awayThreePoints = threePoints.filter((i) => awayPlayersId?.includes(actions.entities[i].playerId));
   const homeScore = homeFreeThrows.length + homeTwoPoints.length * 2 + homeThreePoints.length * 3;
   const awayScore = awayFreeThrows.length + awayTwoPoints.length * 2 + awayThreePoints.length * 3;
+  const Fouls = gameActions.filter((i) => (Number(actions.entities[i].actionId) > 12) && (Number(actions.entities[i].actionId) < 21));
+
+  const GamePlayers = game?.homePlayers ? [...game?.homePlayers, ...game?.awayPlayers].sort((a,b) => {
+            if (a.shirtNumber < b.shirtNumber) return -1;
+            if (a.shirtNumber > b.shirtNumber) return 1;
+            return 0;
+        }) : null;
+  const GamePlayersScores  = GamePlayers?.map((pl) => {
+    const playerFreeThrows = freeThrows.filter((i) => actions.entities[i].playerId === pl.playerId);
+    const playerTwoPoints = twoPoints.filter((i) => actions.entities[i].playerId === pl.playerId);
+    const playerThreePoints = threePoints.filter((i) => actions.entities[i].playerId === pl.playerId);
+    const playerFouls = Fouls.filter((i) => actions.entities[i].playerId === pl.playerId);
+    return {
+      ...pl,
+      points: playerFreeThrows.length + playerTwoPoints.length * 2 + playerThreePoints.length * 3,
+      fouls: playerFouls.length,
+    }
+  });
   
   useEffect(() => {
     if (!isOpen) return;
@@ -239,9 +260,53 @@ export default function ScoutModal() {
     drawCourt(ctx);
   });
 
+  const playerAction = (pl: GamePlayer, action: string) => {
+    const payload = {
+      gameId: game?.id,
+      actionId: action,
+      playerId: pl.playerId,
+      positionX: x,
+      positionY: y,
+      quarter: quarter,
+      secRem: secondsLeft,
+    };
+    try {
+      dispatch(addAction(payload as any));
+    } catch (err: any) {
+      alert(err?.message || 'Could not save action');
+    };
+  }
+  
   const HomeBenchClick = (e: any) => {
     const shirt = e.target.id;
     const playerIn = benchPlayersHome.find((pl) => pl.shirtNumber === Number(shirt))
+
+    if (playerIn && (courtPlayersHome.length === 5)) {
+      if (!selectedPlayer) {
+        (playerIn !== playerInSelected) ? setPlayerInSelected(playerIn) : setPlayerInSelected(undefined)
+      } else if (courtPlayersHome.includes(selectedPlayer)) {
+        setCourtPlayersHome(prevItems => {
+          const filtered = prevItems.filter(pl => pl !== selectedPlayer);
+          return [...filtered, playerIn].sort((a,b) => {
+            if (a.shirtNumber < b.shirtNumber) return -1;
+            if (a.shirtNumber > b.shirtNumber) return 1;
+            return 0;
+          });
+        });
+        setBenchPlayersHome(prevItems => {
+          const filtered = prevItems.filter(pl => pl !== playerIn);
+          return [...filtered, selectedPlayer].sort((a,b) => {
+            if (a.shirtNumber < b.shirtNumber) return -1;
+            if (a.shirtNumber > b.shirtNumber) return 1;
+            return 0;
+          });
+        });
+        playerAction(playerIn, '21');
+        playerAction(selectedPlayer, '22')
+        setSelectedPlayer(undefined);
+        setPlayerInSelected(undefined);
+      };
+    };
 
     if (playerIn && (courtPlayersHome.length < 5) && !(courtPlayersHome.includes(playerIn))) {
       setCourtPlayersHome([...courtPlayersHome, playerIn].sort((a,b) => {
@@ -253,8 +318,10 @@ export default function ScoutModal() {
         if (a.shirtNumber < b.shirtNumber) return -1;
         if (a.shirtNumber > b.shirtNumber) return 1;
         return 0;
-      }))
+      }));
+      playerAction(playerIn, '21');
     };
+
     setX(null);
     setY(null);
   }
@@ -263,6 +330,33 @@ export default function ScoutModal() {
     const shirt = e.target.id;
     const playerIn = benchPlayersAway.find((pl) => pl.shirtNumber === Number(shirt))
 
+    if (playerIn && (courtPlayersAway.length === 5)) {
+      if (!selectedPlayer) {
+        (playerIn !== playerInSelected) ? setPlayerInSelected(playerIn) : setPlayerInSelected(undefined)
+      } else if (courtPlayersAway.includes(selectedPlayer)) {
+        setCourtPlayersAway(prevItems => {
+          const filtered = prevItems.filter(pl => pl !== selectedPlayer);
+          return [...filtered, playerIn].sort((a,b) => {
+            if (a.shirtNumber < b.shirtNumber) return -1;
+            if (a.shirtNumber > b.shirtNumber) return 1;
+            return 0;
+          });
+        });
+        setBenchPlayersAway(prevItems => {
+          const filtered = prevItems.filter(pl => pl !== playerIn);
+          return [...filtered, selectedPlayer].sort((a,b) => {
+            if (a.shirtNumber < b.shirtNumber) return -1;
+            if (a.shirtNumber > b.shirtNumber) return 1;
+            return 0;
+          });
+        });
+        playerAction(playerIn, '21');
+        playerAction(selectedPlayer, '22')
+        setSelectedPlayer(undefined);
+        setPlayerInSelected(undefined);
+      };
+    };
+    
     if (playerIn && (courtPlayersAway.length < 5) && !(courtPlayersAway.includes(playerIn))) {
       setCourtPlayersAway([...courtPlayersAway, playerIn].sort((a,b) => {
         if (a.shirtNumber < b.shirtNumber) return -1;
@@ -273,8 +367,10 @@ export default function ScoutModal() {
         if (a.shirtNumber < b.shirtNumber) return -1;
         if (a.shirtNumber > b.shirtNumber) return 1;
         return 0;
-      }))
+      }));
+      playerAction(playerIn, '21');
     };
+
     setX(null);
     setY(null);
   }
@@ -285,6 +381,51 @@ export default function ScoutModal() {
     const player = courtPlayers.find((pl) => pl.playerId === playerId)
 
     selectedPlayer !== player ? setSelectedPlayer(player) : setSelectedPlayer(undefined);
+    
+    if (player && playerInSelected && game?.homePlayers.includes(player) && game?.homePlayers.includes(playerInSelected)) {
+      setCourtPlayersHome(prevItems => {
+        const filtered = prevItems.filter(pl => pl !== player);
+        return [...filtered, playerInSelected].sort((a,b) => {
+          if (a.shirtNumber < b.shirtNumber) return -1;
+          if (a.shirtNumber > b.shirtNumber) return 1;
+          return 0;
+        });
+      });
+      setBenchPlayersHome(prevItems => {
+        const filtered = prevItems.filter(pl => pl !== playerInSelected);
+        return [...filtered, player].sort((a,b) => {
+          if (a.shirtNumber < b.shirtNumber) return -1;
+          if (a.shirtNumber > b.shirtNumber) return 1;
+          return 0;
+        });
+      });
+      playerAction(playerInSelected, '21');
+      playerAction(player, '22')
+      setSelectedPlayer(undefined);
+    };
+
+    if (player && playerInSelected && game?.awayPlayers.includes(player) && game?.awayPlayers.includes(playerInSelected)) {
+      setCourtPlayersAway(prevItems => {
+        const filtered = prevItems.filter(pl => pl !== player);
+        return [...filtered, playerInSelected].sort((a,b) => {
+          if (a.shirtNumber < b.shirtNumber) return -1;
+          if (a.shirtNumber > b.shirtNumber) return 1;
+          return 0;
+        });
+      });
+      setBenchPlayersAway(prevItems => {
+        const filtered = prevItems.filter(pl => pl !== playerInSelected);
+        return [...filtered, player].sort((a,b) => {
+          if (a.shirtNumber < b.shirtNumber) return -1;
+          if (a.shirtNumber > b.shirtNumber) return 1;
+          return 0;
+        });
+      });
+      playerAction(playerInSelected, '21');
+      playerAction(player, '22')
+      setSelectedPlayer(undefined);
+    };
+    setPlayerInSelected(undefined);
     setX(null);
     setY(null);
   }
@@ -331,7 +472,8 @@ export default function ScoutModal() {
           quarter: quarter,
           secRem: secondsLeft,
         };
-        dispatch(openActionModal(payload))
+        dispatch(openActionModal(payload));
+        setSelectedPlayer(undefined)
       } else {
         setX(null);
         setY(null);
@@ -369,11 +511,18 @@ export default function ScoutModal() {
         <div className="modal-body">
           <div className='info-container'>
             <div className='team-players-left'>
-              {benchPlayersHome.map((pl) => (
-                <div className='team-player' id={pl.shirtNumber.toString()} onClick={(e) => HomeBenchClick(e)}>{pl.shirtNumber}
-                  <span className='player-tooltip'>{players.entities[pl.playerId].firstName} {players.entities[pl.playerId].lastName}</span>
-                </div>
-              ))}
+              {benchPlayersHome.map((pl) => {
+                const isSelected = (playerInSelected === pl);
+                return isSelected ? (
+                  <div className='team-player selected' id={pl.shirtNumber.toString()} onClick={(e) => HomeBenchClick(e)}>{pl.shirtNumber}
+                    <span className='player-tooltip'>{players.entities[pl.playerId].firstName} {players.entities[pl.playerId].lastName}</span>
+                  </div>
+                ) : (
+                  <div className='team-player' id={pl.shirtNumber.toString()} onClick={(e) => HomeBenchClick(e)}>{pl.shirtNumber}
+                    <span className='player-tooltip'>{players.entities[pl.playerId].firstName} {players.entities[pl.playerId].lastName}</span>
+                  </div>
+                )
+              })}
               <div className='team-player' >AC
                 <span className='player-tooltip'>Assistent Coach</span>
               </div>
@@ -428,14 +577,37 @@ export default function ScoutModal() {
               <div className='team-player' >AC
                 <span className='player-tooltip right'>Assistent Coach</span>
               </div>
-              {benchPlayersAway.map((pl) => (
-                <div className='team-player' id={pl.shirtNumber.toString()} onClick={(e) => AwayBenchClick(e)}>{pl.shirtNumber}
-                  <span className='player-tooltip right'>{players.entities[pl.playerId].firstName} {players.entities[pl.playerId].lastName}</span>
-                </div>
-                ))}
+              {benchPlayersAway.map((pl) => {
+                const isSelected = (playerInSelected === pl);
+                return isSelected ? (
+                  <div className='team-player selected' id={pl.shirtNumber.toString()} onClick={(e) => AwayBenchClick(e)}>{pl.shirtNumber}
+                    <span className='player-tooltip right'>{players.entities[pl.playerId].firstName} {players.entities[pl.playerId].lastName}</span>
+                  </div>
+                ) : (
+                  <div className='team-player' id={pl.shirtNumber.toString()} onClick={(e) => AwayBenchClick(e)}>{pl.shirtNumber}
+                    <span className='player-tooltip right'>{players.entities[pl.playerId].firstName} {players.entities[pl.playerId].lastName}</span>
+                  </div>
+                )
+              })}
               </div>
           </div>       
           <div className='court-container'>
+            <div className='court-players-details left'>
+              <div className="player-detail-container">
+                <div className="player-detail">#</div>
+                <div className="player-detail">Fouls</div>
+                <div className="player-detail">Pts</div>
+              </div>
+              {GamePlayersScores?.map((pl) => {
+                const isHome = (pl.homeTeam);
+                return isHome &&
+                <div className="player-detail-container">
+                  <div className="player-detail">{pl.shirtNumber}</div>
+                  <div className="player-detail">{pl.fouls}</div>
+                  <div className="player-detail">{pl.points}</div>
+                </div>  
+            })}
+            </div>
             <div className='court-players'>
               {courtPlayersHome.map((pl) => {
                 const isSelected = (selectedPlayer === pl);
@@ -463,6 +635,22 @@ export default function ScoutModal() {
                     <span className='player-tooltip right'>{players.entities[pl.playerId].firstName} {players.entities[pl.playerId].lastName}</span>
                   </div>
                 )
+              })}
+            </div>
+            <div className='court-players-details right'>
+              <div className="player-detail-container">
+                <div className="player-detail">Pts</div>
+                <div className="player-detail">Fouls</div>
+                <div className="player-detail">#</div>
+              </div>
+              {GamePlayersScores?.map((pl) => {
+                const isHome = (pl.homeTeam);
+                return !isHome &&
+                <div className="player-detail-container">
+                  <div className="player-detail">{pl.points}</div>
+                  <div className="player-detail">{pl.fouls}</div>
+                  <div className="player-detail">{pl.shirtNumber}</div>
+                </div>  
               })}
             </div>
           </div>

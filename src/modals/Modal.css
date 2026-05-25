@@ -177,7 +177,7 @@ label {
 }
 
 canvas {
-    width: 90%;
+    width: 70%;
 }
 
 .team-players-left {
@@ -193,208 +193,255 @@ canvas {
 }
 
 .team-player {
-position: relative;
-height: 30px;
-width: 30px;
-align-content: center;
-text-align: center;
-border: 1px solid var(--bg-soft);
-font-size: 1rem;
-cursor: pointer;
-color: white;
+    position: relative;
+    height: 30px;
+    width: 30px;
+    align-content: center;
+    text-align: center;
+    border: 1px solid var(--bg-soft);
+    font-size: 1rem;
+    cursor: pointer;
+    color: white;
+}
+
+.team-player.selected {
+    color: var(--bg-soft);
+    background-color: white;
 }
 
 .player-tooltip {
-visibility: hidden;
-color: #ffffff;
-background-color: var(--bg-soft);
-padding: 5px 0;
-border-radius: 6px;
-position: absolute;
-z-index: 3;
-width: 130px;
-bottom: -15px;
-font-size: 0.7rem;
+    visibility: hidden;
+    color: #ffffff;
+    background-color: var(--bg-soft);
+    padding: 5px 0;
+    border-radius: 6px;
+    position: absolute;
+    z-index: 3;
+    width: 130px;
+    bottom: -15px;
+    font-size: 0.7rem;
 }
 
 .player-tooltip.right {
-left: -120px;
+    left: -120px;
 }
 
 .team-player:hover .player-tooltip {
-visibility: visible;
+    visibility: visible;
 }
 
 .court-player:hover .player-tooltip {
-visibility: visible;
+    visibility: visible;
 }
 
 .score {
-width: 10%;
-text-align: center;
+    width: 10%;
+    text-align: center;
 }
 
 .team-players-right {
-display: flex;
-flex-direction: row;
-flex-wrap: wrap;
-align-items: flex-start;
-gap: 5px;
-width: 20%;
-justify-content: right;
-padding-right: 10px;
-margin-top: 10px;;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 5px;
+    width: 20%;
+    justify-content: right;
+    padding-right: 10px;
+    margin-top: 10px;
 }
 
 .court-container {
-display: flex;
-flex-direction: row;
-flex-grow: 1;
-overflow-y: auto;
+    display: flex;
+    flex-direction: row;
+    flex-grow: 1;
+    overflow-y: auto;
 }
 
 .timer {
-width: 30%;
+    width: 30%;
 }
 
 .court-players {
-display: flex;
-flex-direction: column;
-justify-content: flex-start;
-width: 5%;
-padding: 50px 0;
-gap: 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    width: 5%;
+    padding: 50px 0;
+    gap: 30px;
+}
+
+.court-players-details {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    width: 10%;
+    padding: 50px 25px 0px 0px;
+    gap: 10px;
+}
+
+.court-players-details.left {
+    padding: 50px 25px 0px 0px;
+}
+
+.court-players-details.right {
+    padding: 50px 0px 0px 25px;
+}
+
+.player-detail-container {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.player-detail {
+    font-size: 0.7 rem;
+    color: #B9D1EA;
+    text-align: center;
+    width: 30%;
 }
 
 .court-player {
-height: 50px;
-width: 50px;
-align-content: center;
-text-align: center;
-border: 1px solid white;
-font-size: 2rem;
-cursor: pointer;
-color: white;
-position: relative;
+    height: 50px;
+    width: 50px;
+    align-content: center;
+    text-align: center;
+    border: 1px solid white;
+    font-size: 2rem;
+    cursor: pointer;
+    color: white;
+    position: relative;
 }
 
 .court-player.selected {
-color: var(--bg-soft);
-background-color: white;
+    color: var(--bg-soft);
+    background-color: white;
 }
 
 .quarter-direction {
-display: flex;
-flex-direction: column;
-gap: 5px;
-width: 15%;
-justify-content: flex-start;
-height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    width: 15%;
+    justify-content: flex-start;
+    height: 100%;
 }
 
 .quarter-header {
-font-size: 0.8rem;
-text-align: center;
-margin: 10px 0 5px 0;
+    font-size: 0.8rem;
+    text-align: center;
+    margin: 10px 0 5px 0;
 }
 
 .quarter-container {
-display: flex;
-flex-direction: row;
-justify-content: space-around;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
 }
 
 .quarter {
-height: 20px;
-width: 20px;
-align-content: center;
-text-align: center;
-border: 1px solid var(--bg-soft);
-font-size: 0.8rem;
-cursor: pointer;
-color: white;
+    height: 20px;
+    width: 20px;
+    align-content: center;
+    text-align: center;
+    border: 1px solid var(--bg-soft);
+    font-size: 0.8rem;
+    cursor: pointer;
+    color: white;
 }
 
 .quarter.selected {
-color: var(--bg-soft);
-background-color: white;
+    color: var(--bg-soft);
+    background-color: white;
 }
 
 .possession-selector {
-display: flex;
-flex-direction: column;
-gap: 5px;
-width: 15%;
-justify-content: flex-start;
-height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    width: 15%;
+    justify-content: flex-start;
+    height: 100%;
 }
 
 .possession-header {
-font-size: 0.8rem;
-text-align: center;
-margin: 10px 0 5px 0;
+    font-size: 0.8rem;
+    text-align: center;
+    margin: 10px 0 5px 0;
 }
 
 .possession-container {
-display: flex;
-flex-direction: column;
-justify-content: flex-start;
-gap: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 10px;
 }
 
 .possession {
-height: 15px;
-align-content: center;
-text-align: center;
-border: 1px solid var(--bg-soft);
-font-size: 0.8rem;
-cursor: pointer;
-color: white;
-padding: 8px;
-width: auto;
+    height: 15px;
+    align-content: center;
+    text-align: center;
+    border: 1px solid var(--bg-soft);
+    font-size: 0.8rem;
+    cursor: pointer;
+    color: white;
+    padding: 8px;
+    width: auto;
 }
 
 .possession.selected {
-color: var(--bg-soft);
-background-color: white;
+    color: var(--bg-soft);
+    background-color: white;
 }
 
 .direction-header {
-font-size: 0.8rem;
-text-align: center;
-margin: 10px 0 5px 0;
+    font-size: 0.8rem;
+    text-align: center;
+    margin: 10px 0 5px 0;
 }
 
 .direction-container {
-display: flex;
-flex-direction: row;
-justify-content: center;
-gap: 5px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 5px;
 }
 
 .direction {
-height: 20px;
-width: 40px;
-align-content: center;
-text-align: center;
-border: 1px solid var(--bg-soft);
-font-size: 0.8rem;
-cursor: pointer;
-color: white;
+    height: 20px;
+    width: 40px;
+    align-content: center;
+    text-align: center;
+    border: 1px solid var(--bg-soft);
+    font-size: 0.8rem;
+    cursor: pointer;
+    color: white;
 }
 
 .direction.selected {
-color: var(--bg-soft);
-background-color: white;
+    color: var(--bg-soft);
+    background-color: white;
 }
 
 .info-container.action {
-    flex-wrap: wrap;
+    display: flex;
+    flex-direction: column;
     padding: 10px;
+    justify-content: flex-start;
+    gap: 10px;
+}
+
+.action-set {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    gap: 10px;
     justify-content: flex-start;
 }
 
 .action-label {
+    position: relative;
     border: 1px solid white;
     padding: 5px;
     margin: 5px;
@@ -404,4 +451,39 @@ background-color: white;
     align-content: center;
     color: white;
     cursor: pointer;
+}
+
+.action-label.other {
+    border: 1px solid grey;
+    padding: 5px;
+    margin: 5px;
+    height: 30px;
+    width: 30px;
+    text-align: center;
+    align-content: center;
+    color: grey;
+    cursor: pointer;
+}
+
+.action-tooltip {
+    visibility: hidden;
+    color: #ffffff;
+    /*background-color: var(--canvastext);*/
+    padding: 5px 0;
+    border-radius: 6px;
+    position: absolute;
+    z-index: 3;
+    width: 130px;
+    bottom: -20px;
+    left: -45px;
+    font-size: 0.7rem;
+}
+
+.action-label:hover .action-tooltip {
+    visibility: visible;
+}
+
+.action-label:hover {
+    background-color: white;
+    color: var(--bg-soft);
 }
