@@ -49,7 +49,7 @@ export default function ActionModal() {
   const onClose = () => {
     dispatch(closeActionModal());
     setProbableActions([]);
-    //setOtherActions([]);
+    setOtherActions([]);
   };
   const onSave = (e: any) => {
     const action = e.target.id;
@@ -72,29 +72,39 @@ export default function ActionModal() {
   };
 
   useEffect(() => {
-    (posX && posX < 14) ? setIsLeft(true) : setIsLeft(false);
+    let isLeftValue = (posX && posX < 14) ? true : false;
+    setIsLeft(isLeftValue);
     const defensiveCourtIsLeft = (player?.homeTeam && direction === "Left") || (!(player?.homeTeam) && direction === "Right");
     const outTreePointCircleLeft = ((posX && posY) ? (((posX - 1.60) ** 2 + (posY - 7.5) ** 2 > (6.75 ** 2)) && (posX > 1.60)) : false);
     const outTreePointCircleRight = ((posX && posY) ? (((26.40 - posX) ** 2 + (posY - 7.5) ** 2 > (6.75 ** 2)) && (posX < 26.40)) : false);
     const outTreePointCircle = (outTreePointCircleLeft && !(defensiveCourtIsLeft)) || (outTreePointCircleRight && defensiveCourtIsLeft);
+    const outTreePointCircleDefensive = (outTreePointCircleLeft && defensiveCourtIsLeft) || (outTreePointCircleRight && !(defensiveCourtIsLeft));
     const aboveThreePoint = ((posX && posY) ? ((posY < 0.75) && ((posX < 1.60) || (posX > 26.40))) : false);
     const underThreePoint = ((posX && posY) ? ((posY > 14.25) && ((posX < 1.60) || (posX > 26.40))) : false);
     const isTreePointRange = outTreePointCircle || aboveThreePoint || underThreePoint;
+    const isTreePointRangeDefensive = outTreePointCircleDefensive || aboveThreePoint || underThreePoint;
     const inFreeThrowCircleLeft = ((posX && posY) ? (((posX - 5.80) ** 2 + (posY - 7.5) ** 2 < (1.80 ** 2)) && (posX > 5.80)) : false);
     const inFreeThrowCircleRight = ((posX && posY) ? (((22.20 - posX) ** 2 + (posY - 7.5) ** 2 < (1.80 ** 2)) && (posX < 22.20)) : false);
     const isFreeThrowRange = (inFreeThrowCircleLeft && !(defensiveCourtIsLeft)) || (inFreeThrowCircleRight && defensiveCourtIsLeft);
     const playerpossession = (player?.homeTeam && possession === "Home") || (!(player?.homeTeam) && possession === "Away")
-    const possessionOffense = playerpossession && ((defensiveCourtIsLeft && isLeft === false) || (!defensiveCourtIsLeft && isLeft === true))
+    const offense = ((defensiveCourtIsLeft && isLeftValue === false) || (!defensiveCourtIsLeft && isLeftValue === true))
     let probable: number[] = [];
-    if (playerpossession && isFreeThrowRange) {
-      probable = [1, 2, 3, 4, 7, 8, 11, 17];
-    };
-    if (playerpossession && possessionOffense && !isTreePointRange && !isFreeThrowRange) {
-      probable = [3, 4, 7, 8, 11, 17];
-    };
-    if (playerpossession && possessionOffense && isTreePointRange) {
-      probable = [5, 6, 7, 8, 11, 17];
-    };
+    if (playerpossession) {
+      if (offense) {
+        if (isTreePointRange) probable = [5, 6, 7, 8, 11, 17];
+        else if (isFreeThrowRange) probable = [1, 2, 3, 4, 7, 8, 11, 17];
+        else probable = [3, 4, 7, 8, 11, 17];
+      } else {
+        probable = [7, 8, 17];
+      }
+    } else {
+      if (offense) {
+        probable = [9, 13, 15];
+      } else {
+        if (isTreePointRangeDefensive) probable = [9, 10, 13, 14, 15, 16];
+        else probable = [9, 10, 12, 13, 14, 15];
+      }
+    }
     setProbableActions(probable);
     setOtherActions(allActions.filter((a) => !probable.includes(a)));
   }, [posX, posY, possession, player, direction]);
