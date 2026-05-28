@@ -1,26 +1,38 @@
 import { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import type { RootState } from '../app/store';
+import { useAppDispatch } from '../app/hooks';
+import { useAddSeasonMutation, useUpdateSeasonMutation, useGetSeasonByIdQuery } from '../services/ScoutingApi';
 import { closeModal } from '../features/ui/uiSlice';
-import { addSeason, updateSeason } from '../features/seasons/seasonsSlice';
 import './Modal.css';
 import '../styles/index.css'
 import '../styles/_tokens.css'
 
 export default function SeasonModal() {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const { isOpen, mode, id } = useSelector((s: RootState) => s.ui.seasonModal);
-  const season = useSelector((s: RootState) => (mode === 'edit' && id) ? s.seasons.entities[id] : null);
+  const { data: season, isLoading: isLoadingSeason, isError: isSeasonError } = useGetSeasonByIdQuery(id ?? '', {
+    skip: !isOpen || mode !== 'edit' || !id,
+  });
+  
+  const [addSeason, { isLoading: isAdding }] = useAddSeasonMutation();
+  const [updateSeason, { isLoading: isUpdating }] = useUpdateSeasonMutation();
 
   const [name, setName] = useState(season?.name ?? '');
   
   useEffect(() => {
     if (!isOpen) return;
-    setName(season?.name ?? '');
+
+    if (mode === 'edit' && season) {
+      setName(season.name ?? '');
+    } else if (mode === 'add') {
+      setName('');
+    }
   }, [isOpen, mode, id]);
 
   const onClose = () => dispatch(closeModal());
-  const onSave = () => {
+
+  const onSave = async () => {
     if (!name.trim()) return alert('Name is mandatory');
 
     const payload = {
@@ -28,8 +40,11 @@ export default function SeasonModal() {
     };
 
     try {
-      if (mode === 'add') dispatch(addSeason(payload as any));
-      else if (mode === 'edit' && season?.id) dispatch(updateSeason({ id: season.id, changes: payload }));
+      if (mode === 'add') {
+        await addSeason(payload).unwrap();
+      } else if (mode === 'edit' && season?.id) {
+        await updateSeason({ id: season.id, changes: payload }).unwrap();
+      }
       onClose();
     } catch (err: any) {
       alert(err?.message || 'Could not save season');
@@ -48,14 +63,20 @@ export default function SeasonModal() {
         </header>
 
         <div className="modal-body">
+          {mode === 'edit' && isLoadingSeason ? (
+            <p>Loading season...</p>
+          ) : mode === 'edit' && isSeasonError ? (
+            <p>Could not load season</p>
+          ) : (
           <div className="form-grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
             <div className="form-field"><label>Name</label><input value={name} onChange={(e) => setName(e.target.value)} /></div>
-        </div>
+          </div>
+          )}
         </div>
 
         <footer className="modal-footer">
           <button className="btn" onClick={onClose}>Cancel</button>
-          <button className="btn" onClick={onSave}>{mode === 'add' ? 'Add' : 'Save'}</button>
+          <button className="btn" onClick={onSave} disabled={isAdding || isUpdating || (mode ==='edit' && isLoadingSeason)}>{mode === 'add' ? 'Add' : 'Save'}</button>
         </footer>
       </div>
     </div>

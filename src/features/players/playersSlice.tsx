@@ -12,7 +12,7 @@ const initialState: PlayersState = {
 			id: 'pl-1',
 			firstName: 'Laurens',
 			lastName: 'Kinnet',
-			dateOfBirth: new Date(2016, 8, 22),
+			dateOfBirth: '22-09-2026',
 		},
 		'pl-2': {
 			id: 'pl-2',

@@ -1,15 +1,27 @@
-import { useDispatch, useSelector } from 'react-redux';
-import type { RootState } from '../app/store';
+import { useDispatch } from 'react-redux';
+import { useGetPlayersQuery, useDeletePlayerMutation } from '../services/ScoutingApi';
 import './Lists.css';
 import '../styles/index.css'
 import '../styles/_tokens.css'
 import { openAddPlayerModal, openEditPlayerModal } from '../features/ui/uiSlice';
-import { removePlayer } from '../features/players/playersSlice';
 
 export default function PlayersIndex() {
-  const players = useSelector((s: RootState) => s.players);
+  const { data: players = [], isLoading, isError, error } = useGetPlayersQuery();
   const dispatch = useDispatch();
+  const [deletePlayer] = useDeletePlayerMutation();
 
+  if (isLoading) {
+    return <p>Loading players ...</p>
+  }
+
+  if (isError) {
+    return (
+      <div>
+        <p>Error loading players: {JSON.stringify(error)}</p>
+        <button className="btn" onClick={() => dispatch(openAddPlayerModal())}>Add Player</button>
+      </div>
+    )
+  }
 
   return (
     <ul className="listContainer">
@@ -20,17 +32,17 @@ export default function PlayersIndex() {
         <div className="listHeaderItem">Date of Birth</div>
         <div className="listHeaderItem">Actions</div>
       </div>
-      {[...players.ids].sort((a, b) => players.entities[a].lastName.localeCompare(players.entities[b].lastName)).map(id => (
-      <li key={id}>
+      {[...players].sort((a, b) => a.lastName.localeCompare(b.lastName)).map(player => (
+      <li key={player.id}>
         <div className="listRow">
-          <div className="listItem" onClick={() => dispatch(openEditPlayerModal(players.entities[id].id))}>{players.entities[id].lastName}</div>
-          <div className="listItem" onClick={() => dispatch(openEditPlayerModal(players.entities[id].id))}>{players.entities[id].firstName}</div>
-          <div className="listItem" onClick={() => dispatch(openEditPlayerModal(players.entities[id].id))}>{players.entities[id].dateOfBirth?.toLocaleDateString()}</div>
+          <div className="listItem" onClick={() => dispatch(openEditPlayerModal(player.id))}>{player.lastName}</div>
+          <div className="listItem" onClick={() => dispatch(openEditPlayerModal(player.id))}>{player.firstName}</div>
+          <div className="listItem" onClick={() => dispatch(openEditPlayerModal(player.id))}>{player.dateOfBirth}</div>
           <div className="listAction">
-            <button className="btn" onClick={() => {dispatch(openEditPlayerModal(players.entities[id].id))}}>
+            <button className="btn" onClick={() => {dispatch(openEditPlayerModal(player.id))}}>
               Edit
             </button>
-            <button className="btn" onClick={() => {dispatch(removePlayer(players.entities[id].id))}}>
+            <button className="btn" onClick={() => deletePlayer(player.id)}>
               Delete
             </button>
           </div>

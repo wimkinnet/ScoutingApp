@@ -6,6 +6,7 @@ import teamReducer from '../features/teams/teamsSlice';
 import gameReducer from '../features/games/gamesSlice';
 import actionReducer from '../features/actions/actionsSlice'
 import uiReducer from '../features/ui/uiSlice';
+import { scoutingApi } from '../services/ScoutingApi';
 
 export const store = configureStore({
   reducer: {
@@ -16,7 +17,11 @@ export const store = configureStore({
     games: gameReducer,
     actions: actionReducer,
     ui: uiReducer,
- }
+    [scoutingApi.reducerPath]: scoutingApi.reducer,
+ },
+ middleware: (getDefaultMiddleware) =>
+  getDefaultMiddleware().concat(scoutingApi.middleware)
 });
 
 export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;

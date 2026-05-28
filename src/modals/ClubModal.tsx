@@ -1,28 +1,41 @@
 import { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import type { RootState } from '../app/store';
-import { addClub, updateClub } from '../features/clubs/clubsSlice';
+import { useAddClubMutation, useUpdateClubMutation, useGetClubByIdQuery } from '../services/ScoutingApi';
+import { useAppDispatch } from '../app/hooks';
 import { closeModal } from '../features/ui/uiSlice';
 import './Modal.css';
 import '../styles/index.css'
 import '../styles/_tokens.css'
 
 export default function ClubModal() {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const { isOpen, mode, id } = useSelector((s: RootState) => s.ui.clubModal);
-  const club = useSelector((s: RootState) => (mode === 'edit' && id) ? s.clubs.entities[id] : null);
+  const { data: club, isLoading: isLoadingClub, isError: isClubError } = useGetClubByIdQuery(id ?? '', {
+      skip: !isOpen || mode !== 'edit' || !id,
+    });
 
+  const [addClub, { isLoading: isAdding }] = useAddClubMutation();
+  const [updateClub, { isLoading: isUpdating }] = useUpdateClubMutation();
+  
   const [name, setName] = useState(club?.name ?? '');
   const [registrationNumber, setRegistrationNumber] = useState(club?.registrationNumber ?? '');
   
   useEffect(() => {
     if (!isOpen) return;
-    setName(club?.name ?? '');
-    setRegistrationNumber(club?.registrationNumber ?? '');
+
+    if (mode === 'edit' && club) {
+      setName(club.name ?? '');
+      setRegistrationNumber(club.registrationNumber ?? '');
+    } else if (mode === 'add') {
+      setName('');
+      setRegistrationNumber('');
+    }
   }, [isOpen, mode, id]);
 
   const onClose = () => dispatch(closeModal());
-  const onSave = () => {
+
+  const onSave = async () => {
     if (!name.trim()) return alert('Name is mandatory');
     if (!registrationNumber.trim()) return alert('Registration number is mandatory');
 
@@ -32,8 +45,11 @@ export default function ClubModal() {
     };
 
     try {
-      if (mode === 'add') dispatch(addClub(payload as any));
-      else if (mode === 'edit' && club?.id) dispatch(updateClub({ id: club.id, changes: payload }));
+      if (mode === 'add') {
+        await addClub(payload).unwrap();
+      } else if (mode === 'edit' && club?.id) {
+        await updateClub({ id: club.id, changes: payload }).unwrap();
+      }
       onClose();
     } catch (err: any) {
       alert(err?.message || 'Could not save club');
@@ -52,15 +68,23 @@ export default function ClubModal() {
         </header>
 
         <div className="modal-body">
+          {mode === 'edit' && isLoadingClub ? (
+            <p>Loading club...</p>
+          ) : mode === 'edit' && isClubError ? (
+            <p>Could not load club</p>
+          ) : (
           <div className="form-grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
             <div className="form-field"><label>Name</label><input value={name} onChange={(e) => setName(e.target.value)} /></div>
             <div className="form-field"><label>Registration Number</label><input value={registrationNumber} onChange={(e) => setRegistrationNumber(e.target.value)} /></div>
           </div>
+          )}
         </div>
 
         <footer className="modal-footer">
           <button className="btn" onClick={onClose}>Cancel</button>
-          <button className="btn" onClick={onSave}>{mode === 'add' ? 'Add' : 'Save'}</button>
+          <button className="btn" onClick={onSave} disabled={isAdding || isUpdating || (mode ==='edit' && isLoadingClub)}>
+            {mode === 'add' ? 'Add' : 'Save'}
+          </button>
         </footer>
       </div>
     </div>

@@ -1,0 +1,48 @@
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import mongoose from 'mongoose';
+import playersRoutes from './routes/players.routes';
+import clubsRoutes from './routes/clubs.routes';
+import seasonsRoutes from './routes/seasons.routes';
+import teamsRoutes from './routes/teams.routes';
+ 
+dotenv.config();
+ 
+const app = express();
+const PORT = Number(process.env.PORT || 4000);
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/scoutingapp';
+const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || 'http://localhost:5173';
+ 
+app.use(
+  cors({
+    origin: CLIENT_ORIGIN,
+  })
+);
+ 
+app.use(express.json());
+ 
+app.get('/api/health', (_req, res) => {
+  res.json({ ok: true });
+});
+ 
+app.use('/api/players', playersRoutes);
+app.use('/api/clubs', clubsRoutes);
+app.use('/api/seasons', seasonsRoutes);
+app.use('/api/teams', teamsRoutes);
+
+async function start() {
+  try {
+    await mongoose.connect(MONGO_URI);
+    console.log('MongoDB connected');
+ 
+    app.listen(PORT, () => {
+      console.log(`Backend v2 listening on http://localhost:${PORT}`);
+    });
+  } catch (error) {
+    console.error('Failed to start backend', error);
+    process.exit(1);
+  }
+}
+ 
+start();

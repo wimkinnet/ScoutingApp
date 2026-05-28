@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { RootState } from '../app/store';
+import { useGetPlayerByIdQuery } from '../services/ScoutingApi';
 import { closeActionModal } from '../features/ui/uiSlice';
 import { addAction } from '../features/actions/actionsSlice';
 import type { ActionType } from '../app/types';
@@ -37,6 +38,10 @@ export default function ActionModal() {
     { "id": 20, "name": "Exclusion foul", "label": "EF" },
   ];
 
+  const { data: playerdb, isLoading: isLoadingPlayer, isError: isPlayerError } = useGetPlayerByIdQuery(player?.playerId ?? '', {
+    skip: !isOpen || (player?.playerId ? false : true)
+  });
+  
   const allActions = ActionTypes.map((a) => a.id);
   const [probableActions, setProbableActions] = useState<number[]>([]);
   const [otherActions, setOtherActions] = useState<number[]>([]);
@@ -116,7 +121,7 @@ export default function ActionModal() {
       <div className="modal-backdrop action" onClick={onClose} />
       <div className={isLeft ? "modal-content left" : "modal-content right"}>
         <header className="modal-header">
-          <div id="ActionModalTitle">Select Action for {players.entities[player?.playerId ? player.playerId : 0].firstName} {players.entities[player?.playerId ? player.playerId : 0].lastName} # {player?.shirtNumber}</div>
+          <div id="ActionModalTitle">Select Action for {playerdb?.firstName} {playerdb?.lastName} # {player?.shirtNumber}</div>
           <button className="btn small" onClick={onClose} aria-label="Close">✕</button>
         </header>
         <div className="modal-body">
