@@ -1,21 +1,17 @@
 import { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import type { RootState } from '../app/store';
-import { useGetPlayerByIdQuery } from '../services/ScoutingApi';
-import { closeActionModal } from '../features/ui/uiSlice';
-import { addAction } from '../features/actions/actionsSlice';
-import type { ActionType } from '../app/types';
+import { useAddLogMutation, useGetPlayerByIdQuery } from '../services/ScoutingApi';
+import type { LogType } from '../app/types';
+import type { ModalProps } from '../app/types';
 import './Modal.css';
 import '../styles/index.css'
 import '../styles/_tokens.css'
 
-export default function ActionModal() {
-  const dispatch = useDispatch();
-  const { isOpen, game, player, posX, posY, possession, direction, quarter, secRem } = useSelector((s: RootState) => s.ui.actionModal);
+export default function LogModal({ isOpen, onClose }: ModalProps) {
+  const { game, player, posX, posY, possession, direction, quarter, secRem } = useSelector((s: RootState) => s.ui.actionModal);
 
-  const players = useSelector((s: RootState) => s.players);
-
-  const ActionTypes: ActionType[] = [
+  const ActionTypes: LogType[] = [
     { "id": 1, "name": "1pt score", "label": "1pt" },
     { "id": 2, "name": "1pt miss", "label": "1att" },
     { "id": 3, "name": "2pt score", "label": "2pt" },
@@ -38,38 +34,37 @@ export default function ActionModal() {
     { "id": 20, "name": "Exclusion foul", "label": "EF" },
   ];
 
-  const { data: playerdb, isLoading: isLoadingPlayer, isError: isPlayerError } = useGetPlayerByIdQuery(player?.playerId ?? '', {
-    skip: !isOpen || (player?.playerId ? false : true)
+  const { data: playerdb } = useGetPlayerByIdQuery(player?.playerId ?? '', {
+    skip: !isOpen || !player?.playerId,
   });
   
   const allActions = ActionTypes.map((a) => a.id);
   const [probableActions, setProbableActions] = useState<number[]>([]);
   const [otherActions, setOtherActions] = useState<number[]>([]);
-  const [isLeft, setIsLeft] = useState<boolean>(false)
+  const [isLeft, setIsLeft] = useState<boolean>(false);
+
+  const [addLog] = useAddLogMutation();
 
   useEffect(() => {
     if (!isOpen) return;
-  }, [isOpen]);
-
-  const onClose = () => {
-    dispatch(closeActionModal());
     setProbableActions([]);
     setOtherActions([]);
-  };
-  const onSave = (e: any) => {
+  }, [isOpen]);
+
+  const onSave = async (e: any) => {
     const action = e.target.id;
     const payload = {
 	    gameId: game,
 	    actionId: action,
 	    playerId: player?.playerId,
-	    positionX: posX,
-	    positionY: posY,
-	    quarter: quarter,
-	    secRem: secRem
+	    positionX: posX || 0,
+	    positionY: posY || 0,
+	    quarter: quarter || 0,
+	    secRem: secRem || 0,
     };
 
     try {
-      dispatch(addAction(payload as any));
+      await addLog(payload as any).unwrap();
       onClose();
     } catch (err: any) {
       alert(err?.message || 'Could not save action');
@@ -79,6 +74,7 @@ export default function ActionModal() {
   useEffect(() => {
     let isLeftValue = (posX && posX < 14) ? true : false;
     setIsLeft(isLeftValue);
+    console.log(player?.homeTeam, posX, posY, possession, direction, quarter, secRem);
     const defensiveCourtIsLeft = (player?.homeTeam && direction === "Left") || (!(player?.homeTeam) && direction === "Right");
     const outTreePointCircleLeft = ((posX && posY) ? (((posX - 1.60) ** 2 + (posY - 7.5) ** 2 > (6.75 ** 2)) && (posX > 1.60)) : false);
     const outTreePointCircleRight = ((posX && posY) ? (((26.40 - posX) ** 2 + (posY - 7.5) ** 2 > (6.75 ** 2)) && (posX < 26.40)) : false);
@@ -93,6 +89,7 @@ export default function ActionModal() {
     const isFreeThrowRange = (inFreeThrowCircleLeft && !(defensiveCourtIsLeft)) || (inFreeThrowCircleRight && defensiveCourtIsLeft);
     const playerpossession = (player?.homeTeam && possession === "Home") || (!(player?.homeTeam) && possession === "Away")
     const offense = ((defensiveCourtIsLeft && isLeftValue === false) || (!defensiveCourtIsLeft && isLeftValue === true))
+    console.log(isTreePointRange, isFreeThrowRange, playerpossession, offense);
     let probable: number[] = [];
     if (playerpossession) {
       if (offense) {

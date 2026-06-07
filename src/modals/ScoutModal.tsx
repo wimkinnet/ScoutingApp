@@ -1,27 +1,47 @@
 import { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { RootState } from '../app/store';
-import { openActionModal, closeModal } from '../features/ui/uiSlice';
-import { addAction } from '../features/actions/actionsSlice';
+import { openActionModal } from '../features/ui/uiSlice';
+import { useAddLogMutation } from '../services/ScoutingApi';
+import type { ModalProps } from '../app/types';
+import { 
+  useGetGameByIdQuery,
+  useGetPlayersQuery,
+  useGetClubsQuery,
+  useGetTeamsQuery,
+  useGetLogsQuery,
+ } from '../services/ScoutingApi';
 import Timer from '../features/timer/timer';
 import './Modal.css';
 import '../styles/index.css'
 import '../styles/_tokens.css'
 import type { GamePlayer } from '../app/types';
+import ActionModal from './ActionModal';
 
-export default function ScoutModal() {
-  const dispatch = useDispatch();
-  const { isOpen, id } = useSelector((s: RootState) => s.ui.scoutModal);
-  const game = useSelector((s: RootState) => (id) ? s.games.entities[id] : null);
-  const teams = useSelector((s: RootState) => s.teams);
-  const clubs = useSelector((s: RootState) => s.clubs);
-  const players = useSelector((s: RootState) => s.players);
-  const actions = useSelector((s: RootState) => s.actions);
+export default function ScoutModal({ isOpen, onClose }: ModalProps) {
+  const dispatch = useDispatch()
+  const { id } = useSelector((s: RootState) => s.ui.scoutModal);
+
+  const { data: game, isLoading: isLoadingGame, isError: isGameError } = useGetGameByIdQuery(id ?? '', {
+    skip: !isOpen || !id,
+  });
   
-  const HomeClub = game ? clubs.entities[teams.entities[game.homeTeamId].clubId].id : "";
-  const AwayClub = game ? clubs.entities[teams.entities[game.awayTeamId].clubId].id : "";
-  const HomeTeam = game ? (`${clubs.entities[teams.entities[game.homeTeamId].clubId].name}`) : null;
-  const AwayTeam = game ? (`${clubs.entities[teams.entities[game.awayTeamId].clubId].name}`) : null;
+  const { data: clubs } = useGetClubsQuery(undefined, { skip: !isOpen });
+  const { data: players } = useGetPlayersQuery(undefined, { skip: !isOpen });
+  const { data: teams } = useGetTeamsQuery(undefined, { skip: !isOpen });
+  const { data: logs } = useGetLogsQuery(undefined, { skip: !isOpen });
+
+  const [addLog] = useAddLogMutation();
+  
+  const ht = teams?.find((t) => (t.id === game?.homeTeamId))
+  const at = teams?.find((t) => (t.id === game?.awayTeamId))
+  
+  const HomeClub = clubs?.find((cl) => (cl.id === ht?.clubId));
+  const AwayClub = clubs?.find((cl) => (cl.id === at?.clubId));
+  const Home = `${HomeClub?.name}`;
+  const Away = `${AwayClub?.name}`;
+
+  const [isOpenAction, setIsOpenAction] = useState(false);
   
   const [benchPlayersHome, setBenchPlayersHome] = useState<GamePlayer[]>([]);
   const [courtPlayersHome, setCourtPlayersHome] = useState<GamePlayer[]>([])
@@ -38,7 +58,7 @@ export default function ScoutModal() {
   const [secondsLeft, setSecondsLeft] = useState(600);
 
   const quarters: number[] = [1,2,3,4,5];
-  const possessions = [HomeClub ? clubs.entities[HomeClub].name : "", AwayClub ? clubs.entities[AwayClub].name : ""]
+  const possessions = [Home,Away]
   const directions = ["Left", "Right"];
   
   const [x, setX] = useState<number | null>(null);
@@ -53,19 +73,19 @@ export default function ScoutModal() {
 
   const homePlayersId = game?.homePlayers.map ((player) => (player.playerId));
   const awayPlayersId = game?.awayPlayers.map ((player) => (player.playerId));
-  const gameActions = actions.ids.filter((i) => actions.entities[i].gameId === id);
-  const freeThrows = gameActions.filter((i) => actions.entities[i].actionId === "1");
-  const twoPoints = gameActions.filter((i) => actions.entities[i].actionId === "3");
-  const threePoints = gameActions.filter((i) => actions.entities[i].actionId === "5");
-  const homeFreeThrows = freeThrows.filter((i) => homePlayersId?.includes(actions.entities[i].playerId));
-  const awayFreeThrows = freeThrows.filter((i) => awayPlayersId?.includes(actions.entities[i].playerId));
-  const homeTwoPoints = twoPoints.filter((i) => homePlayersId?.includes(actions.entities[i].playerId));
-  const awayTwoPoints = twoPoints.filter((i) => awayPlayersId?.includes(actions.entities[i].playerId));
-  const homeThreePoints = threePoints.filter((i) => homePlayersId?.includes(actions.entities[i].playerId));
-  const awayThreePoints = threePoints.filter((i) => awayPlayersId?.includes(actions.entities[i].playerId));
-  const homeScore = homeFreeThrows.length + homeTwoPoints.length * 2 + homeThreePoints.length * 3;
-  const awayScore = awayFreeThrows.length + awayTwoPoints.length * 2 + awayThreePoints.length * 3;
-  const Fouls = gameActions.filter((i) => (Number(actions.entities[i].actionId) > 12) && (Number(actions.entities[i].actionId) < 21));
+  const gameActions = logs?.filter((log) => log.gameId === id);
+  const freeThrows = gameActions?.filter((log) => log.actionId === "1") || [];
+  const twoPoints = gameActions?.filter((log) => log.actionId === "3") || [];
+  const threePoints = gameActions?.filter((log) => log.actionId === "5") || [];
+  const homeFreeThrows = freeThrows.filter((log) => homePlayersId?.includes(log.playerId));
+  const awayFreeThrows = freeThrows.filter((log) => awayPlayersId?.includes(log.playerId));
+  const homeTwoPoints = twoPoints.filter((log) => homePlayersId?.includes(log.playerId));
+  const awayTwoPoints = twoPoints.filter((log) => awayPlayersId?.includes(log.playerId));
+  const homeThreePoints = threePoints.filter((log) => homePlayersId?.includes(log.playerId));
+  const awayThreePoints = threePoints.filter((log) => awayPlayersId?.includes(log.playerId));
+  const homeScore = homeFreeThrows.length + homeTwoPoints?.length * 2 + homeThreePoints?.length * 3;
+  const awayScore = awayFreeThrows.length + awayTwoPoints?.length * 2 + awayThreePoints?.length * 3;
+  const Fouls = gameActions?.filter((log) => (Number(log.actionId) > 12) && (Number(log.actionId) < 21)) || [];
 
   const GamePlayers = game?.homePlayers ? [...game?.homePlayers, ...game?.awayPlayers].sort((a,b) => {
             if (a.shirtNumber < b.shirtNumber) return -1;
@@ -73,10 +93,10 @@ export default function ScoutModal() {
             return 0;
         }) : null;
   const GamePlayersScores  = GamePlayers?.map((pl) => {
-    const playerFreeThrows = freeThrows.filter((i) => actions.entities[i].playerId === pl.playerId);
-    const playerTwoPoints = twoPoints.filter((i) => actions.entities[i].playerId === pl.playerId);
-    const playerThreePoints = threePoints.filter((i) => actions.entities[i].playerId === pl.playerId);
-    const playerFouls = Fouls.filter((i) => actions.entities[i].playerId === pl.playerId);
+    const playerFreeThrows = freeThrows.filter((log) => log.playerId === pl.playerId);
+    const playerTwoPoints = twoPoints.filter((log) => log.playerId === pl.playerId);
+    const playerThreePoints = threePoints.filter((log) => log.playerId === pl.playerId);
+    const playerFouls = Fouls.filter((log) => log.playerId === pl.playerId);
     return {
       ...pl,
       points: playerFreeThrows.length + playerTwoPoints.length * 2 + playerThreePoints.length * 3,
@@ -90,11 +110,9 @@ export default function ScoutModal() {
     setCourtPlayersHome([]);
     setBenchPlayersAway(game?.awayPlayers ?? []);
     setCourtPlayersAway([]);
-    setPossession(null);
-    setPosHomeAway("");
-  }, [isOpen, id]);
-
-  const onClose = () => dispatch(closeModal());
+    setPossession(Home);
+    setPosHomeAway("Home");
+  }, [isOpen, game]);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -248,7 +266,7 @@ export default function ScoutModal() {
     if (!ctx) return;
     
     drawCourt(ctx);
-  });
+  },[isOpen, game]);
 
   window.addEventListener('resize', () => {
     const canvas = canvasRef.current;
@@ -260,18 +278,25 @@ export default function ScoutModal() {
     drawCourt(ctx);
   });
 
-  const playerAction = (pl: GamePlayer, action: string) => {
+  const playerAction = async (pl: GamePlayer, action: string) => {
+
+    if (!game?.id) {
+      console.error('Action aborted: game.id is undefined');
+      return;
+    }
+
     const payload = {
-      gameId: game?.id,
+      gameId: game.id,
       actionId: action,
       playerId: pl.playerId,
-      positionX: x,
-      positionY: y,
+      positionX: 0,
+      positionY: 0,
       quarter: quarter,
       secRem: secondsLeft,
     };
+    console.log(payload);
     try {
-      dispatch(addAction(payload as any));
+      await addLog(payload as any).unwrap();
     } catch (err: any) {
       alert(err?.message || 'Could not save action');
     };
@@ -435,15 +460,15 @@ export default function ScoutModal() {
   }
 
   const PossessionClick = (e: any) => {
-    const clickedClub = clubs.ids.find((cl) => clubs.entities[cl].name === e.target.id);
+    const clickedClub = clubs?.find((cl) => (cl.name === e.target.id));
     if (clickedClub) {
-      setPossession(clubs.entities[clickedClub].id)
+      setPossession(clickedClub.name)
     }
-    game ? ((clickedClub === clubs.entities[teams.entities[game.homeTeamId].clubId].id) ? setPosHomeAway("Home") : setPosHomeAway("Away")) : setPosHomeAway ("");
+    game ? ((clickedClub === HomeClub) ? setPosHomeAway("Home") : setPosHomeAway("Away")) : setPosHomeAway ("");
   }
 
   const PossessionSwitch = () => {
-    (possession === HomeClub) ? setPossession(AwayClub) : setPossession(HomeClub);
+    (possession === Home) ? setPossession(Away) : setPossession(Home);
     (posHomeAway === "Home") ? setPosHomeAway("Away") : setPosHomeAway("Home");
   }
 
@@ -455,6 +480,7 @@ export default function ScoutModal() {
     const canvas = document.getElementById('court');
     const rect = canvas?.getBoundingClientRect(); // Absolute position of canvas
     // relative to top left corner of the court
+    console.log(originX, originY, scale);
     if (originX && originY && scale) {
       const x = rect ? (e.clientX - rect.left - originX) / scale : 0; 
       const y = rect ? (e.clientY - rect.top - originY) / scale : 0;
@@ -472,6 +498,7 @@ export default function ScoutModal() {
           quarter: quarter,
           secRem: secondsLeft,
         };
+        setIsOpenAction(true);
         dispatch(openActionModal(payload));
         setSelectedPlayer(undefined)
       } else {
@@ -493,169 +520,191 @@ export default function ScoutModal() {
       window.removeEventListener('keydown', handleKeyDown);
     };
   });
+
+  const onCloseModal = (() => {
+    setIsOpenAction(false);
+  })
     
   if (!isOpen) return null;
 
   return (
-    <div className="modal scout-modal" aria-hidden={isOpen ? 'false' : 'true'} role="dialog" aria-labelledby="GameModalTitle">
-      <div className="modal-backdrop" onClick={onClose} />
-      <div className="modal-content">
-        <header className="modal-header">
-          <div className='header-blank'></div>
-          <div className='header-team'>{HomeTeam}</div>
-          <div className="header-score">{homeScore} - {awayScore}
-          </div>
-          <div className='header-team'>{AwayTeam}</div>
-          <button className="btn small" onClick={onClose} aria-label="Close">✕</button>
-        </header>
-        <div className="modal-body">
-          <div className='info-container'>
-            <div className='team-players-left'>
-              {benchPlayersHome.map((pl) => {
-                const isSelected = (playerInSelected === pl);
-                return isSelected ? (
-                  <div className='team-player selected' id={pl.shirtNumber.toString()} onClick={(e) => HomeBenchClick(e)}>{pl.shirtNumber}
-                    <span className='player-tooltip'>{players.entities[pl.playerId].firstName} {players.entities[pl.playerId].lastName}</span>
-                  </div>
-                ) : (
-                  <div className='team-player' id={pl.shirtNumber.toString()} onClick={(e) => HomeBenchClick(e)}>{pl.shirtNumber}
-                    <span className='player-tooltip'>{players.entities[pl.playerId].firstName} {players.entities[pl.playerId].lastName}</span>
-                  </div>
-                )
-              })}
-              <div className='team-player' >AC
-                <span className='player-tooltip'>Assistent Coach</span>
-              </div>
-              <div className='team-player' >C
-                <span className='player-tooltip'>Coach</span>
-              </div>
+    <div>
+      <div className="modal scout-modal" aria-hidden={isOpen ? 'false' : 'true'} role="dialog" aria-labelledby="GameModalTitle">
+        <div className="modal-backdrop" onClick={onClose} />
+        <div className="modal-content">
+          <header className="modal-header">
+            <div className='header-blank'></div>
+            <div className='header-team'>{Home}</div>
+            <div className="header-score">{homeScore} - {awayScore}
             </div>
-            <div className='possession-selector'>
-              <div className='possession-header'>Ball possession</div>
-              <div className='possession-container'>
-                {possessions.map((pos) => {
-                  const isSelected = (possession ? clubs.entities[possession].name === pos : false);
-                  return isSelected ? (
-                    <div className='possession selected'>{pos}</div>
-                  ) : (
-                    <div className='possession' id={pos} onClick={(e) => PossessionClick(e)}>{pos}</div>
-                  )
-                })}
-              </div>
-            </div>
-            <div className="timer">
-              <Timer secondsLeft={secondsLeft} setSecondsLeft={setSecondsLeft} />
-            </div>
-            <div className='quarter-direction'>
-              <div className='quarter-header'>Current quarter</div>
-              <div className='quarter-container'>
-                {quarters.map((q) => {
-                  const isSelected = (quarter === q);
-                  return isSelected ? (
-                    <div className='quarter selected'>{q}</div>
-                  ) : (
-                    <div className='quarter' id={q.toLocaleString()} onClick={(e) => QuarterClick(e)}>{q}</div>
-                  )
-                })}
-              </div>
-              <div className='direction-header'>Away direction</div>
-              <div className='direction-container'>
-                {directions.map((dir) => {
-                const isSelected = (awayDir === dir);
-                return isSelected ? (
-                  <div className='direction selected'>{dir}</div>
-                ) : (
-                  <div className='direction' id={dir} onClick={(e) => DirectionClick(e)}>{dir}</div>
-                )
-                })}
-              </div>
-            </div>
-            <div className='team-players-right'>
-              <div className='team-player right' >C
-                <span className='player-tooltip right'>Coach</span>
-              </div>
-              <div className='team-player' >AC
-                <span className='player-tooltip right'>Assistent Coach</span>
-              </div>
-              {benchPlayersAway.map((pl) => {
-                const isSelected = (playerInSelected === pl);
-                return isSelected ? (
-                  <div className='team-player selected' id={pl.shirtNumber.toString()} onClick={(e) => AwayBenchClick(e)}>{pl.shirtNumber}
-                    <span className='player-tooltip right'>{players.entities[pl.playerId].firstName} {players.entities[pl.playerId].lastName}</span>
+            <div className='header-team'>{Away}</div>
+            <button className="btn small" onClick={onClose} aria-label="Close">✕</button>
+          </header>
+          <div className="modal-body">
+            {isLoadingGame ? (
+              <p>Loading game...</p>
+            ) : isGameError ? (
+              <p>Could not load team</p>
+            ) : (
+              <div>
+                <div className='info-container'>
+                  <div className='team-players-left'>
+                    {benchPlayersHome.map((pl) => {
+                      const isSelected = (playerInSelected === pl);
+                      const player = players?.find((p) => p.id === pl.playerId);
+                      return isSelected ? (
+                        <div className='team-player selected' id={pl.shirtNumber.toString()} onClick={(e) => HomeBenchClick(e)}>{pl.shirtNumber}
+                          <span className='player-tooltip'>{player?.firstName} {player?.lastName}</span>
+                        </div>
+                      ) : (
+                        <div className='team-player' id={pl.shirtNumber.toString()} onClick={(e) => HomeBenchClick(e)}>{pl.shirtNumber}
+                          <span className='player-tooltip'>{player?.firstName} {player?.lastName}</span>
+                        </div>
+                      )
+                    })}
+                    <div className='team-player' >AC
+                      <span className='player-tooltip'>Assistent Coach</span>
+                    </div>
+                    <div className='team-player' >C
+                      <span className='player-tooltip'>Coach</span>
+                    </div>
                   </div>
-                ) : (
-                  <div className='team-player' id={pl.shirtNumber.toString()} onClick={(e) => AwayBenchClick(e)}>{pl.shirtNumber}
-                    <span className='player-tooltip right'>{players.entities[pl.playerId].firstName} {players.entities[pl.playerId].lastName}</span>
+                  <div className='possession-selector'>
+                    <div className='possession-header'>Ball possession</div>
+                    <div className='possession-container'>
+                      {possessions.map((pos) => {
+                        const isSelected = (possession === pos);
+                        return isSelected ? (
+                          <div className='possession selected'>{pos}</div>
+                        ) : (
+                          <div className='possession' id={pos} onClick={(e) => PossessionClick(e)}>{pos}</div>
+                        )
+                      })}
+                    </div>
                   </div>
-                )
-              })}
+                  <div className="timer">
+                    <Timer secondsLeft={secondsLeft} setSecondsLeft={setSecondsLeft} />
+                  </div>
+                  <div className='quarter-direction'>
+                    <div className='quarter-header'>Current quarter</div>
+                    <div className='quarter-container'>
+                      {quarters.map((q) => {
+                        const isSelected = (quarter === q);
+                        return isSelected ? (
+                          <div className='quarter selected'>{q}</div>
+                        ) : (
+                          <div className='quarter' id={q.toLocaleString()} onClick={(e) => QuarterClick(e)}>{q}</div>
+                        )
+                      })}
+                    </div>
+                    <div className='direction-header'>Away direction</div>
+                    <div className='direction-container'>
+                      {directions.map((dir) => {
+                      const isSelected = (awayDir === dir);
+                      return isSelected ? (
+                        <div className='direction selected'>{dir}</div>
+                      ) : (
+                        <div className='direction' id={dir} onClick={(e) => DirectionClick(e)}>{dir}</div>
+                      )
+                      })}
+                    </div>
+                  </div>
+                  <div className='team-players-right'>
+                    <div className='team-player right' >C
+                      <span className='player-tooltip right'>Coach</span>
+                    </div>
+                    <div className='team-player' >AC
+                      <span className='player-tooltip right'>Assistent Coach</span>
+                    </div>
+                    {benchPlayersAway.map((pl) => {
+                      const isSelected = (playerInSelected === pl);
+                      const player = players?.find((p) => p.id === pl.playerId);
+                      return isSelected ? (
+                        <div className='team-player selected' id={pl.shirtNumber.toString()} onClick={(e) => AwayBenchClick(e)}>{pl.shirtNumber}
+                          <span className='player-tooltip right'>{player?.firstName} {player?.lastName}</span>
+                        </div>
+                      ) : (
+                        <div className='team-player' id={pl.shirtNumber.toString()} onClick={(e) => AwayBenchClick(e)}>{pl.shirtNumber}
+                          <span className='player-tooltip right'>{player?.firstName} {player?.lastName}</span>
+                        </div>
+                      )
+                    })}
+                    </div>
+                </div>       
+                <div className='court-container'>
+                  <div className='court-players-details left'>
+                    <div className="player-detail-container">
+                      <div className="player-detail">#</div>
+                      <div className="player-detail">Fouls</div>
+                      <div className="player-detail">Pts</div>
+                    </div>
+                    {GamePlayersScores?.map((pl) => {
+                      const isHome = (pl.homeTeam);
+                      return isHome &&
+                      <div className="player-detail-container">
+                        <div className="player-detail">{pl.shirtNumber}</div>
+                        <div className="player-detail">{pl.fouls}</div>
+                        <div className="player-detail">{pl.points}</div>
+                      </div>  
+                  })}
+                  </div>
+                  <div className='court-players'>
+                    {courtPlayersHome.map((pl) => {
+                      const isSelected = (selectedPlayer === pl);
+                      const player = players?.find((p) => p.id === pl.playerId);
+                      return isSelected ? (
+                        <div className='court-player selected' id={pl.playerId} onClick={(e) => CourtPlayerClick(e)}>{pl.shirtNumber}
+                          <span className='player-tooltip'>{player?.firstName} {player?.lastName}</span>
+                        </div>
+                      ) : (
+                        <div className='court-player' id={pl.playerId} onClick={(e) => CourtPlayerClick(e)}>{pl.shirtNumber}
+                          <span className='player-tooltip'>{player?.firstName} {player?.lastName}</span>
+                        </div>
+                      )
+                    })}
+                  </div>
+                  <canvas id='court' ref={canvasRef} onClick={(e) => CourtClick(e)}/>
+                  <div className='court-players'>
+                    {courtPlayersAway.map((pl) => {
+                      const isSelected = (selectedPlayer === pl);
+                      const player = players?.find((p) => p.id === pl.playerId);
+                      return isSelected ? (
+                        <div className='court-player selected' id={pl.playerId} onClick={(e) => CourtPlayerClick(e)}>{pl.shirtNumber}
+                          <span className='player-tooltip right'>{player?.firstName} {player?.lastName}</span>
+                        </div>
+                      ) : (
+                        <div className='court-player' id={pl.playerId} onClick={(e) => CourtPlayerClick(e)}>{pl.shirtNumber}
+                          <span className='player-tooltip right'>{player?.firstName} {player?.lastName}</span>
+                        </div>
+                      )
+                    })}
+                  </div>
+                  <div className='court-players-details right'>
+                    <div className="player-detail-container">
+                      <div className="player-detail">Pts</div>
+                      <div className="player-detail">Fouls</div>
+                      <div className="player-detail">#</div>
+                    </div>
+                    {GamePlayersScores?.map((pl) => {
+                      const isHome = (pl.homeTeam);
+                      return !isHome &&
+                      <div className="player-detail-container">
+                        <div className="player-detail">{pl.points}</div>
+                        <div className="player-detail">{pl.fouls}</div>
+                        <div className="player-detail">{pl.shirtNumber}</div>
+                      </div>  
+                    })}
+                  </div>
+                </div>
               </div>
-          </div>       
-          <div className='court-container'>
-            <div className='court-players-details left'>
-              <div className="player-detail-container">
-                <div className="player-detail">#</div>
-                <div className="player-detail">Fouls</div>
-                <div className="player-detail">Pts</div>
-              </div>
-              {GamePlayersScores?.map((pl) => {
-                const isHome = (pl.homeTeam);
-                return isHome &&
-                <div className="player-detail-container">
-                  <div className="player-detail">{pl.shirtNumber}</div>
-                  <div className="player-detail">{pl.fouls}</div>
-                  <div className="player-detail">{pl.points}</div>
-                </div>  
-            })}
-            </div>
-            <div className='court-players'>
-              {courtPlayersHome.map((pl) => {
-                const isSelected = (selectedPlayer === pl);
-                return isSelected ? (
-                  <div className='court-player selected' id={pl.playerId} onClick={(e) => CourtPlayerClick(e)}>{pl.shirtNumber}
-                    <span className='player-tooltip'>{players.entities[pl.playerId].firstName} {players.entities[pl.playerId].lastName}</span>
-                  </div>
-                ) : (
-                  <div className='court-player' id={pl.playerId} onClick={(e) => CourtPlayerClick(e)}>{pl.shirtNumber}
-                    <span className='player-tooltip'>{players.entities[pl.playerId].firstName} {players.entities[pl.playerId].lastName}</span>
-                  </div>
-                )
-              })}
-            </div>
-            <canvas id='court' ref={canvasRef} onClick={(e) => CourtClick(e)}/>
-            <div className='court-players'>
-              {courtPlayersAway.map((pl) => {
-                const isSelected = (selectedPlayer === pl);
-                return isSelected ? (
-                  <div className='court-player selected' id={pl.playerId} onClick={(e) => CourtPlayerClick(e)}>{pl.shirtNumber}
-                    <span className='player-tooltip right'>{players.entities[pl.playerId].firstName} {players.entities[pl.playerId].lastName}</span>
-                  </div>
-                ) : (
-                  <div className='court-player' id={pl.playerId} onClick={(e) => CourtPlayerClick(e)}>{pl.shirtNumber}
-                    <span className='player-tooltip right'>{players.entities[pl.playerId].firstName} {players.entities[pl.playerId].lastName}</span>
-                  </div>
-                )
-              })}
-            </div>
-            <div className='court-players-details right'>
-              <div className="player-detail-container">
-                <div className="player-detail">Pts</div>
-                <div className="player-detail">Fouls</div>
-                <div className="player-detail">#</div>
-              </div>
-              {GamePlayersScores?.map((pl) => {
-                const isHome = (pl.homeTeam);
-                return !isHome &&
-                <div className="player-detail-container">
-                  <div className="player-detail">{pl.points}</div>
-                  <div className="player-detail">{pl.fouls}</div>
-                  <div className="player-detail">{pl.shirtNumber}</div>
-                </div>  
-              })}
-            </div>
+            )}
           </div>
         </div>
       </div>
+      < ActionModal 
+        isOpen={isOpenAction}
+        onClose={onCloseModal}
+      />
     </div>
   );
 }

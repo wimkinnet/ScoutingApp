@@ -2,7 +2,6 @@ import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import type { GamePlayer } from '../../app/types';
 
 interface ModalState {
-  isOpen: boolean;
   mode: 'add' | 'edit';
   id: string | null;
 }
@@ -13,54 +12,42 @@ interface UIState {
   seasonModal: ModalState;
   teamModal: ModalState;
   gameModal: ModalState;
-  scoutModal: { isOpen: boolean; id: string | null };
+  scoutModal: { id: string | null };
   actionModal: { 
-    isOpen: boolean; game: string | null; player: GamePlayer | null; posX: number | null, posY: number | null,
+    game: string | null; player: GamePlayer | null; posX: number | null, posY: number | null,
     possession: string | null, direction: string | null, quarter: number | null, secRem: number | null
   }
 }
 
 const initialState: UIState = {
-  playerModal: { isOpen: false, mode: 'add', id: null},
-  clubModal: { isOpen: false, mode: 'add', id: null},
-  seasonModal: { isOpen: false, mode: 'add', id: null},
-  teamModal: { isOpen: false, mode: 'add', id: null},
-  gameModal: { isOpen: false, mode: 'add', id: null},
-  scoutModal: { isOpen: false, id: null},
-  actionModal: { isOpen: false, game: null, player: null, posX: null, posY: null, possession: null, direction: null, quarter: null, secRem: null}
+  playerModal: { mode: 'add', id: null },
+  clubModal: { mode: 'add', id: null },
+  seasonModal: { mode: 'add', id: null },
+  teamModal: { mode: 'add', id: null },
+  gameModal: { mode: 'add', id: null },
+  scoutModal: { id: null },
+  actionModal: { game: null, player: null, posX: null, posY: null, possession: null, direction: null, quarter: null, secRem: null }
 };
 
 const slice = createSlice({
   name: 'ui',
   initialState,
   reducers: {
-    openAddPlayerModal(state) { state.playerModal = { isOpen: true, mode: 'add', id: null }; },
-    openEditPlayerModal(state, action: PayloadAction<string>) { state.playerModal = { isOpen: true, mode: 'edit', id: action.payload}; },
-    openAddClubModal(state) { state.clubModal = { isOpen: true, mode: 'add', id: null }; },
-    openEditClubModal(state, action: PayloadAction<string>) { state.clubModal = { isOpen: true, mode: 'edit', id: action.payload }; },
-    openAddSeasonModal(state) { state.seasonModal = { isOpen: true, mode: 'add', id: null }; },
-    openEditSeasonModal(state, action: PayloadAction<string>) { state.seasonModal = { isOpen: true, mode: 'edit', id: action.payload}; },
-    openAddTeamModal(state) { state.teamModal = { isOpen: true, mode: 'add', id: null }; },
-    openEditTeamModal(state, action: PayloadAction<string>) { state.teamModal = { isOpen: true, mode: 'edit', id: action.payload}; },
-    openAddGameModal(state) { state.gameModal = { isOpen: true, mode: 'add', id: null }; },
-    openEditGameModal(state, action: PayloadAction<string>) { state.gameModal = { isOpen: true, mode: 'edit', id: action.payload}; },
-    openScoutModal(state, action: PayloadAction<string>) { state.scoutModal = { isOpen: true, id: action.payload}; },
+    openAddPlayerModal(state) { state.playerModal = { mode: 'add', id: null }; },
+    openEditPlayerModal(state, action: PayloadAction<string>) { state.playerModal = { mode: 'edit', id: action.payload}; },
+    openAddClubModal(state) { state.clubModal = {  mode: 'add', id: null }; },
+    openEditClubModal(state, action: PayloadAction<string>) { state.clubModal = { mode: 'edit', id: action.payload }; },
+    openAddSeasonModal(state) { state.seasonModal = { mode: 'add', id: null }; },
+    openEditSeasonModal(state, action: PayloadAction<string>) { state.seasonModal = { mode: 'edit', id: action.payload}; },
+    openAddTeamModal(state) { state.teamModal = { mode: 'add', id: null }; },
+    openEditTeamModal(state, action: PayloadAction<string>) { state.teamModal = { mode: 'edit', id: action.payload}; },
+    openAddGameModal(state) { state.gameModal = { mode: 'add', id: null }; },
+    openEditGameModal(state, action: PayloadAction<string>) { state.gameModal = { mode: 'edit', id: action.payload}; },
+    openScoutModal(state, action: PayloadAction<string>) { state.scoutModal = { id: action.payload}; },
     openActionModal(state, action) { 
       const { game, player, posX, posY, possession, direction, quarter, secRem } = action.payload;
-      state.actionModal = { isOpen: true, game: game, player: player, posX: posX, posY: posY, possession: possession, direction: direction, quarter: quarter, secRem: secRem};
+      state.actionModal = { game: game, player: player, posX: posX, posY: posY, possession: possession, direction: direction, quarter: quarter, secRem: secRem};
     },
-    closeModal(state) { 
-      state.playerModal.isOpen = false; 
-      state.clubModal.isOpen = false; 
-      state.seasonModal.isOpen = false; 
-      state.teamModal.isOpen = false; 
-      state.gameModal.isOpen = false; 
-      state.scoutModal.isOpen = false;
-      state.actionModal.isOpen = false;
-    },
-    closeActionModal(state) {
-      state.actionModal.isOpen = false;
-    }
   },
 });
 
@@ -71,7 +58,6 @@ export const {
   openAddTeamModal, openEditTeamModal,
   openAddGameModal, openEditGameModal,
   openScoutModal, openActionModal,
-  closeModal, closeActionModal,
 } = slice.actions;
 
 export default slice.reducer;

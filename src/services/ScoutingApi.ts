@@ -18,12 +18,46 @@ export interface Season {
 	name: string;
 }
 
+export interface Team {
+	id: string;
+	name: string;
+	clubId: string;
+	seasonId: string;
+	playerIds: string[];
+}
+
+export interface GamePlayer {
+	playerId: string;
+	shirtNumber: number;
+	homeTeam: boolean;
+}
+
+export interface Game {
+	id: string;
+	homeTeamId: string;
+	awayTeamId: string;
+	date: string;
+	homePlayers: GamePlayer[];
+	awayPlayers: GamePlayer[];
+}
+
+export interface Log {
+	id: string;
+	gameId: string;
+	actionId: string;
+	playerId: string;
+	positionX: number;
+	positionY: number;
+	quarter: number;
+	secRem: number;
+}
+
 export const scoutingApi = createApi({
     reducerPath: 'scoutingApi',
     baseQuery: fetchBaseQuery({
         baseUrl: 'http://localhost:4000/api',
     }),
-    tagTypes: ['Player', 'Club', 'Season'],
+    tagTypes: ['Player', 'Club', 'Season', 'Team', 'Game', 'Log'],
     endpoints: (builder) => ({
         
         //Player API's
@@ -175,6 +209,156 @@ export const scoutingApi = createApi({
             { type: 'Season', id: 'LIST' },
         ],
         }),
+
+        //Team API's
+
+        getTeams: builder.query<Team[], void>({
+            query: () => '/teams',
+            providesTags: (result) => 
+                result
+                    ? [
+                        ...result.map((team) => ({type: 'Team' as const, id: team.id})),
+                        { type: 'Team' as const, id: 'LIST' },
+                    ]
+                    : [{ type: 'Team' as const, id: 'LIST' }],
+        }),
+
+        getTeamById: builder.query<Team, string>({
+            query: (id) => `/teams/${id}`,
+            providesTags: (_result, _error, id) => [{ type: 'Team', id }],
+        }),
+
+        addTeam: builder.mutation<Team, Omit<Team, 'id'>>({
+        query: (body) => ({
+            url: '/teams',
+            method: 'POST',
+            body,
+        }),
+        invalidatesTags: [{ type: 'Team', id: 'LIST' }],
+        }),
+    
+        updateTeam: builder.mutation<Team, { id: string; changes: Partial<Omit<Team, 'id'>> }>({
+        query: ({ id, changes }) => ({
+            url: `/teams/${id}`,
+            method: 'PATCH',
+            body: changes,
+        }),
+        invalidatesTags: (_result, _error, arg) => [
+            { type: 'Team', id: arg.id },
+            { type: 'Team', id: 'LIST' },
+        ],
+        }),
+    
+        deleteTeam: builder.mutation<{ success: boolean; id: string }, string>({
+        query: (id) => ({
+            url: `/teams/${id}`,
+            method: 'DELETE',
+        }),
+        invalidatesTags: (_result, _error, id) => [
+            { type: 'Team', id },
+            { type: 'Team', id: 'LIST' },
+        ],
+        }),
+
+        //Game API's
+
+        getGames: builder.query<Game[], void>({
+            query: () => '/games',
+            providesTags: (result) => 
+                result
+                    ? [
+                        ...result.map((game) => ({type: 'Game' as const, id: game.id})),
+                        { type: 'Game' as const, id: 'LIST' },
+                    ]
+                    : [{ type: 'Game' as const, id: 'LIST' }],
+        }),
+
+        getGameById: builder.query<Game, string>({
+            query: (id) => `/games/${id}`,
+            providesTags: (_result, _error, id) => [{ type: 'Game', id }],
+        }),
+
+        addGame: builder.mutation<Game, Omit<Game, 'id'>>({
+        query: (body) => ({
+            url: '/games',
+            method: 'POST',
+            body,
+        }),
+        invalidatesTags: [{ type: 'Game', id: 'LIST' }],
+        }),
+    
+        updateGame: builder.mutation<Game, { id: string; changes: Partial<Omit<Game, 'id'>> }>({
+        query: ({ id, changes }) => ({
+            url: `/games/${id}`,
+            method: 'PATCH',
+            body: changes,
+        }),
+        invalidatesTags: (_result, _error, arg) => [
+            { type: 'Game', id: arg.id },
+            { type: 'Game', id: 'LIST' },
+        ],
+        }),
+    
+        deleteGame: builder.mutation<{ success: boolean; id: string }, string>({
+        query: (id) => ({
+            url: `/games/${id}`,
+            method: 'DELETE',
+        }),
+        invalidatesTags: (_result, _error, id) => [
+            { type: 'Game', id },
+            { type: 'Game', id: 'LIST' },
+        ],
+        }),
+
+        //Log API's
+
+        getLogs: builder.query<Log[], void>({
+            query: () => '/logs',
+            providesTags: (result) => 
+                result
+                    ? [
+                        ...result.map((log) => ({type: 'Log' as const, id: log.id})),
+                        { type: 'Log' as const, id: 'LIST' },
+                    ]
+                    : [{ type: 'Log' as const, id: 'LIST' }],
+        }),
+
+        getLogById: builder.query<Log, string>({
+            query: (id) => `/logs/${id}`,
+            providesTags: (_result, _error, id) => [{ type: 'Log', id }],
+        }),
+
+        addLog: builder.mutation<Log, Omit<Log, 'id'>>({
+        query: (body) => ({
+            url: '/logs',
+            method: 'POST',
+            body,
+        }),
+        invalidatesTags: [{ type: 'Log', id: 'LIST' }],
+        }),
+    
+        updateLog: builder.mutation<Log, { id: string; changes: Partial<Omit<Log, 'id'>> }>({
+        query: ({ id, changes }) => ({
+            url: `/logs/${id}`,
+            method: 'PATCH',
+            body: changes,
+        }),
+        invalidatesTags: (_result, _error, arg) => [
+            { type: 'Log', id: arg.id },
+            { type: 'Log', id: 'LIST' },
+        ],
+        }),
+    
+        deleteLog: builder.mutation<{ success: boolean; id: string }, string>({
+        query: (id) => ({
+            url: `/logs/${id}`,
+            method: 'DELETE',
+        }),
+        invalidatesTags: (_result, _error, id) => [
+            { type: 'Log', id },
+            { type: 'Log', id: 'LIST' },
+        ],
+        }),
     }),
 });
  
@@ -194,4 +378,19 @@ export const {
     useAddSeasonMutation,
     useUpdateSeasonMutation,
     useDeleteSeasonMutation,
+    useGetTeamByIdQuery,
+    useGetTeamsQuery,
+    useAddTeamMutation,
+    useUpdateTeamMutation,
+    useDeleteTeamMutation,
+    useGetGameByIdQuery,
+    useGetGamesQuery,
+    useAddGameMutation,
+    useUpdateGameMutation,
+    useDeleteGameMutation,
+    useGetLogByIdQuery,
+    useGetLogsQuery,
+    useAddLogMutation,
+    useUpdateLogMutation,
+    useDeleteLogMutation,
 } = scoutingApi;

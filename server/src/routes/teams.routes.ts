@@ -105,7 +105,7 @@ router.patch('/:id', async (req, res) => {
     }
 
     if (changes.playerIds !== undefined) {
-      update.playersIds = changes.playerIds;
+      update.playerIds = changes.playerIds;
     }
  
     const team = await Team.findOneAndUpdate(

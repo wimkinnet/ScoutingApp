@@ -1,48 +1,92 @@
-import { useDispatch, useSelector } from 'react-redux';
-import type { RootState } from '../app/store';
+import { useAppDispatch } from '../app/hooks';
+import { useState } from 'react';
+import { useGetGamesQuery, useDeleteGameMutation, useGetClubsQuery, useGetTeamsQuery } from '../services/ScoutingApi';
 import './Lists.css';
 import '../styles/index.css'
 import '../styles/_tokens.css'
 import { openAddGameModal, openEditGameModal, openScoutModal } from '../features/ui/uiSlice';
-import { removeGame } from '../features/games/gamesSlice';
+import GameModal from '../modals/GameModal';
+import ScoutModal from '../modals/ScoutModal';
 
 export default function GamesIndex() {
-  const games = useSelector((s: RootState) => s.games);
-  const teams = useSelector((s: RootState) => s.teams);
-  const clubs = useSelector((s: RootState) => s.clubs);
-  const dispatch = useDispatch();
+  const { data: games = [], isLoading, isError, error } = useGetGamesQuery();
+  const { data: clubs = [] } = useGetClubsQuery();
+  const { data: teams = [] } = useGetTeamsQuery();
+  const dispatch = useAppDispatch();
+  const [deleteGame] = useDeleteGameMutation();
+  const [isOpen, setIsOpen] = useState(false);
+  const [isOpenScout, setIsOpenScout] = useState(false);
+    
+  if (isLoading) {
+    return <p>Loading games ...</p>
+  }
+  
+  const onOpenAddModal = (() => {
+    setIsOpen(true);
+    dispatch(openAddGameModal())
+  })
+  
+  const onOpenEditModal = ((game: any) => {
+    setIsOpen(true);
+    dispatch(openEditGameModal(game.id))
+  })
 
+  const onOpenScoutModal = ((game: any) => {
+    setIsOpenScout(true);
+    dispatch(openScoutModal(game.id))
+  })
+  
+  const onCloseModal = (() => {
+    setIsOpen(false);
+    setIsOpenScout(false);
+  })
+
+  if (isError) {
+    return (
+      <p>Error loading games: {JSON.stringify(error)}</p>
+    )
+  }  
 
   return (
-    <ul className="listContainer">
-      <button className="btn" onClick={() => dispatch(openAddGameModal())}>Add Game</button>
-      <div className="listHeader">
-        <div className="listHeaderItem game">Scout Team</div>
-        <div className="listHeaderItem game">Opponent</div>
-        <div className="listHeaderItem game">Date</div>
-        <div className="listHeaderItem">Actions</div>
-      </div>
-      {[...games.ids].sort((a, b) => games.entities[a].date.getTime() - games.entities[b].date.getTime()).map(id => (
-      <li key={id}>
-        <div className="listRow">
-          <div className="listItem game" onClick={() => dispatch(openEditGameModal(games.entities[id].id))}>{clubs.entities[teams.entities[games.entities[id].homeTeamId].clubId].name} {teams.entities[games.entities[id].homeTeamId].name}</div>
-          <div className="listItem game" onClick={() => dispatch(openEditGameModal(games.entities[id].id))}>{clubs.entities[teams.entities[games.entities[id].awayTeamId].clubId].name} {teams.entities[games.entities[id].awayTeamId].name}</div>
-          <div className="listItem game" onClick={() => dispatch(openEditGameModal(games.entities[id].id))}>{games.entities[id].date.toLocaleDateString()}</div>
-          <div className="listAction">
-            <button className="btn" onClick={() => {dispatch(openScoutModal(games.entities[id].id))}}>
-              Open
-            </button>
-            <button className="btn" onClick={() => {dispatch(openEditGameModal(games.entities[id].id))}}>
-              Edit
-            </button>
-            <button className="btn" onClick={() => {dispatch(removeGame(games.entities[id].id))}}>
-              Delete
-            </button>
-          </div>
+    <div>
+      <ul className="listContainer">
+        <button className="btn" onClick={() => onOpenAddModal()}>Add Game</button>
+        <div className="listHeader">
+          <div className="listHeaderItem game">Scout Team</div>
+          <div className="listHeaderItem game">Opponent</div>
+          <div className="listHeaderItem game">Date</div>
+          <div className="listHeaderItem">Actions</div>
         </div>
-      </li>
-      ))}
-    </ul>
+        {[...games].sort((a, b) => Date.parse(b.date) - Date.parse(a.date)).map((game) => (
+        <li key={game.id}>
+          <div className="listRow">
+            <div className="listItem game" onClick={() => onOpenEditModal(game)}>{clubs.find((cl) => (cl.id === (teams.find((t) => (t.id === game.homeTeamId))?.clubId)))?.name} {teams.find((t) => (t.id === game.homeTeamId))?.name}</div>
+            <div className="listItem game" onClick={() => onOpenEditModal(game)}>{clubs.find((cl) => (cl.id === (teams.find((t) => (t.id === game.awayTeamId))?.clubId)))?.name} {teams.find((t) => (t.id === game.awayTeamId))?.name}</div>
+            <div className="listItem game" onClick={() => onOpenEditModal(game)}>{game.date}</div>
+            <div className="listAction">
+              <button className="btn" onClick={() => onOpenScoutModal(game)}>
+                Open
+              </button>
+              <button className="btn" onClick={() => onOpenEditModal(game)}>
+                Edit
+              </button>
+              <button className="btn" onClick={() => deleteGame(game.id)}>
+                Delete
+              </button>
+            </div>
+          </div>
+        </li>
+        ))}
+      </ul>
+      <GameModal
+        isOpen={isOpen}
+        onClose={onCloseModal}
+      />
+      <ScoutModal
+        isOpen={isOpenScout}
+        onClose={onCloseModal}
+      />
+    </div>
   );
 };
 

@@ -11,6 +11,7 @@ import Clubs from './pages/Clubs'
 import Seasons from './pages/Seasons'
 import Teams from './pages/Teams'
 import Games from './pages/Games'
+import Logs from './pages/Logs'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -23,6 +24,7 @@ createRoot(document.getElementById('root')!).render(
 					<Route path="seasons" element={<Seasons />} ></Route>
 					<Route path="teams" element={<Teams />} ></Route>
 					<Route path="games" element={<Games />} ></Route>
+					<Route path="logs" element={<Logs />} ></Route>
 				</Route>
 			</Routes>
 		</BrowserRouter>

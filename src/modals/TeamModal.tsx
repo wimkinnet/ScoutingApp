@@ -1,80 +1,114 @@
-import { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useState, useEffect, useRef } from 'react';
+import { useSelector } from 'react-redux';
 import type { RootState } from '../app/store';
-import { addTeam, updateTeam } from '../features/teams/teamsSlice';
-import { closeModal } from '../features/ui/uiSlice';
+import type { ModalProps } from '../app/types';
+import { 
+  useGetTeamByIdQuery,
+  useGetPlayersQuery,
+  useGetClubsQuery, 
+  useGetSeasonsQuery,
+  useAddTeamMutation,
+  useUpdateTeamMutation
+ } from '../services/ScoutingApi';
 import './Modal.css';
-import '../styles/index.css'
-import '../styles/_tokens.css'
+import '../styles/index.css';
+import '../styles/_tokens.css';
 
-export default function TeamModal() {
-  const dispatch = useDispatch();
-  const { isOpen, mode, id } = useSelector((s: RootState) => s.ui.teamModal);
-  const team = useSelector((s: RootState) => (mode === 'edit' && id) ? s.teams.entities[id] : null);
-  const clubs = useSelector((s: RootState) => s.clubs);
-  const seasons = useSelector((s: RootState) => s.seasons);
-  const players = useSelector((s: RootState) => s.players);
+export default function TeamModal({ isOpen, onClose }: ModalProps) {
+  const { mode, id } = useSelector((s: RootState) => s.ui.teamModal);
+  const { data: team, isLoading: isLoadingTeam, isError: isTeamError } = useGetTeamByIdQuery(id ?? '', {
+    skip: !isOpen || mode !== 'edit' || !id,
+  });
 
-  const [name, setName] = useState(team?.name ?? '');
-  const [clubId, setClubId] = useState(team?.clubId ?? '');
-  const [seasonId, setSeasonId] = useState(team?.seasonId ?? '');
-  const [playerIds, setPlayerIds] = useState(team?.playerIds ?? []);
+  const { data: clubs } = useGetClubsQuery(undefined, { skip: !isOpen });
+  const { data: seasons } = useGetSeasonsQuery(undefined, { skip: !isOpen });
+  const { data: players } = useGetPlayersQuery(undefined, { skip: !isOpen });
+
+  const [addTeam, { isLoading: isAdding }] = useAddTeamMutation();
+  const [updateTeam, { isLoading: isUpdating }] = useUpdateTeamMutation();
+
+  const [name, setName] = useState('');
+  const [clubId, setClubId] = useState('');
+  const [seasonId, setSeasonId] = useState('');
+  const [playerIds, setPlayerIds] = useState<string[]>([]);
+
   const [availableSelection, setAvailableSelection] = useState<string[]>([]);
   const [selectedSelection, setSelectedSelection] = useState<string[]>([]);
-
-  const availablePlayers = players.ids.reduce<Array<any>>((acc, id) => {
-    const player = players.entities[id];
-    if (player && !playerIds.includes(player.id)) acc.push(player);
-    return acc;
-  }, []);
-
-  const selectedPlayers = players.ids.reduce<Array<any>>((acc, id) => {
-    const player = players.entities[id];
-    if (player && playerIds.includes(player.id)) acc.push(player);
-    return acc;
-  }, []);
-
-  useEffect(() => {
-    if (!isOpen) return;
-    setName(team?.name ?? '');
-    setClubId(team?.clubId ?? '');
-    setSeasonId(team?.seasonId ?? '');
-    setPlayerIds(team?.playerIds ?? []);
-    setAvailableSelection([]);
-    setSelectedSelection([]);
-  }, [isOpen, mode, id]);
-
-  const addSelected = () => {
-    setPlayerIds([...playerIds, ...availableSelection]);
-    setAvailableSelection([]);
-  };
-
-  const removeSelected = () => {
-    setPlayerIds(playerIds.filter(id => !selectedSelection.includes(id)));
-    setSelectedSelection([]);
-  };
-
-  const onClose = () => dispatch(closeModal());
-    const onSave = () => {
-      if (!name.trim()) return alert('Name is mandatory');
-      if (!clubId) return alert('Club is mandatory');
-      if (!seasonId) return alert('Season is mandatory');
-      
-      const payload = {
-        name,
-        clubId,
-        seasonId,
-        playerIds,
-      };
   
-      try {
-        if (mode === 'add') dispatch(addTeam(payload as any));
-        else if (mode === 'edit' && team?.id) dispatch(updateTeam({ id: team.id, changes: payload }));
-        onClose();
-      } catch (err: any) {
-        alert(err?.message || 'Could not save team');
-      }
+  // Keep track of the last loaded team ID to avoid infinite overwrite loops
+  const lastLoadedIdRef = useRef<string | null>(null);
+  
+  useEffect(() => {
+    if (!isOpen) {
+      // Clear tracking when closed
+      lastLoadedIdRef.current = null;
+      return;
+    }
+
+    // Scenario A: Add Mode - Initialize empty form once
+    if (mode === 'add' && lastLoadedIdRef.current !== 'add') {
+      setName('');
+      setClubId('');
+      setSeasonId('');
+      setPlayerIds([]);
+      setAvailableSelection([]);
+      setSelectedSelection([]);
+      lastLoadedIdRef.current = 'add';
+    } 
+    // Scenario B: Edit Mode - Initialize form only when the specific team payload loads
+    else if (mode === 'edit' && team && lastLoadedIdRef.current !== team.id) {
+      setName(team.name ?? '');
+      setClubId(team.clubId ?? '');
+      setSeasonId(team.seasonId ?? '');
+      setPlayerIds(team.playerIds ?? []);
+      setAvailableSelection([]);
+      setSelectedSelection([]);
+      lastLoadedIdRef.current = team.id;
+    }
+  }, [isOpen, mode, team]);
+
+
+  const availablePlayers = players?.filter((player) => !playerIds.includes(player.id)) ?? [];
+  const selectedPlayers = players?.filter((player) => playerIds.includes(player.id)) ?? [];
+  
+  const addSelected = () => {
+  // Use functional state updates to prevent race conditions
+  setPlayerIds((prev) => [...prev, ...availableSelection]);
+  // Wipe out selections immediately so HTML elements reset cleanly
+  setAvailableSelection([]);
+};
+
+const removeSelected = () => {
+  // Always query 'prev' array states directly
+  setPlayerIds((prev) => prev.filter((id) => !selectedSelection.includes(id)));
+  // Wipe out selections immediately so HTML elements reset cleanly
+  setSelectedSelection([]);
+};
+
+  const onSave = async () => {
+    if (!name.trim()) return alert('Name is mandatory');
+    if (!clubId) return alert('Club is mandatory');
+    if (!seasonId) return alert('Season is mandatory');
+    if (playerIds.length < 5) return alert('Add at least 5 players')
+    
+    const payload = {
+      name,
+      clubId,
+      seasonId,
+      playerIds,
     };
+
+    try {
+      if (mode === 'add') {
+      await addTeam(payload).unwrap();
+    } else if (mode === 'edit' && team?.id) {
+      await updateTeam({ id: team.id, changes: payload }).unwrap();
+    }
+      onClose();
+    } catch (err: any) {
+      alert(err?.message || 'Could not save team');
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -88,13 +122,17 @@ export default function TeamModal() {
         </header>
 
         <div className="modal-body">
+          {mode === 'edit' && isLoadingTeam ? (
+            <p>Loading team...</p>
+          ) : mode === 'edit' && isTeamError ? (
+            <p>Could not load team</p>
+          ) : (
           <div className="form-grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
             <div className="form-field"><label>Name</label><input value={name} onChange={(e) => setName(e.target.value)} /></div>
             <div className="form-field"><label>Club</label>
               <select value={clubId} onChange={(e) => setClubId(e.target.value)}>
                 <option value="">Select Club</option>
-                {clubs.ids.map((id) => {
-                  const club = clubs.entities[id];
+                {clubs?.map((club) => {
                   return (
                     <option key={club.id} value={club.id}>
                       {club.name}
@@ -106,8 +144,7 @@ export default function TeamModal() {
             <div className="form-field"><label>Season</label>
               <select value={seasonId} onChange={(e) => setSeasonId(e.target.value)}>
                 <option value="">Select Season</option>
-                {seasons.ids.map((id) => {
-                  const season = seasons.entities[id];
+                {seasons?.map((season) => {
                   return (
                     <option key={season.id} value={season.id}>
                       {season.name}
@@ -121,7 +158,7 @@ export default function TeamModal() {
                 <div className="list">
                   <label>Available Players</label>
                   <select multiple value={availableSelection} onChange={(e) => setAvailableSelection(Array.from(e.target.selectedOptions, (o) => o.value))} style={{ width: '200px', height: '200px' }}>
-                    {availablePlayers.map((player) => (
+                    {availablePlayers?.map((player) => (
                       <option key={player.id} value={player.id}>
                         {player.lastName} {player.firstName}
                       </option>
@@ -129,13 +166,13 @@ export default function TeamModal() {
                   </select>
                 </div>
                 <div className="buttons" style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                  <button className="btn small" onClick={addSelected} disabled={!availableSelection.length}>&gt;<br />Add</button>
-                  <button className="btn small" onClick={removeSelected} disabled={!selectedSelection.length}>&lt; Remove</button>
+                  <button className="btn small" onClick={addSelected} disabled={availableSelection.length === 0}>&gt; Add</button>
+                  <button className="btn small" onClick={removeSelected} disabled={selectedSelection.length === 0}>&lt; Remove</button>
                 </div>
                 <div className="list">
                   <label>Selected Players</label>
                   <select multiple value={selectedSelection} onChange={(e) => setSelectedSelection(Array.from(e.target.selectedOptions, (o) => o.value))} style={{ width: '200px', height: '200px' }}>
-                    {selectedPlayers.map((player) => (
+                    {selectedPlayers?.map((player) => (
                       <option key={player.id} value={player.id}>
                         {player.lastName} {player.firstName}
                       </option>
@@ -145,11 +182,12 @@ export default function TeamModal() {
               </div>
             </div>
           </div>
+          )}
         </div>
 
         <footer className="modal-footer">
           <button className="btn" onClick={onClose}>Cancel</button>
-          <button className="btn" onClick={onSave}>{mode === 'add' ? 'Add' : 'Save'}</button>
+          <button className="btn" onClick={onSave} disabled={isAdding || isUpdating || (mode ==='edit' && isLoadingTeam)}>{mode === 'add' ? 'Add' : 'Save'}</button>
         </footer>
       </div>
     </div>

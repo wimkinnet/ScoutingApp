@@ -6,6 +6,8 @@ import playersRoutes from './routes/players.routes';
 import clubsRoutes from './routes/clubs.routes';
 import seasonsRoutes from './routes/seasons.routes';
 import teamsRoutes from './routes/teams.routes';
+import gamesRoutes from './routes/games.routes';
+import logsRoutes from './routes/logs.routes';
  
 dotenv.config();
  
@@ -30,6 +32,8 @@ app.use('/api/players', playersRoutes);
 app.use('/api/clubs', clubsRoutes);
 app.use('/api/seasons', seasonsRoutes);
 app.use('/api/teams', teamsRoutes);
+app.use('/api/games', gamesRoutes);
+app.use('/api/logs', logsRoutes);
 
 async function start() {
   try {

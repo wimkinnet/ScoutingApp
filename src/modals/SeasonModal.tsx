@@ -1,16 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import type { RootState } from '../app/store';
-import { useAppDispatch } from '../app/hooks';
+import type { ModalProps } from '../app/types';
 import { useAddSeasonMutation, useUpdateSeasonMutation, useGetSeasonByIdQuery } from '../services/ScoutingApi';
-import { closeModal } from '../features/ui/uiSlice';
 import './Modal.css';
 import '../styles/index.css'
 import '../styles/_tokens.css'
 
-export default function SeasonModal() {
-  const dispatch = useAppDispatch();
-  const { isOpen, mode, id } = useSelector((s: RootState) => s.ui.seasonModal);
+export default function SeasonModal({ isOpen, onClose }: ModalProps) {
+  const { mode, id } = useSelector((s: RootState) => s.ui.seasonModal);
   const { data: season, isLoading: isLoadingSeason, isError: isSeasonError } = useGetSeasonByIdQuery(id ?? '', {
     skip: !isOpen || mode !== 'edit' || !id,
   });
@@ -28,9 +26,7 @@ export default function SeasonModal() {
     } else if (mode === 'add') {
       setName('');
     }
-  }, [isOpen, mode, id]);
-
-  const onClose = () => dispatch(closeModal());
+  }, [isOpen, mode, id, season]);
 
   const onSave = async () => {
     if (!name.trim()) return alert('Name is mandatory');

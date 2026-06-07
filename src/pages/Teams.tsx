@@ -1,45 +1,77 @@
-import { useDispatch, useSelector } from 'react-redux';
-import type { RootState } from '../app/store';
+import { useState } from 'react';
+import { useAppDispatch } from '../app/hooks';
+import { useGetClubsQuery, useGetSeasonsQuery, useGetTeamsQuery, useDeleteTeamMutation } from '../services/ScoutingApi';
 import './Lists.css';
-import '../styles/index.css'
-import '../styles/_tokens.css'
+import '../styles/index.css';
+import '../styles/_tokens.css';
+import TeamModal from '../modals/TeamModal';
 import { openAddTeamModal, openEditTeamModal } from '../features/ui/uiSlice';
-import { removeTeam } from '../features/teams/teamsSlice';
 
 export default function TeamsIndex() {
-  const teams = useSelector((s: RootState) => s.teams);
-  const clubs = useSelector((s: RootState) => s.clubs);
-  const seasons = useSelector((s: RootState) => s.seasons);
-  const dispatch = useDispatch();
+  const { data: teams = [], isLoading, isError, error } = useGetTeamsQuery();
+  const { data: clubs = [] } = useGetClubsQuery();
+  const { data: seasons = [] } = useGetSeasonsQuery();
+  const dispatch = useAppDispatch();
+  const [deleteTeam] = useDeleteTeamMutation();
+  const [isOpen, setIsOpen] = useState(false);
+    
+  if (isLoading) {
+    return <p>Loading teams ...</p>
+  }
+    
+  if (isError) {
+    return (
+      <p>Error loading teams: {JSON.stringify(error)}</p>
+    )
+  }
 
+  const onOpenAddModal = (() => {
+    setIsOpen(true);
+    dispatch(openAddTeamModal())
+  })
+    
+  const onOpenEditModal = ((team: any) => {
+    setIsOpen(true);
+    dispatch(openEditTeamModal(team.id))
+  })
+    
+  const onCloseModal = (() => {
+    setIsOpen(false);
+  })
 
   return (
-    <ul className="listContainer">
-      <button className="btn" onClick={() => dispatch(openAddTeamModal())}>Add Team</button>
-      <div className="listHeader">
-        <div className="listHeaderItem">Name</div>
-        <div className="listHeaderItem">Club</div>
-        <div className="listHeaderItem">Season</div>
-        <div className="listHeaderItem">Actions</div>
-      </div>
-      {[...teams.ids].sort((a, b) => teams.entities[a].name.localeCompare(teams.entities[b].name)).map(id => (
-      <li key={id}>
-        <div className="listRow">
-          <div className="listItem" onClick={() => dispatch(openEditTeamModal(teams.entities[id].id))}>{teams.entities[id].name}</div>
-          <div className="listItem" onClick={() => dispatch(openEditTeamModal(teams.entities[id].id))}>{clubs.entities[teams.entities[id].clubId].name}</div>
-          <div className="listItem" onClick={() => dispatch(openEditTeamModal(teams.entities[id].id))}>{seasons.entities[teams.entities[id].seasonId].name}</div>
-          <div className="listAction">
-            <button className="btn" onClick={() => {dispatch(openEditTeamModal(teams.entities[id].id))}}>
-              Edit
-            </button>
-            <button className="btn" onClick={() => {dispatch(removeTeam(teams.entities[id].id))}}>
-              Delete
-            </button>
-          </div>
+    <div>
+      <ul className="listContainer">
+        <button className="btn" onClick={onOpenAddModal}>Add Team</button>
+        <div className="listHeader">
+          <div className="listHeaderItem">Name</div>
+          <div className="listHeaderItem">Club</div>
+          <div className="listHeaderItem">Season</div>
+          <div className="listHeaderItem">Actions</div>
         </div>
-      </li>
-      ))}
-    </ul>
+        {[...teams].sort((a, b) => a.name.localeCompare(b.name)).map(team => (
+        <li key={team.id}>
+          <div className="listRow">
+            <div className="listItem" onClick={() => onOpenEditModal(team)}>{team.name}</div>
+            <div className="listItem" onClick={() => onOpenEditModal(team)}>{clubs.find((cl) => cl.id === team.clubId)?.name}</div>
+            <div className="listItem" onClick={() => onOpenEditModal(team)}>{seasons.find((s) => s.id === team.seasonId)?.name}</div>
+            <div className="listAction">
+              <button className="btn" onClick={() => onOpenEditModal(team)}>
+                Edit
+              </button>
+              <button className="btn" onClick={() => deleteTeam(team.id)}>
+                Delete
+              </button>
+            </div>
+          </div>
+        </li>
+        ))}
+      </ul>
+      <TeamModal
+        isOpen={isOpen}
+        onClose={onCloseModal}
+      />
+    </div>
   );
 };
 

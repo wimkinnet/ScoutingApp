@@ -1,16 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import type { RootState } from '../app/store';
+import type { ModalProps } from '../app/types';
 import { useAddClubMutation, useUpdateClubMutation, useGetClubByIdQuery } from '../services/ScoutingApi';
-import { useAppDispatch } from '../app/hooks';
-import { closeModal } from '../features/ui/uiSlice';
 import './Modal.css';
 import '../styles/index.css'
 import '../styles/_tokens.css'
 
-export default function ClubModal() {
-  const dispatch = useAppDispatch();
-  const { isOpen, mode, id } = useSelector((s: RootState) => s.ui.clubModal);
+export default function ClubModal({ isOpen, onClose }: ModalProps) {
+  const { mode, id } = useSelector((s: RootState) => s.ui.clubModal);
   const { data: club, isLoading: isLoadingClub, isError: isClubError } = useGetClubByIdQuery(id ?? '', {
       skip: !isOpen || mode !== 'edit' || !id,
     });
@@ -31,9 +29,7 @@ export default function ClubModal() {
       setName('');
       setRegistrationNumber('');
     }
-  }, [isOpen, mode, id]);
-
-  const onClose = () => dispatch(closeModal());
+  }, [isOpen, mode, id, club]);
 
   const onSave = async () => {
     if (!name.trim()) return alert('Name is mandatory');

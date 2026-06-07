@@ -1,16 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import type { RootState } from '../app/store';
-import { useAppDispatch } from '../app/hooks';
+import type { ModalProps } from '../app/types';
 import { useAddPlayerMutation, useUpdatePlayerMutation, useGetPlayerByIdQuery } from '../services/ScoutingApi';
-import { closeModal } from '../features/ui/uiSlice';
 import './Modal.css';
 import '../styles/index.css'
 import '../styles/_tokens.css'
 
-export default function PlayerModal() {
-  const dispatch = useAppDispatch();
-  const { isOpen, mode, id } = useSelector((s: RootState) => s.ui.playerModal);
+export default function PlayerModal({ isOpen, onClose }: ModalProps) {
+  const { mode, id } = useSelector((s: RootState) => s.ui.playerModal);
   const { data: player, isLoading: isLoadingPlayer, isError: isPlayerError } = useGetPlayerByIdQuery(id ?? '', {
     skip: !isOpen || mode !== 'edit' || !id,
   });
@@ -21,7 +19,7 @@ export default function PlayerModal() {
   const [lastName, setLastName] = useState(player?.lastName ?? '');
   const [firstName, setFirstName] = useState(player?.firstName ?? '');
   const [dateOfBirth, setDateOfBirth] = useState(player?.dateOfBirth ?? undefined);
-
+  
   useEffect(() => {
     if (!isOpen) return;
 
@@ -34,9 +32,7 @@ export default function PlayerModal() {
       setFirstName('');
       setDateOfBirth('');
     }
-  }, [isOpen, mode, id]);
-
-  const onClose = () => dispatch(closeModal());
+  }, [isOpen, mode, id, player]);
 
   const onSave = async () => {
     if (!firstName.trim()) return alert('First name is mandatory');
