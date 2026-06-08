@@ -55,7 +55,8 @@ export interface Log {
 export const scoutingApi = createApi({
     reducerPath: 'scoutingApi',
     baseQuery: fetchBaseQuery({
-        baseUrl: 'http://localhost:4000/api',
+        //baseUrl: 'http://localhost:4000/api',
+        baseUrl: 'https://scoutingapp-e1oh.onrender.com/api',
     }),
     tagTypes: ['Player', 'Club', 'Season', 'Team', 'Game', 'Log'],
     endpoints: (builder) => ({
