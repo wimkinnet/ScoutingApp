@@ -40,8 +40,8 @@ async function start() {
     await mongoose.connect(MONGO_URI);
     console.log('MongoDB connected');
  
-    app.listen(PORT, () => {
-      console.log(`Backend v2 listening on http://localhost:${PORT}`);
+    app.listen(PORT, '0.0.0.0', () => {
+        console.log(`Backend v2 listening on port ${PORT}`);
     });
   } catch (error) {
     console.error('Failed to start backend', error);
