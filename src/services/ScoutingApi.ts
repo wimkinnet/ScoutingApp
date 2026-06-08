@@ -52,13 +52,19 @@ export interface Log {
 	secRem: number;
 }
 
+export interface Action {
+	id: string;
+	name: string;
+	label: string;
+}
+
 export const scoutingApi = createApi({
     reducerPath: 'scoutingApi',
     baseQuery: fetchBaseQuery({
         //baseUrl: 'http://localhost:4000/api',
         baseUrl: 'https://scoutingapp-e1oh.onrender.com/api',
     }),
-    tagTypes: ['Player', 'Club', 'Season', 'Team', 'Game', 'Log'],
+    tagTypes: ['Player', 'Club', 'Season', 'Team', 'Game', 'Log', 'Action'],
     endpoints: (builder) => ({
         
         //Player API's
@@ -360,6 +366,24 @@ export const scoutingApi = createApi({
             { type: 'Log', id: 'LIST' },
         ],
         }),
+
+        //Action API's
+
+        getActions: builder.query<Action[], void>({
+            query: () => '/actions',
+            providesTags: (result) => 
+                result
+                    ? [
+                        ...result.map((action) => ({type: 'Action' as const, id: action.id})),
+                        { type: 'Action' as const, id: 'LIST' },
+                    ]
+                    : [{ type: 'Action' as const, id: 'LIST' }],
+        }),
+
+        getActionById: builder.query<Action, string>({
+            query: (id) => `/actions/${id}`,
+            providesTags: (_result, _error, id) => [{ type: 'Action', id }],
+        }),
     }),
 });
  
@@ -394,4 +418,6 @@ export const {
     useAddLogMutation,
     useUpdateLogMutation,
     useDeleteLogMutation,
+    useGetActionByIdQuery,
+    useGetActionsQuery,
 } = scoutingApi;
