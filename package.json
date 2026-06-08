@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist",
-    "start": "ts-node index.ts"
+    "start": "ts-node server/index.ts"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.11.2",
