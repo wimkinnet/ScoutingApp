@@ -36,16 +36,19 @@ app.use('/api/games', gamesRoutes);
 app.use('/api/logs', logsRoutes);
 
 async function start() {
+  // 1. Immediately start the server so Render detects the open port
+  const server = app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Backend v2 listening on port ${PORT}`);
+  });
+
+  // 2. Attempt the database connection asynchronously
   try {
     await mongoose.connect(MONGO_URI);
-    console.log('MongoDB connected');
- 
-    app.listen(PORT, '0.0.0.0', () => {
-        console.log(`Backend v2 listening on port ${PORT}`);
-    });
+    console.log('MongoDB connected successfully');
   } catch (error) {
-    console.error('Failed to start backend', error);
-    process.exit(1);
+    console.error('Failed to connect to MongoDB', error);
+    // Optional: Close the server and crash if DB is strictly required
+    server.close(() => process.exit(1));
   }
 }
  
