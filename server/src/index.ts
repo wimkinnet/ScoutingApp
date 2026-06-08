@@ -12,7 +12,8 @@ import logsRoutes from './routes/logs.routes';
 dotenv.config();
  
 const app = express();
-const PORT = Number(process.env.PORT || 4000);
+// 1. Let Express handle the string port naturally (don't convert to a Number)
+const PORT = process.env.PORT || '4000'; 
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/scoutingapp';
 const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || 'http://localhost:5173';
  
@@ -36,20 +37,21 @@ app.use('/api/games', gamesRoutes);
 app.use('/api/logs', logsRoutes);
 
 async function start() {
-  // 1. Immediately start the server so Render detects the open port
-  const server = app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Backend v2 listening on port ${PORT}`);
-  });
-
-  // 2. Attempt the database connection asynchronously
   try {
-    await mongoose.connect(MONGO_URI);
-    console.log('MongoDB connected successfully');
+    // 2. Start listening IMMEDIATELY on 0.0.0.0 so Render detects the open port
+    app.listen(parseInt(PORT, 10), '0.0.0.0', () => {
+      console.log(`Server successfully listening on host 0.0.0.0, port ${PORT}`);
+    });
+
+    // 3. Connect to MongoDB in the background without blocking the port open check
+    mongoose.connect(MONGO_URI)
+      .then(() => console.log('MongoDB connected successfully'))
+      .catch((err) => console.error('MongoDB connection deferred error:', err));
+
   } catch (error) {
-    console.error('Failed to connect to MongoDB', error);
-    // Optional: Close the server and crash if DB is strictly required
-    server.close(() => process.exit(1));
+    console.error('Fatal error during startup sequence:', error);
+    process.exit(1);
   }
 }
- 
+
 start();
