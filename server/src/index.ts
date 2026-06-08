@@ -18,11 +18,21 @@ const PORT = process.env.PORT || '4000';
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/scoutingapp';
 const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || 'http://localhost:5173';
  
-app.use(
-  cors({
-    origin: CLIENT_ORIGIN,
-  })
-);
+const allowedOrigins = CLIENT_ORIGIN.split(',');
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps, curl, or Postman)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    } else {
+      return callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
+}));
  
 app.use(express.json());
  
