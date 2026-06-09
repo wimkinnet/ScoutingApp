@@ -94,10 +94,34 @@ export const scoutingApi = createApi({
                         });
                     };
 
+                    const playerUpdatedHandler = (updatedPlayer: Player) => {
+                        updateCachedData((draft) => {
+                            const index = draft.findIndex((p) => p.id === updatedPlayer.id);
+                            if (index !== -1) {
+                                draft[index] = updatedPlayer;
+                            }
+                        });
+                    };
+
+                    const playerDeletedHandler = (deletedPlayerId: string) => {
+                        updateCachedData((draft) => {
+                            const index = draft.findIndex((p) => p.id === deletedPlayerId);
+                            if (index !== -1) {
+                                draft.splice(index, 1);
+                            }
+                        });
+                    };
+
                     socket.on('playerCreated', playerCreatedHandler);
+                    socket.on('playerUpdated', playerUpdatedHandler);
+                    socket.on('playerDeleted', playerDeletedHandler);
 
                     await cacheEntryRemoved;
+                    
                     socket.off('playerCreated', playerCreatedHandler);
+                    socket.off('playerUpdated', playerUpdatedHandler);
+                    socket.off('playerDeleted', playerDeletedHandler);
+                    
                     socket.disconnect();
                 } catch {
                     // no need to do anything, subscription is automatically removed

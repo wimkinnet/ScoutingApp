@@ -108,10 +108,13 @@ router.patch('/:id', async (req, res) => {
         runValidators: true,
       }
     ).lean();
- 
+
     if (!player) {
       return res.status(404).json({ message: 'Player not found' });
     }
+
+    const io = getIo();
+    io.emit('playerUpdated', player);
  
     res.json(player);
   } catch (error) {
@@ -128,6 +131,9 @@ router.delete('/:id', async (req, res) => {
     if (!deleted) {
       return res.status(404).json({ message: 'Player not found' });
     }
+ 
+    const io = getIo();
+    io.emit('playerDeleted', req.params.id);
  
     res.json({
       success: true,
