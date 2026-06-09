@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { Club } from '../models/Club';
+import { getIo } from '../socket';
  
 const router = Router();
  
@@ -58,6 +59,9 @@ router.post('/', async (req, res) => {
       name: name.trim(),
       registrationNumber: registrationNumber.trim(),
     });
+
+    const io = getIo();
+    io.emit('clubCreated', club.toObject());
  
     res.status(201).json(club.toObject());
   } catch (error: any) {
@@ -66,7 +70,6 @@ router.post('/', async (req, res) => {
     if (error?.code === 11000) {
       return res.status(409).json({ message: 'Duplicate club id' });
     }
- 
     res.status(500).json({ message: 'Failed to create club' });
   }
 });
@@ -101,6 +104,9 @@ router.patch('/:id', async (req, res) => {
     if (!club) {
       return res.status(404).json({ message: 'Club not found' });
     }
+
+    const io = getIo();
+    io.emit('clubUpdated', club);
  
     res.json(club);
   } catch (error) {
@@ -117,6 +123,9 @@ router.delete('/:id', async (req, res) => {
     if (!deleted) {
       return res.status(404).json({ message: 'Club not found' });
     }
+ 
+    const io = getIo();
+    io.emit('clubDeleted', req.params.id);
  
     res.json({
       success: true,

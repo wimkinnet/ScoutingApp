@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { Team } from '../models/Team';
+import { getIo } from '../socket';
  
 const router = Router();
  
@@ -67,7 +68,9 @@ router.post('/', async (req, res) => {
       playerIds: playerIds,
     });
 
- 
+    const io = getIo();
+    io.emit('teamCreated', team.toObject());
+
     res.status(201).json(team.toObject());
   } catch (error: any) {
     console.error('POST /api/teams failed', error);
@@ -121,6 +124,9 @@ router.patch('/:id', async (req, res) => {
       return res.status(404).json({ message: 'Team not found' });
     }
  
+    const io = getIo();
+    io.emit('teamUpdated', team);
+ 
     res.json(team);
   } catch (error) {
     console.error(`PATCH /api/teams/${req.params.id} failed`, error);
@@ -137,6 +143,9 @@ router.delete('/:id', async (req, res) => {
       return res.status(404).json({ message: 'Team not found' });
     }
  
+    const io = getIo();
+    io.emit('teamDeleted', req.params.id);
+
     res.json({
       success: true,
       id: req.params.id,

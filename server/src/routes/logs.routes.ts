@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { Log } from '../models/Log';
+import { getIo } from '../socket';
 
 const router = Router();
 
@@ -79,6 +80,9 @@ router.post('/', async (req, res) => {
       secRem: secRem, 
     });
 
+    const io = getIo();
+    io.emit('logCreated', log.toObject());
+
     res.status(201).json(log.toObject());
   } catch (error: any) {
     console.error('POST /api/logs failed', error);
@@ -147,6 +151,9 @@ router.patch('/:id', async (req, res) => {
       return res.status(404).json({ message: 'Log not found' });
     }
 
+    const io = getIo();
+    io.emit('logUpdated', log);
+
     res.json(log);
   } catch (error) {
     console.error(`PATCH /api/logs/${req.params.id} failed`, error);
@@ -162,6 +169,9 @@ router.delete('/:id', async (req, res) => {
     if (!deleted) {
       return res.status(404).json({ message: 'Log not found' });
     }
+
+    const io = getIo();
+    io.emit('logDeleted', req.params.id);
 
     res.json({
       success: true,

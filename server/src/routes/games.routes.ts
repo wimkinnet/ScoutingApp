@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { Game } from '../models/Game'
+import { getIo } from '../socket';
 
 const router = Router();
 
@@ -67,6 +68,9 @@ router.post('/', async (req, res) => {
       awayPlayers: awayPlayers,
     });
 
+    const io = getIo();
+    io.emit('gameCreated', game.toObject());
+
     res.status(201).json(game.toObject());
   } catch (error: any) {
     console.error('POST /api/games failed', error);
@@ -106,6 +110,9 @@ router.patch('/:id', async (req, res) => {
       { new: true, runValidators: true }
     ).lean();
 
+    const io = getIo();
+    io.emit('gameUpdated', game);
+
     if (!game) return res.status(404).json({ message: 'Game not found' });
     res.json(game);
   } catch (error) {
@@ -118,6 +125,9 @@ router.patch('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
   try {
     const deleted = await Game.findOneAndDelete({ id: req.params.id }).lean();
+
+    const io = getIo();
+    io.emit('gameDeleted', req.params.id);
 
     if (!deleted) return res.status(404).json({ message: 'Game not found' });
     

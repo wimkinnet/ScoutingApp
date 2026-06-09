@@ -177,6 +177,54 @@ export const scoutingApi = createApi({
                         { type: 'Club' as const, id: 'LIST' },
                     ]
                     : [{ type: 'Club' as const, id: 'LIST' }],
+            
+            async onCacheEntryAdded(_arg, { updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
+                try {
+                    await cacheDataLoaded;
+
+                    if (!socket.connected) {
+                        socket.connect();
+                    }
+
+                    const clubCreatedHandler = (newClub: Club) => {
+                        updateCachedData((draft) => {
+                            draft.push(newClub);
+                        });
+                    };
+
+                    const clubUpdatedHandler = (updatedClub: Club) => {
+                        updateCachedData((draft) => {
+                            const index = draft.findIndex((c) => c.id === updatedClub.id);
+                            if (index !== -1) {
+                                draft[index] = updatedClub;
+                            }
+                        });
+                    };
+
+                    const clubDeletedHandler = (deletedClubId: string) => {
+                        updateCachedData((draft) => {
+                            const index = draft.findIndex((c) => c.id === deletedClubId);
+                            if (index !== -1) {
+                                draft.splice(index, 1);
+                            }
+                        });
+                    };
+
+                    socket.on('clubCreated', clubCreatedHandler);
+                    socket.on('clubUpdated', clubUpdatedHandler);
+                    socket.on('clubDeleted', clubDeletedHandler);
+
+                    await cacheEntryRemoved;
+                    
+                    socket.off('clubCreated', clubCreatedHandler);
+                    socket.off('clubUpdated', clubUpdatedHandler);
+                    socket.off('clubDeleted', clubDeletedHandler);
+                    
+                    socket.disconnect();
+                } catch {
+                    // no need to do anything, subscription is automatically removed
+                }
+            }
         }),
 
         getClubById: builder.query<Club, string>({
@@ -227,6 +275,54 @@ export const scoutingApi = createApi({
                         { type: 'Season' as const, id: 'LIST' },
                     ]
                     : [{ type: 'Season' as const, id: 'LIST' }],
+
+            async onCacheEntryAdded(_arg, { updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
+                try {
+                    await cacheDataLoaded;
+
+                    if (!socket.connected) {
+                        socket.connect();
+                    }
+
+                    const seasonCreatedHandler = (newSeason: Season) => {
+                        updateCachedData((draft) => {
+                            draft.push(newSeason);
+                        });
+                    };
+
+                    const seasonUpdatedHandler = (updatedSeason: Season) => {
+                        updateCachedData((draft) => {
+                            const index = draft.findIndex((s) => s.id === updatedSeason.id);
+                            if (index !== -1) {
+                                draft[index] = updatedSeason;
+                            }
+                        });
+                    };
+
+                    const seasonDeletedHandler = (deletedSeasonId: string) => {
+                        updateCachedData((draft) => {
+                            const index = draft.findIndex((s) => s.id === deletedSeasonId);
+                            if (index !== -1) {
+                                draft.splice(index, 1);
+                            }
+                        });
+                    };
+
+                    socket.on('seasonCreated', seasonCreatedHandler);
+                    socket.on('seasonUpdated', seasonUpdatedHandler);
+                    socket.on('seasonDeleted', seasonDeletedHandler);
+
+                    await cacheEntryRemoved;
+                    
+                    socket.off('seasonCreated', seasonCreatedHandler);
+                    socket.off('seasonUpdated', seasonUpdatedHandler);
+                    socket.off('seasonDeleted', seasonDeletedHandler);
+                    
+                    socket.disconnect();
+                } catch {
+                    // no need to do anything, subscription is automatically removed
+                }
+            }
         }),
 
         getSeasonById: builder.query<Season, string>({
@@ -277,6 +373,54 @@ export const scoutingApi = createApi({
                         { type: 'Team' as const, id: 'LIST' },
                     ]
                     : [{ type: 'Team' as const, id: 'LIST' }],
+
+            async onCacheEntryAdded(_arg, { updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
+                try {
+                    await cacheDataLoaded;
+
+                    if (!socket.connected) {
+                        socket.connect();
+                    }
+
+                    const teamCreatedHandler = (newTeam: Team) => {
+                        updateCachedData((draft) => {
+                            draft.push(newTeam);
+                        });
+                    };
+
+                    const teamUpdatedHandler = (updatedTeam: Team) => {
+                        updateCachedData((draft) => {
+                            const index = draft.findIndex((t) => t.id === updatedTeam.id);
+                            if (index !== -1) {
+                                draft[index] = updatedTeam;
+                            }
+                        });
+                    };
+
+                    const teamDeletedHandler = (deletedTeamId: string) => {
+                        updateCachedData((draft) => {
+                            const index = draft.findIndex((t) => t.id === deletedTeamId);
+                            if (index !== -1) {
+                                draft.splice(index, 1);
+                            }
+                        });
+                    };
+
+                    socket.on('teamCreated', teamCreatedHandler);
+                    socket.on('teamUpdated', teamUpdatedHandler);
+                    socket.on('teamDeleted', teamDeletedHandler);
+
+                    await cacheEntryRemoved;
+                    
+                    socket.off('teamCreated', teamCreatedHandler);
+                    socket.off('teamUpdated', teamUpdatedHandler);
+                    socket.off('teamDeleted', teamDeletedHandler);
+                    
+                    socket.disconnect();
+                } catch {
+                    // no need to do anything, subscription is automatically removed
+                }
+            }
         }),
 
         getTeamById: builder.query<Team, string>({
@@ -327,6 +471,54 @@ export const scoutingApi = createApi({
                         { type: 'Game' as const, id: 'LIST' },
                     ]
                     : [{ type: 'Game' as const, id: 'LIST' }],
+
+            async onCacheEntryAdded(_arg, { updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
+                try {
+                    await cacheDataLoaded;
+
+                    if (!socket.connected) {
+                        socket.connect();
+                    }
+
+                    const gameCreatedHandler = (newGame: Game) => {
+                        updateCachedData((draft) => {
+                            draft.push(newGame);
+                        });
+                    };
+
+                    const gameUpdatedHandler = (updatedGame: Game) => {
+                        updateCachedData((draft) => {
+                            const index = draft.findIndex((g) => g.id === updatedGame.id);
+                            if (index !== -1) {
+                                draft[index] = updatedGame;
+                            }
+                        });
+                    };
+
+                    const gameDeletedHandler = (deletedGameId: string) => {
+                        updateCachedData((draft) => {
+                            const index = draft.findIndex((g) => g.id === deletedGameId);
+                            if (index !== -1) {
+                                draft.splice(index, 1);
+                            }
+                        });
+                    };
+
+                    socket.on('gameCreated', gameCreatedHandler);
+                    socket.on('gameUpdated', gameUpdatedHandler);
+                    socket.on('gameDeleted', gameDeletedHandler);
+
+                    await cacheEntryRemoved;
+                    
+                    socket.off('gameCreated', gameCreatedHandler);
+                    socket.off('gameUpdated', gameUpdatedHandler);
+                    socket.off('gameDeleted', gameDeletedHandler);
+                    
+                    socket.disconnect();
+                } catch {
+                    // no need to do anything, subscription is automatically removed
+                }
+            }
         }),
 
         getGameById: builder.query<Game, string>({
@@ -377,6 +569,54 @@ export const scoutingApi = createApi({
                         { type: 'Log' as const, id: 'LIST' },
                     ]
                     : [{ type: 'Log' as const, id: 'LIST' }],
+
+            async onCacheEntryAdded(_arg, { updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
+                try {
+                    await cacheDataLoaded;
+
+                    if (!socket.connected) {
+                        socket.connect();
+                    }
+
+                    const logCreatedHandler = (newLog: Log) => {
+                        updateCachedData((draft) => {
+                            draft.push(newLog);
+                        });
+                    };
+
+                    const logUpdatedHandler = (updatedLog: Log) => {
+                        updateCachedData((draft) => {
+                            const index = draft.findIndex((l) => l.id === updatedLog.id);
+                            if (index !== -1) {
+                                draft[index] = updatedLog;
+                            }
+                        });
+                    };
+
+                    const logDeletedHandler = (deletedLogId: string) => {
+                        updateCachedData((draft) => {
+                            const index = draft.findIndex((l) => l.id === deletedLogId);
+                            if (index !== -1) {
+                                draft.splice(index, 1);
+                            }
+                        });
+                    };
+
+                    socket.on('logCreated', logCreatedHandler);
+                    socket.on('logUpdated', logUpdatedHandler);
+                    socket.on('logDeleted', logDeletedHandler);
+
+                    await cacheEntryRemoved;
+                    
+                    socket.off('logCreated', logCreatedHandler);
+                    socket.off('logUpdated', logUpdatedHandler);
+                    socket.off('logDeleted', logDeletedHandler);
+                    
+                    socket.disconnect();
+                } catch {
+                    // no need to do anything, subscription is automatically removed
+                }
+            }
         }),
 
         getLogById: builder.query<Log, string>({

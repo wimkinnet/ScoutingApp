@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { Season } from '../models/Season';
+import { getIo } from '../socket';
  
 const router = Router();
  
@@ -52,6 +53,9 @@ router.post('/', async (req, res) => {
       id: createSeasonId(),
       name: name.trim(),
     });
+
+    const io = getIo();
+    io.emit('seasonCreated', season.toObject());
  
     res.status(201).json(season.toObject());
   } catch (error: any) {
@@ -90,6 +94,9 @@ router.patch('/:id', async (req, res) => {
     if (!season) {
       return res.status(404).json({ message: 'Season not found' });
     }
+
+    const io = getIo();
+    io.emit('seasonUpdated', season);
  
     res.json(season);
   } catch (error) {
@@ -106,6 +113,9 @@ router.delete('/:id', async (req, res) => {
     if (!deleted) {
       return res.status(404).json({ message: 'Season not found' });
     }
+ 
+    const io = getIo();
+    io.emit('seasonDeleted', req.params.id);
  
     res.json({
       success: true,
