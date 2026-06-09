@@ -80,7 +80,7 @@ export const scoutingApi = createApi({
                     ]
                     : [{ type: 'Player' as const, id: 'LIST' }],
 
-            async onCacheEntryAdded(arg, { updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
+            async onCacheEntryAdded(_arg, { updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
                 try {
                     await cacheDataLoaded;
 
