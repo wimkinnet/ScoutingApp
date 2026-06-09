@@ -50,7 +50,7 @@ export default function LogModal({ isOpen, onClose }: ModalProps) {
   };
 
   useEffect(() => {
-    let isLeftValue = (posX && posX < 14) ? true : false;
+    const isLeftValue = (posX && posX < 14) ? true : false;
     setIsLeft(isLeftValue);
     console.log(player?.homeTeam, posX, posY, possession, direction, quarter, secRem);
     const defensiveCourtIsLeft = (player?.homeTeam && direction === "Left") || (!(player?.homeTeam) && direction === "Right");

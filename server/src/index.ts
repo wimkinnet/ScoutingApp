@@ -2,6 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
+import { Server } from 'socket.io';
+import http from 'http';
 import playersRoutes from './routes/players.routes';
 import clubsRoutes from './routes/clubs.routes';
 import seasonsRoutes from './routes/seasons.routes';
@@ -9,6 +11,7 @@ import teamsRoutes from './routes/teams.routes';
 import gamesRoutes from './routes/games.routes';
 import logsRoutes from './routes/logs.routes';
 import actionsRoutes from './routes/actions.routes';
+import { initSocket } from './socket';
  
 dotenv.config();
  
@@ -36,6 +39,10 @@ app.use(cors({
  
 app.use(express.json());
  
+const server = http.createServer(app);
+
+initSocket(server);
+
 app.get('/api/health', (_req, res) => {
   res.json({ ok: true });
 });
@@ -51,7 +58,7 @@ app.use('/api/actions', actionsRoutes);
 async function start() {
   try {
     // 2. Start listening IMMEDIATELY on 0.0.0.0 so Render detects the open port
-    app.listen(parseInt(PORT, 10), '0.0.0.0', () => {
+    server.listen(parseInt(PORT, 10), '0.0.0.0', () => {
       console.log(`Server successfully listening on host 0.0.0.0, port ${PORT}`);
     });
 

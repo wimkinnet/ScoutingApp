@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { Player } from '../models/Player';
+import { getIo } from '../socket';
  
 const router = Router();
  
@@ -60,6 +61,9 @@ router.post('/', async (req, res) => {
       lastName: lastName.trim(),
       dateOfBirth: dateOfBirth?.trim() || undefined,
     });
+
+    const io = getIo();
+    io.emit('playerCreated', player.toObject());
  
     res.status(201).json(player.toObject());
   } catch (error: any) {

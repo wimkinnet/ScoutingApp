@@ -1,4 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import socket from '../socket';
 
 export interface Player {
     id: string;
@@ -78,6 +79,30 @@ export const scoutingApi = createApi({
                         { type: 'Player' as const, id: 'LIST' },
                     ]
                     : [{ type: 'Player' as const, id: 'LIST' }],
+
+            async onCacheEntryAdded(arg, { updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
+                try {
+                    await cacheDataLoaded;
+
+                    if (!socket.connected) {
+                        socket.connect();
+                    }
+
+                    const playerCreatedHandler = (newPlayer: Player) => {
+                        updateCachedData((draft) => {
+                            draft.push(newPlayer);
+                        });
+                    };
+
+                    socket.on('playerCreated', playerCreatedHandler);
+
+                    await cacheEntryRemoved;
+                    socket.off('playerCreated', playerCreatedHandler);
+                    socket.disconnect();
+                } catch {
+                    // no need to do anything, subscription is automatically removed
+                }
+            }
         }),
 
         getPlayerById: builder.query<Player, string>({
