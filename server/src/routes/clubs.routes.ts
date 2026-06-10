@@ -41,8 +41,9 @@ router.get('/:id', async (req, res) => {
 // POST /api/clubs
 router.post('/', async (req, res) => {
   try {
-    const { name, registrationNumber } = req.body as {
+    const { name, shortName, registrationNumber } = req.body as {
       name?: string;
+      shortName?: string;
       registrationNumber?: string;
     };
  
@@ -57,6 +58,7 @@ router.post('/', async (req, res) => {
     const club = await Club.create({
       id: createClubId(),
       name: name.trim(),
+      shortName: shortName?.trim(),
       registrationNumber: registrationNumber.trim(),
     });
 
@@ -79,6 +81,7 @@ router.patch('/:id', async (req, res) => {
   try {
     const changes = req.body as {
       name?: string;
+      shortName?: string;
       registrationNumber?: string;
     };
  
@@ -86,6 +89,10 @@ router.patch('/:id', async (req, res) => {
  
     if (changes.name !== undefined) {
       update.name = changes.name.trim();
+    }
+
+    if (changes.shortName !== undefined) {
+      update.shortName = changes.shortName.trim();
     }
  
     if (changes.registrationNumber !== undefined) {

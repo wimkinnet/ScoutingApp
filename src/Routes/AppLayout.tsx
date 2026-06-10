@@ -5,7 +5,7 @@ import { useMediaQuery } from 'react-responsive';
 
 export default function AppLayout() {
 	const location = useLocation();
-	const isPhone = useMediaQuery({ maxWidth: 600 });
+	const isPhone = useMediaQuery({ maxWidth: 768 });
 
 	return (
 		<div className="app">

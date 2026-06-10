@@ -17,6 +17,7 @@ export default function ClubModal({ isOpen, onClose }: ModalProps) {
   const [updateClub, { isLoading: isUpdating }] = useUpdateClubMutation();
   
   const [name, setName] = useState(club?.name ?? '');
+  const [shortName, setShortName] = useState(club?.shortName ?? '');
   const [registrationNumber, setRegistrationNumber] = useState(club?.registrationNumber ?? '');
   
   useEffect(() => {
@@ -24,19 +25,23 @@ export default function ClubModal({ isOpen, onClose }: ModalProps) {
 
     if (mode === 'edit' && club) {
       setName(club.name ?? '');
+      setShortName(club.shortName ?? '');
       setRegistrationNumber(club.registrationNumber ?? '');
     } else if (mode === 'add') {
       setName('');
+      setShortName('');
       setRegistrationNumber('');
     }
   }, [isOpen, mode, id, club]);
 
   const onSave = async () => {
     if (!name.trim()) return alert('Name is mandatory');
+    if (!shortName.trim()) return alert('Short name is mandatory');
     if (!registrationNumber.trim()) return alert('Registration number is mandatory');
 
     const payload = {
       name,
+      shortName,
       registrationNumber,
     };
 
@@ -71,6 +76,7 @@ export default function ClubModal({ isOpen, onClose }: ModalProps) {
           ) : (
           <div className="form-grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
             <div className="form-field"><label>Name</label><input value={name} onChange={(e) => setName(e.target.value)} /></div>
+            <div className="form-field"><label>Short Name</label><input value={shortName} onChange={(e) => setShortName(e.target.value)} /></div>
             <div className="form-field"><label>Registration Number</label><input value={registrationNumber} onChange={(e) => setRegistrationNumber(e.target.value)} /></div>
           </div>
           )}

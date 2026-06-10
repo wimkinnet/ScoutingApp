@@ -14,6 +14,11 @@ const ClubSchema = new mongoose.Schema(
             required: true,
             trim: true,
         },
+        shortName: {
+            type: String,
+            required: true,
+            trim: true,
+        },
         registrationNumber: {
             type: String,
             required: true,

@@ -19,13 +19,13 @@
 .modal-backdrop { 
     position: absolute; 
     inset: 0; 
-    background: rgba(0,0,0,0.6); 
+    background: rgba(0,0,0,0.8); 
 }
 
 .modal-backdrop.action { 
     position: absolute; 
     inset: 0; 
-    background: rgba(0,0,0,0.2); 
+    background: rgba(0,0,0,0.8); 
 }
 
 .scout-modal .modal-backdrop { 
@@ -36,8 +36,8 @@
 
 .modal-content { 
     position: relative;
-    width: min(525px, 40vw); 
-    background: var(--bg-soft); 
+    width: max(500px, 50vw); 
+    background: var(--bg); 
     border: 1px solid var(--border); 
     border-radius: var(--radius-lg); 
     box-shadow: var(--shadow-1);
@@ -138,7 +138,7 @@ label {
  .form-field-player-check {
      display: flex;
      gap: 10px;
-     font-size: 0.7rem;
+     font-size: 0.9rem;
      justify-content: space-between;
      align-items: center;
  }

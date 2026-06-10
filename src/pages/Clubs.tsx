@@ -43,6 +43,7 @@ export default function ClubsIndex() {
         <button className="btn" onClick={() => onOpenAddModal()}>Add Club</button>
         <div className="listHeader">
           <div className="listHeaderItem XL">Name</div>
+          <div className="listHeaderItem L">Short Name</div>
           <div className="listHeaderItem L">Registration number</div>
           <div className="listHeaderItem L">Actions</div>
         </div>
@@ -50,6 +51,7 @@ export default function ClubsIndex() {
         <li key={club.id}>
           <div className="listRow">
             <div className="listItem XL" onClick={() => onOpenEditModal(club)}>{club.name}</div>
+            <div className="listItem L" onClick={() => onOpenEditModal(club)}>{club.shortName}</div>
             <div className="listItem L" onClick={() => onOpenEditModal(club)}>{club.registrationNumber}</div>
             <div className="listAction">
               <button className="btn" onClick={() => onOpenEditModal(club)}>

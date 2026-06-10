@@ -11,6 +11,7 @@ export interface Player {
 export interface Club {
 	id: string;
 	name: string;
+    shortName: string;
 	registrationNumber: string;
 }
 
