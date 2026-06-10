@@ -17,6 +17,10 @@
     text-decoration: none;
 }
 
+.listRow:hover{
+    background-color: lightgray;
+}
+
 .listHeader {
     display: flex;
     padding: 1px;
@@ -25,24 +29,57 @@
     border-bottom: 1px solid #666;
 }
 
-.listRow:hover {
-    background-color: #f9f9f9;
+.listHeaderItem {
+    margin: 0;
+    font-size: 1rem;
+    color: #666;
 }
 
-/* Text styling */
 .listItem {
-    width: 150px;
+    align-content: center;
     margin: 0;
     font-size: 0.9rem;
     color: #666;
 }
 
-.listHeaderItem.game {
+.listHeaderItem.S {
+    width: 50px;
+}
+
+.listItem.S {
+    width: 50px;
+}
+
+.listHeaderItem.M {
+    width: 100px;
+}
+
+.listItem.M {
+    width: 100px;
+}
+
+.listHeaderItem.L {
+    width: 150px;
+}
+
+.listItem.L {
+    width: 150px;
+}
+
+.listHeaderItem.XL {
     width: 250px;
 }
 
-.listItem.game {
+.listItem.XL {
     width: 250px;
+}
+
+.listHeaderItem.XXL {
+    width: 400px;
+}
+
+.listItem.XXL {
+    width: 400px;
 }
 
 .listAction {
@@ -54,9 +91,27 @@
     gap: 5px;
 }
 
-.listHeaderItem {
-    width: 150px;
-    margin: 0;
-    font-size: 1rem;
-    color: #666;
+.filterContainer {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.filter {
+  	-webkit-appearance: none;
+  	-moz-appearance: none;
+	appearance: none;
+	background: var(--surface);
+  	color: var(--text);
+  	border: 1px solid var(--border);
+  	border-radius: var(--radius-sm);
+  	padding: 5px 10px;
+}
+
+.filter.game {
+    width: 390px;
+}
+
+.filter.player {
+    width: 128px;
 }

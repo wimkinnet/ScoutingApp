@@ -266,7 +266,7 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
     if (!ctx) return;
     
     drawCourt(ctx);
-  },[isOpen, game]);
+  },[isOpen, game, x, y]);
 
   window.addEventListener('resize', () => {
     const canvas = canvasRef.current;

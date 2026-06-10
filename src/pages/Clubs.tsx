@@ -42,15 +42,15 @@ export default function ClubsIndex() {
       <ul className="listContainer">
         <button className="btn" onClick={() => onOpenAddModal()}>Add Club</button>
         <div className="listHeader">
-          <div className="listHeaderItem">Name</div>
-          <div className="listHeaderItem">Registration number</div>
-          <div className="listHeaderItem">Actions</div>
+          <div className="listHeaderItem XL">Name</div>
+          <div className="listHeaderItem L">Registration number</div>
+          <div className="listHeaderItem L">Actions</div>
         </div>
         {[...clubs].sort((a, b) => a.registrationNumber.localeCompare(b.registrationNumber)).map(club => (
         <li key={club.id}>
           <div className="listRow">
-            <div className="listItem" onClick={() => onOpenEditModal(club)}>{club.name}</div>
-            <div className="listItem" onClick={() => onOpenEditModal(club)}>{club.registrationNumber}</div>
+            <div className="listItem XL" onClick={() => onOpenEditModal(club)}>{club.name}</div>
+            <div className="listItem L" onClick={() => onOpenEditModal(club)}>{club.registrationNumber}</div>
             <div className="listAction">
               <button className="btn" onClick={() => onOpenEditModal(club)}>
                 Edit

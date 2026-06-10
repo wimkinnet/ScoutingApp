@@ -42,13 +42,13 @@ export default function SeasonsIndex() {
       <ul className="listContainer">
         <button className="btn" onClick={onOpenAddModal}>Add Season</button>
         <div className="listHeader">
-          <div className="listHeaderItem">Name</div>
-          <div className="listHeaderItem">Actions</div>
+          <div className="listHeaderItem M">Name</div>
+          <div className="listHeaderItem L">Actions</div>
         </div>
         {[...seasons].sort((a, b) => a.name.localeCompare(b.name)).map(season => (
         <li key={season.id}>
           <div className="listRow">
-            <div className="listItem" onClick={() => onOpenEditModal(season)}>{season.name}</div>
+            <div className="listItem M" onClick={() => onOpenEditModal(season)}>{season.name}</div>
             <div className="listAction">
               <button className="btn" onClick={() => onOpenEditModal(season)}>
                 Edit

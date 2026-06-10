@@ -6,6 +6,7 @@ import {
   useGetGamesQuery, 
   useGetTeamsQuery,
   useGetClubsQuery,
+  useGetActionsQuery,
  } from '../services/ScoutingApi';
 import './Lists.css';
 import '../styles/index.css';
@@ -17,15 +18,17 @@ export default function TeamsIndex() {
   const { data: players = [] } = useGetPlayersQuery();
   const { data: teams = [] } = useGetTeamsQuery();
   const { data: clubs = [] } = useGetClubsQuery();
+  const { data: actions = [] } = useGetActionsQuery();
   const [deleteLog] = useDeleteLogMutation();
   const [selectedGame, setSelectedGame] = useState<string | null>(null);
   const [playerFilter, setPlayerFilter] = useState<string>('');
 
   return (
     <div>
-      <div className="filterContainer">
+      <ul className="listContainer">
+        <div className="filterContainer">
         <select
-          className="filterSelect"
+          className="filter game"
           value={selectedGame || ''}
           onChange={(e) => setSelectedGame(e.target.value || null)}
         >
@@ -43,20 +46,19 @@ export default function TeamsIndex() {
           ))}
         </select>
         <input
-          className="filterSelect"
+          className="filter player"
           type="text"
           placeholder="Filter players..."
           value={playerFilter}
           onChange={(e) => setPlayerFilter(e.target.value)}
         />
       </div>
-      <ul className="listContainer">
         <div className="listHeader">
-          <div className="listHeaderItem">Game</div>
-          <div className="listHeaderItem">Player</div>
-          <div className="listHeaderItem">Action</div>
-          <div className="listHeaderItem">Quarter</div>
-          <div className="listHeaderItem">Time Remaining</div>
+          <div className="listHeaderItem XXL">Game</div>
+          <div className="listHeaderItem L">Player</div>
+          <div className="listHeaderItem L">Action</div>
+          <div className="listHeaderItem S">Qrt</div>
+          <div className="listHeaderItem S">Time</div>
         </div>
         {[...logs].filter((log) => (selectedGame ? log.gameId === selectedGame : true))
           .filter((log) =>
@@ -70,16 +72,28 @@ export default function TeamsIndex() {
             const bt = Date.parse((b as any).timestamp ?? (b as any).createdAt ?? (b as any).time ?? '');
             return bt - at;
           })
-          .map((log) => (
+          .map((log) => {
+            const gameDate = games.find((g) => g.id === log.gameId)?.date;
+            return (
             <li key={log.id}>
               <div className="listRow">
-                <div className="listItem">{games.find((g) => g.id === log.gameId)?.id}</div>
-                <div className="listItem">
+                <div className="listItem XXL">
+                  {clubs.find((c) => c.id === teams.find((t) => t.id === games.find((g) => g.id === log.gameId)?.homeTeamId)?.clubId)?.name}
+                  {' '}
+                  {teams.find((t) => t.id === games.find((g) => g.id === log.gameId)?.homeTeamId)?.name}
+                  {' vs '}
+                  {clubs.find((c) => c.id === teams.find((t) => t.id === games.find((g) => g.id === log.gameId)?.awayTeamId)?.clubId)?.name}
+                  {' '}
+                  {teams.find((t) => t.id === games.find((g) => g.id === log.gameId)?.awayTeamId)?.name}
+                  {' @ '}
+                  {gameDate ? new Date(gameDate).toLocaleDateString() : ''}
+                </div>
+                <div className="listItem L">
                   {players.find((p) => p.id === log.playerId)?.firstName} {players.find((p) => p.id === log.playerId)?.lastName}
                 </div>
-                <div className="listItem">{log.actionId}</div>
-                <div className="listItem">{log.quarter}</div>
-                <div className="listItem">{log.secRem}</div>
+                <div className="listItem L">{actions.find((a) => a.id === log.actionId)?.name || log.actionId}</div>
+                <div className="listItem S">{log.quarter}</div>
+                <div className="listItem S">{Math.floor((600 - log.secRem) / 60)}:{Math.floor((600 - log.secRem) % 60).toString().padStart(2, '0')}</div>
                 <div className="listAction">
                   <button className="btn" onClick={() => deleteLog(log.id)}>
                     Delete
@@ -87,7 +101,8 @@ export default function TeamsIndex() {
                 </div>
               </div>
             </li>
-          ))}
+            );
+          })}
       </ul>
     </div>
   );

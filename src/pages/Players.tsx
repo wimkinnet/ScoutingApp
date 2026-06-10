@@ -44,21 +44,21 @@ export default function PlayersIndex() {
           Add Player
         </button>
         <div className="listHeader">
-          <div className="listHeaderItem">Last Name</div>
-          <div className="listHeaderItem">First Name</div>
-          <div className="listHeaderItem">Date of Birth</div>
-          <div className="listHeaderItem">Actions</div>
+          <div className="listHeaderItem L">Last Name</div>
+          <div className="listHeaderItem M">First Name</div>
+          <div className="listHeaderItem M">Date of Birth</div>
+          <div className="listHeaderItem L">Actions</div>
         </div>
         {[...players].sort((a, b) => a.lastName.localeCompare(b.lastName)).map(player => (
         <li key={player.id}>
           <div className="listRow">
-            <div className="listItem" onClick={() => onOpenEditModal(player)}>
+            <div className="listItem L" onClick={() => onOpenEditModal(player)}>
                 {player.lastName}
             </div>
-            <div className="listItem" onClick={() => onOpenEditModal(player)}>
+            <div className="listItem M" onClick={() => onOpenEditModal(player)}>
                 {player.firstName}
             </div>
-            <div className="listItem" onClick={() => onOpenEditModal(player)}>
+            <div className="listItem M" onClick={() => onOpenEditModal(player)}>
                 {player.dateOfBirth}
             </div>
             <div className="listAction">

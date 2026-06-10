@@ -44,17 +44,17 @@ export default function TeamsIndex() {
       <ul className="listContainer">
         <button className="btn" onClick={onOpenAddModal}>Add Team</button>
         <div className="listHeader">
-          <div className="listHeaderItem">Name</div>
-          <div className="listHeaderItem">Club</div>
-          <div className="listHeaderItem">Season</div>
-          <div className="listHeaderItem">Actions</div>
+          <div className="listHeaderItem M">Name</div>
+          <div className="listHeaderItem XL">Club</div>
+          <div className="listHeaderItem M">Season</div>
+          <div className="listHeaderItem L">Actions</div>
         </div>
         {[...teams].sort((a, b) => a.name.localeCompare(b.name)).map(team => (
         <li key={team.id}>
           <div className="listRow">
-            <div className="listItem" onClick={() => onOpenEditModal(team)}>{team.name}</div>
-            <div className="listItem" onClick={() => onOpenEditModal(team)}>{clubs.find((cl) => cl.id === team.clubId)?.name}</div>
-            <div className="listItem" onClick={() => onOpenEditModal(team)}>{seasons.find((s) => s.id === team.seasonId)?.name}</div>
+            <div className="listItem M" onClick={() => onOpenEditModal(team)}>{team.name}</div>
+            <div className="listItem XL" onClick={() => onOpenEditModal(team)}>{clubs.find((cl) => cl.id === team.clubId)?.name}</div>
+            <div className="listItem M" onClick={() => onOpenEditModal(team)}>{seasons.find((s) => s.id === team.seasonId)?.name}</div>
             <div className="listAction">
               <button className="btn" onClick={() => onOpenEditModal(team)}>
                 Edit

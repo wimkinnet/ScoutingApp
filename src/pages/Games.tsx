@@ -52,17 +52,17 @@ export default function GamesIndex() {
       <ul className="listContainer">
         <button className="btn" onClick={() => onOpenAddModal()}>Add Game</button>
         <div className="listHeader">
-          <div className="listHeaderItem game">Scout Team</div>
-          <div className="listHeaderItem game">Opponent</div>
-          <div className="listHeaderItem game">Date</div>
+          <div className="listHeaderItem XL">Scout Team</div>
+          <div className="listHeaderItem XL">Opponent</div>
+          <div className="listHeaderItem XL">Date</div>
           <div className="listHeaderItem">Actions</div>
         </div>
         {[...games].sort((a, b) => Date.parse(b.date) - Date.parse(a.date)).map((game) => (
         <li key={game.id}>
           <div className="listRow">
-            <div className="listItem game" onClick={() => onOpenEditModal(game)}>{clubs.find((cl) => (cl.id === (teams.find((t) => (t.id === game.homeTeamId))?.clubId)))?.name} {teams.find((t) => (t.id === game.homeTeamId))?.name}</div>
-            <div className="listItem game" onClick={() => onOpenEditModal(game)}>{clubs.find((cl) => (cl.id === (teams.find((t) => (t.id === game.awayTeamId))?.clubId)))?.name} {teams.find((t) => (t.id === game.awayTeamId))?.name}</div>
-            <div className="listItem game" onClick={() => onOpenEditModal(game)}>{game.date}</div>
+            <div className="listItem XL" onClick={() => onOpenEditModal(game)}>{clubs.find((cl) => (cl.id === (teams.find((t) => (t.id === game.homeTeamId))?.clubId)))?.name} {teams.find((t) => (t.id === game.homeTeamId))?.name}</div>
+            <div className="listItem XL" onClick={() => onOpenEditModal(game)}>{clubs.find((cl) => (cl.id === (teams.find((t) => (t.id === game.awayTeamId))?.clubId)))?.name} {teams.find((t) => (t.id === game.awayTeamId))?.name}</div>
+            <div className="listItem XL" onClick={() => onOpenEditModal(game)}>{game.date}</div>
             <div className="listAction">
               <button className="btn" onClick={() => onOpenScoutModal(game)}>
                 Open
