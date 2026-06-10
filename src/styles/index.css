@@ -23,13 +23,30 @@
 	gap: 30px;
 }
 
+.app-phone-main {
+	display: flex;
+	flex-direction: column;
+	height: calc(100vh - 110px);
+	gap: 30px;
+}
+
 .app-sidebar {
 	position: sticky; top: 0; z-index: 1;
-	display: flex; flex-direction: column;
+	display: flex;
+	flex-direction: column;
 	width: 150px;
 	min-height: 100%;
 	padding: 20px;
 	background: var(--bg);
+}
+
+.app-nav {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-around;
+	padding: 5px;
+	background: var(--bg);
+	height: 20px;
 }
 
 .sidebar-link {
@@ -41,7 +58,15 @@
 	margin: 5px;
 }
 
-.sidebar-link:hover, .sidebar-link.active {
+.nav-link {
+	display: block; 
+	color: var(--text-inverse-bg);
+	text-decoration: none;
+	font-size: 0.8rem;
+	padding: 5px;
+}
+
+.sidebar-link:hover, .sidebar-link.active, .nav-link:hover, .nav-link.active {
 	background: var(--bg-soft);
 	border-radius: var(--radius);
 }
