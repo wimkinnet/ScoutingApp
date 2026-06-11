@@ -53,7 +53,8 @@ html {
 .app-nav {
 	display: flex;
 	flex-direction: row;
-	justify-content: space-around;
+	justify-content:left;
+	gap: 2rem;
 	padding: 5px;
 	background: var(--bg);
 	height: 20px;

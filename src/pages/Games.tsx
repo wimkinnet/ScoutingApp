@@ -4,9 +4,11 @@ import { useGetGamesQuery, useDeleteGameMutation, useGetClubsQuery, useGetTeamsQ
 import './Lists.css';
 import '../styles/index.css'
 import '../styles/_tokens.css'
-import { openAddGameModal, openEditGameModal, openScoutModal } from '../features/ui/uiSlice';
+import { openAddGameModal, openEditGameModal, openScoutModal, openGameStatsModal } from '../features/ui/uiSlice';
 import GameModal from '../modals/GameModal';
 import ScoutModal from '../modals/ScoutModal';
+import GameStatsModal from '../modals/GameStatsModal';
+import { useMediaQuery } from 'react-responsive';
 
 export default function GamesIndex() {
   const { data: games = [], isLoading, isError, error } = useGetGamesQuery();
@@ -16,6 +18,8 @@ export default function GamesIndex() {
   const [deleteGame] = useDeleteGameMutation();
   const [isOpen, setIsOpen] = useState(false);
   const [isOpenScout, setIsOpenScout] = useState(false);
+  const [isOpenStats, setIsOpenStats] = useState(false);
+  const isPhone = useMediaQuery({ maxWidth: 768 });
     
   if (isLoading) {
     return <p>Loading games ...</p>
@@ -32,13 +36,19 @@ export default function GamesIndex() {
   })
 
   const onOpenScoutModal = ((game: any) => {
-    setIsOpenScout(true);
-    dispatch(openScoutModal(game.id))
+    !isPhone ? (
+      setIsOpenScout(true),
+      dispatch(openScoutModal(game.id))
+    ) : (
+      setIsOpenStats(true),
+      dispatch(openGameStatsModal(game.id))
+    )
   })
   
   const onCloseModal = (() => {
     setIsOpen(false);
     setIsOpenScout(false);
+    setIsOpenStats(false);
   })
 
   if (isError) {
@@ -50,7 +60,9 @@ export default function GamesIndex() {
   return (
     <div>
       <ul className="listContainer">
-        <button className="btn" onClick={() => onOpenAddModal()}>Add Game</button>
+        {!isPhone && (
+          <button className="btn" onClick={() => onOpenAddModal()}>Add Game</button>
+        )}
         <div className="listHeader">
           <div className="listHeaderItem XL">Scout Team</div>
           <div className="listHeaderItem XL">Opponent</div>
@@ -67,12 +79,16 @@ export default function GamesIndex() {
               <button className="btn" onClick={() => onOpenScoutModal(game)}>
                 Open
               </button>
-              <button className="btn" onClick={() => onOpenEditModal(game)}>
-                Edit
-              </button>
-              <button className="btn" onClick={() => deleteGame(game.id)}>
-                Delete
-              </button>
+              {!isPhone && (
+                <div>
+                  <button className="btn" onClick={() => onOpenEditModal(game)}>
+                    Edit
+                  </button>
+                  <button className="btn" onClick={() => deleteGame(game.id)}>
+                    Delete
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </li>
@@ -84,6 +100,10 @@ export default function GamesIndex() {
       />
       <ScoutModal
         isOpen={isOpenScout}
+        onClose={onCloseModal}
+      />
+      <GameStatsModal
+        isOpen={isOpenStats}
         onClose={onCloseModal}
       />
     </div>
