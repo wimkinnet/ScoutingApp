@@ -334,14 +334,19 @@ canvas {
 .stats-detail {
     font-size: 1rem;
     color: #B9D1EA;
-    text-align: left;
-    width: 7rem;
+    text-align: center;
+    width: 4rem;
     transition: background-color 0.3s ease-in-out;
 }
 
 .stats-detail.XS {
     width: 2rem;
     text-align: center;
+}
+
+.stats-detail.L {
+    width: 7rem;
+    text-align: left;
 }
 
 .stats-detail-container:hover{

@@ -139,6 +139,9 @@ export default function GameStatsModal({ isOpen, onClose }: ModalProps) {
       freeThrows: `${playerFreeThrowsMade.length} / ${playerFreeThrowsMade.length + playerFreeThrowsMiss.length} (${playerFreeThrowsMade.length + playerFreeThrowsMiss.length > 0 ? Math.round((playerFreeThrowsMade.length / (playerFreeThrowsMade.length + playerFreeThrowsMiss.length)) * 100) : 0}%)`,
       twoPoints: `${playerTwoPointsMade.length} / ${playerTwoPointsMade.length + playerTwoPointsMiss.length} (${playerTwoPointsMade.length + playerTwoPointsMiss.length > 0 ? Math.round((playerTwoPointsMade.length / (playerTwoPointsMade.length + playerTwoPointsMiss.length)) * 100) : 0}%)`,
       threePoints: `${playerThreePointsMade.length} / ${playerThreePointsMade.length + playerThreePointsMiss.length} (${playerThreePointsMade.length + playerThreePointsMiss.length > 0 ? Math.round((playerThreePointsMade.length / (playerThreePointsMade.length + playerThreePointsMiss.length)) * 100) : 0}%)`,
+      freeThrowsShort: `${playerFreeThrowsMade.length} / ${playerFreeThrowsMade.length + playerFreeThrowsMiss.length}`,
+      twoPointsShort: `${playerTwoPointsMade.length} / ${playerTwoPointsMade.length + playerTwoPointsMiss.length}`,
+      threePointsShort: `${playerThreePointsMade.length} / ${playerThreePointsMade.length + playerThreePointsMiss.length}`,
       assists: `${playerAssists.length}`,
       steals: `${playerSteals.length}`,
       turnovers: `${playerTurnovers.length}`,
@@ -185,7 +188,7 @@ export default function GameStatsModal({ isOpen, onClose }: ModalProps) {
                   <div className='stats-details'>
                     <div className="stats-detail-container">
                       <div className="stats-detail XS"></div>
-                      <div className="stats-detail"></div>
+                      <div className="stats-detail L"></div>
                       <div className="stats-detail">1P</div>
                       <div className="stats-detail">2P</div>
                       <div className="stats-detail">3P</div>
@@ -203,10 +206,10 @@ export default function GameStatsModal({ isOpen, onClose }: ModalProps) {
                       return isTeam &&
                       <div className="stats-detail-container">
                         <div className="stats-detail XS">{pl.shirtNumber}</div>
-                        <div className="stats-detail">{players?.find((p) => p.id === pl.playerId)?.firstName}</div>
-                        <div className="stats-detail">{pl.freeThrows}</div>
-                        <div className="stats-detail">{pl.twoPoints}</div>
-                        <div className="stats-detail">{pl.threePoints}</div>
+                        <div className="stats-detail L">{players?.find((p) => p.id === pl.playerId)?.firstName}</div>
+                        <div className="stats-detail">{pl.freeThrowsShort}</div>
+                        <div className="stats-detail">{pl.twoPointsShort}</div>
+                        <div className="stats-detail">{pl.threePointsShort}</div>
                         <div className="stats-detail XS">{pl.assists}</div>
                         <div className="stats-detail XS">{pl.steals}</div>
                         <div className="stats-detail XS">{pl.turnovers}</div>
@@ -219,7 +222,7 @@ export default function GameStatsModal({ isOpen, onClose }: ModalProps) {
                     })}
                       <div className="stats-detail-container">
                         <div className="stats-detail XS"></div>
-                        <div className="stats-detail bold"></div>
+                        <div className="stats-detail L bold"></div>
                         <div className="stats-detail bold">{TeamStats.freeThrows}</div>
                         <div className="stats-detail bold">{TeamStats.twoPoints}</div>
                         <div className="stats-detail bold">{TeamStats.threePoints}</div>
