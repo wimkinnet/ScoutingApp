@@ -36,13 +36,13 @@ export default function GamesIndex() {
   })
 
   const onOpenScoutModal = ((game: any) => {
-    !isPhone ? (
-      setIsOpenScout(true),
-      dispatch(openScoutModal(game.id))
-    ) : (
-      setIsOpenStats(true),
-      dispatch(openGameStatsModal(game.id))
-    )
+    setIsOpenScout(true),
+    dispatch(openScoutModal(game.id))
+  })
+
+  const onOpenGameStatsModal = ((game: any) => {
+    setIsOpenStats(true),
+    dispatch(openGameStatsModal(game.id))
   })
   
   const onCloseModal = (() => {
@@ -67,7 +67,7 @@ export default function GamesIndex() {
           <div className="listHeaderItem XL">Scout Team</div>
           <div className="listHeaderItem XL">Opponent</div>
           <div className="listHeaderItem L">Date</div>
-          <div className="listHeaderItem">Actions</div>
+          <div className="listHeaderItem XL">Actions</div>
         </div>
         {[...games].sort((a, b) => Date.parse(b.date) - Date.parse(a.date)).map((game) => (
         <li key={game.id}>
@@ -75,14 +75,22 @@ export default function GamesIndex() {
             <div className="listItem XL" onClick={() => onOpenEditModal(game)}>{clubs.find((cl) => (cl.id === (teams.find((t) => (t.id === game.homeTeamId))?.clubId)))?.name} {teams.find((t) => (t.id === game.homeTeamId))?.name}</div>
             <div className="listItem XL" onClick={() => onOpenEditModal(game)}>{clubs.find((cl) => (cl.id === (teams.find((t) => (t.id === game.awayTeamId))?.clubId)))?.name} {teams.find((t) => (t.id === game.awayTeamId))?.name}</div>
             <div className="listItem L" onClick={() => onOpenEditModal(game)}>{game.date}</div>
-            <div className="listAction">
-              <button className="btn" onClick={() => onOpenScoutModal(game)}>
-                Open
-              </button>
+            <div className="listAction XL">
+              {isPhone && (
+                <button className="btn" onClick={() => onOpenGameStatsModal(game)}>
+                  Stats
+                </button>
+              )}
               {!isPhone && (
-                <div>
+                <div className="listAction">
+                  <button className="btn" onClick={() => onOpenScoutModal(game)}>
+                    Open
+                  </button>
                   <button className="btn" onClick={() => onOpenEditModal(game)}>
                     Edit
+                  </button>
+                  <button className="btn" onClick={() => onOpenGameStatsModal(game)}>
+                    Stats
                   </button>
                   <button className="btn" onClick={() => deleteGame(game.id)}>
                     Delete

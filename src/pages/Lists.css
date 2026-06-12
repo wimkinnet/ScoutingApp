@@ -104,6 +104,10 @@
     width: 3rem;
 }
 
+.listAction.XL {
+    width: 15rem;
+}
+
 .filterContainer {
     display: flex;
     gap: 1rem;

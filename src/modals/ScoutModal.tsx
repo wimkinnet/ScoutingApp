@@ -146,7 +146,7 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
     canvas && (canvas.width = cssW ? cssW * devicePixelRatio : 0);
     canvas && (canvas.height = cssH ? cssH * devicePixelRatio : 0);
     ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
-    const MarginPx = 40;
+    const MarginPx = 20;
     const usableW = cssW - 2 * MarginPx;
     const usableH = cssH - 2 * MarginPx;
     const scale = Math.min(usableW / M.L, usableH / M.W);

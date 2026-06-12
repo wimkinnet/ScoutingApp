@@ -89,6 +89,19 @@ export default function LogModal({ isOpen, onClose }: ModalProps) {
     setOtherActions(allActions?.filter((a) => !probable.includes(a)) ?? []);
   }, [posX, posY, possession, player, direction]);
 
+  useEffect(() => {
+    const handleKeyDown = (event: any) => {
+      if (event.repeat) return;
+      (event.key === 'q') ? onClose() : null;
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  });
+  
   if (!isOpen) return null;
 
   return (

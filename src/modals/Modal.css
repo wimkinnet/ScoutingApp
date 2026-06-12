@@ -25,7 +25,7 @@
 .modal-backdrop.action { 
     position: absolute; 
     inset: 0; 
-    background: rgba(0,0,0,0.8); 
+    background: rgba(0,0,0,0.2); 
 }
 
 .scout-modal .modal-backdrop { 
@@ -46,10 +46,12 @@
 
 .modal-content.right {
     left: 13%;
+    max-width: 40%;
 }
 
 .modal-content.left {
     left: 51%;
+    max-width: 40%;
 }
 
 .modal.action {
@@ -61,10 +63,9 @@
     position: absolute;
     display: flex;
     flex-direction: column;
-    top: 5%; 
-    left: 5%; 
-    width: 90vw;
-    height: 90vh;
+    width: 95%;
+    height: 95%;
+    margin: 2.5%;
     background: var(--bg-soft); 
     border: 1px solid var(--border); 
     border-radius: var(--radius-lg); 
@@ -109,7 +110,7 @@
 }
 
 .modal-body {
-    max-height: 90vh;
+    max-height: 100%;
     overflow-y: auto;
     padding: 16px;
 }
@@ -119,8 +120,8 @@
     flex-direction: column;
     flex-grow: 1;
     overflow-y: auto;
-    min-width: 90%;
-    min-height: 90%;
+    min-width: 100%;
+    min-height: 100%;
 }
 
 h2 {
@@ -258,6 +259,17 @@ canvas {
     overflow-y: auto;
 }
 
+.stats-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.team-switch-container {
+    display: flex;
+    flex: row;
+    gap: 1rem;
+} 
+
 .timer {
     width: 30%;
 }
@@ -284,12 +296,12 @@ canvas {
     padding: 50px 25px 0px 0px;
 }
 
-.court-stats-details {
+.stats-details {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     width: 100%;
-    padding: 50px 25px 0px 0px;
+    padding-top: 1rem;
     gap: 10px;
 }
 
@@ -305,7 +317,7 @@ canvas {
 }
 
 .player-detail {
-    font-size: 0.7rem;
+    font-size: 1rem;
     color: #B9D1EA;
     text-align: center;
     width: 30%;
@@ -315,14 +327,31 @@ canvas {
     width: 100%;
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
+    justify-content: left;
+    transition: background-color 0.3s ease-in-out;
 }
 
 .stats-detail {
     font-size: 1rem;
     color: #B9D1EA;
+    text-align: left;
+    width: 7rem;
+    transition: background-color 0.3s ease-in-out;
+}
+
+.stats-detail.XS {
+    width: 2rem;
     text-align: center;
-    width: 30%;
+}
+
+.stats-detail-container:hover{
+    background-color: #D9531E;
+    cursor: pointer;
+}
+
+.stats-detail.bold {
+    font-weight: bold;
+    color: #D9531E;
 }
 
 .court-player {
