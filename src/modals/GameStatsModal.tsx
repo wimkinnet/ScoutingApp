@@ -178,64 +178,62 @@ export default function GameStatsModal({ isOpen, onClose }: ModalProps) {
               <p>Loading game...</p>
             ) : isGameError ? (
               <p>Could not load team</p>
-            ) : (
-              <div>       
-                <div className='stats-container'>
-                  <div className='team-switch-container'>
-                    <button className='btn' onClick = {() => TeamSwitch("Home")}>Home</button>
-                    <button className='btn' onClick = {() => TeamSwitch("Away")}>Away</button>
+            ) : (      
+              <div className='stats-container'>
+                <div className='team-switch-container'>
+                  <button className='btn' onClick = {() => TeamSwitch("Home")}>Home</button>
+                  <button className='btn' onClick = {() => TeamSwitch("Away")}>Away</button>
+                </div>
+                <div className='stats-details'>
+                  <div className="stats-detail-container">
+                    <div className="stats-detail XS"></div>
+                    <div className="stats-detail L"></div>
+                    <div className="stats-detail">1P</div>
+                    <div className="stats-detail">2P</div>
+                    <div className="stats-detail">3P</div>
+                    <div className="stats-detail XS">ASS</div>
+                    <div className="stats-detail XS">ST</div>
+                    <div className="stats-detail XS">TO</div>
+                    <div className="stats-detail XS">DR</div>
+                    <div className="stats-detail XS">OR</div>
+                    <div className="stats-detail XS">BS</div>
+                    <div className="stats-detail XS">Fls</div>
+                    <div className="stats-detail XS">Pts</div>
                   </div>
-                  <div className='stats-details'>
+                  {GamePlayersStats?.map((pl) => {
+                    const isTeam = (selectedTeam === "Home" ? pl.homeTeam : !pl.homeTeam);
+                    return isTeam &&
+                    <div className="stats-detail-container">
+                      <div className="stats-detail XS">{pl.shirtNumber}</div>
+                      <div className="stats-detail L">{players?.find((p) => p.id === pl.playerId)?.firstName}</div>
+                      <div className="stats-detail">{pl.freeThrowsShort}</div>
+                      <div className="stats-detail">{pl.twoPointsShort}</div>
+                      <div className="stats-detail">{pl.threePointsShort}</div>
+                      <div className="stats-detail XS">{pl.assists}</div>
+                      <div className="stats-detail XS">{pl.steals}</div>
+                      <div className="stats-detail XS">{pl.turnovers}</div>
+                      <div className="stats-detail XS">{pl.defrebounds}</div>
+                      <div className="stats-detail XS">{pl.offrebounds}</div>
+                      <div className="stats-detail XS">{pl.blocks}</div>
+                      <div className="stats-detail XS">{pl.fouls}</div>
+                      <div className="stats-detail XS">{pl.points}</div>
+                    </div>  
+                  })}
                     <div className="stats-detail-container">
                       <div className="stats-detail XS"></div>
-                      <div className="stats-detail L"></div>
-                      <div className="stats-detail">1P</div>
-                      <div className="stats-detail">2P</div>
-                      <div className="stats-detail">3P</div>
-                      <div className="stats-detail XS">ASS</div>
-                      <div className="stats-detail XS">ST</div>
-                      <div className="stats-detail XS">TO</div>
-                      <div className="stats-detail XS">DR</div>
-                      <div className="stats-detail XS">OR</div>
-                      <div className="stats-detail XS">BS</div>
-                      <div className="stats-detail XS">Fls</div>
-                      <div className="stats-detail XS">Pts</div>
-                    </div>
-                    {GamePlayersStats?.map((pl) => {
-                      const isTeam = (selectedTeam === "Home" ? pl.homeTeam : !pl.homeTeam);
-                      return isTeam &&
-                      <div className="stats-detail-container">
-                        <div className="stats-detail XS">{pl.shirtNumber}</div>
-                        <div className="stats-detail L">{players?.find((p) => p.id === pl.playerId)?.firstName}</div>
-                        <div className="stats-detail">{pl.freeThrowsShort}</div>
-                        <div className="stats-detail">{pl.twoPointsShort}</div>
-                        <div className="stats-detail">{pl.threePointsShort}</div>
-                        <div className="stats-detail XS">{pl.assists}</div>
-                        <div className="stats-detail XS">{pl.steals}</div>
-                        <div className="stats-detail XS">{pl.turnovers}</div>
-                        <div className="stats-detail XS">{pl.defrebounds}</div>
-                        <div className="stats-detail XS">{pl.offrebounds}</div>
-                        <div className="stats-detail XS">{pl.blocks}</div>
-                        <div className="stats-detail XS">{pl.fouls}</div>
-                        <div className="stats-detail XS">{pl.points}</div>
-                      </div>  
-                    })}
-                      <div className="stats-detail-container">
-                        <div className="stats-detail XS"></div>
-                        <div className="stats-detail L bold"></div>
-                        <div className="stats-detail bold">{TeamStats.freeThrows}</div>
-                        <div className="stats-detail bold">{TeamStats.twoPoints}</div>
-                        <div className="stats-detail bold">{TeamStats.threePoints}</div>
-                        <div className="stats-detail XS bold">{TeamStats.assists}</div>
-                        <div className="stats-detail XS bold">{TeamStats.steals}</div>
-                        <div className="stats-detail XS bold">{TeamStats.turnovers}</div>
-                        <div className="stats-detail XS bold">{TeamStats.defrebounds}</div>
-                        <div className="stats-detail XS bold">{TeamStats.offrebounds}</div>
-                        <div className="stats-detail XS bold">{TeamStats.blocks}</div>
-                        <div className="stats-detail XS bold">{TeamStats.fouls}</div>
-                        <div className="stats-detail XS bold">{TeamStats.points}</div>
-                      </div> 
-                  </div>
+                      <div className="stats-detail L bold"></div>
+                      <div className="stats-detail bold">{TeamStats.freeThrows}</div>
+                      <div className="stats-detail bold">{TeamStats.twoPoints}</div>
+                      <div className="stats-detail bold">{TeamStats.threePoints}</div>
+                      <div className="stats-detail XS bold">{TeamStats.assists}</div>
+                      <div className="stats-detail XS bold">{TeamStats.steals}</div>
+                      <div className="stats-detail XS bold">{TeamStats.turnovers}</div>
+                      <div className="stats-detail XS bold">{TeamStats.defrebounds}</div>
+                      <div className="stats-detail XS bold">{TeamStats.offrebounds}</div>
+                      <div className="stats-detail XS bold">{TeamStats.blocks}</div>
+                      <div className="stats-detail XS bold">{TeamStats.fouls}</div>
+                      <div className="stats-detail XS bold">{TeamStats.points}</div>
+                    </div> 
                 </div>
               </div>
             )}
