@@ -177,10 +177,12 @@ label {
 
 canvas {
     width: 70%;
+    aspect-ratio: auto;
 }
 
 canvas.court-stats {
     width: 100%;
+     aspect-ratio: auto;
 }
 
 .team-players-left {

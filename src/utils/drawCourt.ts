@@ -58,7 +58,7 @@ export const drawCourt = ({
   
   ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
   
-  const MarginPx = 15;
+  const MarginPx = 0;
   const usableW = cssW - 2 * MarginPx;
   const usableH = cssH - 2 * MarginPx;
   const scale = Math.min(usableW / M.L, usableH / M.W);

@@ -2,13 +2,13 @@ import { useState, useRef, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import type { RootState } from '../app/store';
 import type { ModalProps } from '../app/types';
-import { 
+import {
   useGetGameByIdQuery,
   useGetPlayersQuery,
   useGetClubsQuery,
   useGetTeamsQuery,
   useGetLogsQuery,
- } from '../services/ScoutingApi';
+} from '../services/ScoutingApi';
 import './GameStatsModal.css';
 import './Modal.css';
 import '../styles/index.css'
@@ -17,35 +17,35 @@ import { drawCourt, drawAction } from '../utils/drawCourt';
 //import type { GamePlayer } from '../app/types';
 
 export default function GameStatsModal({ isOpen, onClose }: ModalProps) {
-  
-  const ACTIONS = [
-  { id: 'sh', label: 'Schooting' },
-  { id: 'reb', label: 'Rebounds' },
-  { id: 'ass', label: 'Assists' },
-  { id: 'st', label: 'Steals' },
-  { id: 'to', label: 'Turnovers' },
-  { id: 'fls', label: 'Fouls' },
-] as const;
 
-const TEAMS = [
-  { id: 'h', label: 'Home' },
-  { id: 'a', label: 'Away' },
-] as const;
-  
+  const ACTIONS = [
+    { id: 'sh', label: 'Schooting' },
+    { id: 'reb', label: 'Rebounds' },
+    { id: 'ass', label: 'Assists' },
+    { id: 'st', label: 'Steals' },
+    { id: 'to', label: 'Turnovers' },
+    { id: 'fls', label: 'Fouls' },
+  ] as const;
+
+  const TEAMS = [
+    { id: 'h', label: 'Home' },
+    { id: 'a', label: 'Away' },
+  ] as const;
+
   const { id } = useSelector((s: RootState) => s.ui.gameStatsModal);
 
   const { data: game, isLoading: isLoadingGame, isError: isGameError } = useGetGameByIdQuery(id ?? '', {
     skip: !isOpen || !id,
   });
-  
+
   const { data: clubs } = useGetClubsQuery(undefined, { skip: !isOpen });
   const { data: players } = useGetPlayersQuery(undefined, { skip: !isOpen });
   const { data: teams } = useGetTeamsQuery(undefined, { skip: !isOpen });
   const { data: logs } = useGetLogsQuery(undefined, { skip: !isOpen });
-  
+
   const ht = teams?.find((t) => (t.id === game?.homeTeamId))
   const at = teams?.find((t) => (t.id === game?.awayTeamId))
-  
+
   const HomeClub = clubs?.find((cl) => (cl.id === ht?.clubId));
   const AwayClub = clubs?.find((cl) => (cl.id === at?.clubId));
   const Home = `${HomeClub?.name}`;
@@ -55,8 +55,8 @@ const TEAMS = [
   const [selectedAction, setSelectedAction] = useState<string>(ACTIONS[0].id);
   const [selectedTeam, setSelectedTeam] = useState<string>(TEAMS[0].id);
 
-  const homePlayersId = game?.homePlayers.map ((player) => (player.playerId));
-  const awayPlayersId = game?.awayPlayers.map ((player) => (player.playerId));
+  const homePlayersId = game?.homePlayers.map((player) => (player.playerId));
+  const awayPlayersId = game?.awayPlayers.map((player) => (player.playerId));
   const gameActions = logs?.filter((log) => log.gameId === id);
   const freeThrowsMade = gameActions?.filter((log) => log.actionId === "1") || [];
   const freeThrowsMiss = gameActions?.filter((log) => log.actionId === "2") || [];
@@ -93,7 +93,7 @@ const TEAMS = [
   const twoPointsMissHome = twoPointsMiss.filter((log) => homePlayersId?.includes(log.playerId));
   const twoPointsMissAway = twoPointsMiss.filter((log) => awayPlayersId?.includes(log.playerId));
   const threePointsMissHome = threePointsMiss.filter((log) => homePlayersId?.includes(log.playerId));
-  const threePointsMissAway = threePointsMiss.filter((log) => awayPlayersId?.includes(log.playerId)); 
+  const threePointsMissAway = threePointsMiss.filter((log) => awayPlayersId?.includes(log.playerId));
   const assistsHome = assists.filter((log) => homePlayersId?.includes(log.playerId));
   const assistsAway = assists.filter((log) => awayPlayersId?.includes(log.playerId));
   const stealsHome = steals.filter((log) => homePlayersId?.includes(log.playerId));
@@ -111,6 +111,9 @@ const TEAMS = [
     twoPoints: `${twoPointsMadeHome.length} / ${twoPointsMadeHome.length + twoPointsMissHome.length} (${twoPointsMadeHome.length + twoPointsMissHome.length > 0 ? Math.round((twoPointsMadeHome.length / (twoPointsMadeHome.length + twoPointsMissHome.length)) * 100) : 0}%)`,
     threePoints: `${threePointsMadeHome.length} / ${threePointsMadeHome.length + threePointsMissHome.length} (${threePointsMadeHome.length + threePointsMissHome.length > 0 ? Math.round((threePointsMadeHome.length / (threePointsMadeHome.length + threePointsMissHome.length)) * 100) : 0}%)`,
     assists: `${assistsHome.length}`,
+    freeThrowsShort: `${freeTrowsMadeHome.length} / ${freeTrowsMadeHome.length + freeTrowsMissHome.length}`,
+    twoPointsShort: `${twoPointsMadeHome.length} / ${twoPointsMadeHome.length + twoPointsMissHome.length}`,
+    threePointsShort: `${threePointsMadeHome.length} / ${threePointsMadeHome.length + threePointsMissHome.length}`,
     steals: `${stealsHome.length}`,
     turnovers: `${turnoversHome.length}`,
     blocks: `${blocksHome.length}`,
@@ -124,6 +127,9 @@ const TEAMS = [
     twoPoints: `${twoPointsMadeAway.length} / ${twoPointsMadeAway.length + twoPointsMissAway.length} (${twoPointsMadeAway.length + twoPointsMissAway.length > 0 ? Math.round((twoPointsMadeAway.length / (twoPointsMadeAway.length + twoPointsMissAway.length)) * 100) : 0}%)`,
     threePoints: `${threePointsMadeAway.length} / ${threePointsMadeAway.length + threePointsMissAway.length} (${threePointsMadeAway.length + threePointsMissAway.length > 0 ? Math.round((threePointsMadeAway.length / (threePointsMadeAway.length + threePointsMissAway.length)) * 100) : 0}%)`,
     assists: `${assistsAway.length}`,
+    freeThrowsShort: `${freeTrowsMadeAway.length} / ${freeTrowsMadeAway.length + freeTrowsMissAway.length}`,
+    twoPointsShort: `${twoPointsMadeAway.length} / ${twoPointsMadeAway.length + twoPointsMissAway.length}`,
+    threePointsShort: `${threePointsMadeAway.length} / ${threePointsMadeAway.length + threePointsMissAway.length}`,
     steals: `${stealsAway.length}`,
     turnovers: `${turnoversAway.length}`,
     blocks: `${blocksAway.length}`,
@@ -133,12 +139,12 @@ const TEAMS = [
     points: `${awayScore}`,
   }
 
-  const GamePlayers = game?.homePlayers ? [...game?.homePlayers, ...game?.awayPlayers].sort((a,b) => {
-            if (a.shirtNumber < b.shirtNumber) return -1;
-            if (a.shirtNumber > b.shirtNumber) return 1;
-            return 0;
-        }) : null;
-  const GamePlayersStats  = GamePlayers?.map((pl) => {
+  const GamePlayers = game?.homePlayers ? [...game?.homePlayers, ...game?.awayPlayers].sort((a, b) => {
+    if (a.shirtNumber < b.shirtNumber) return -1;
+    if (a.shirtNumber > b.shirtNumber) return 1;
+    return 0;
+  }) : null;
+  const GamePlayersStats = GamePlayers?.map((pl) => {
     const playerFreeThrowsMade = freeThrowsMade.filter((log) => log.playerId === pl.playerId);
     const playerFreeThrowsMiss = freeThrowsMiss.filter((log) => log.playerId === pl.playerId);
     const playerTwoPointsMade = twoPointsMade.filter((log) => log.playerId === pl.playerId);
@@ -157,13 +163,14 @@ const TEAMS = [
     return {
       ...pl,
       points: playerFreeThrowsMade.length + playerTwoPointsMade.length * 2 + playerThreePointsMade.length * 3,
-      fouls: playerFouls.length,
+      foulsText: `${playerFouls.length}`,
       freeThrows: `${playerFreeThrowsMade.length} / ${playerFreeThrowsMade.length + playerFreeThrowsMiss.length} (${playerFreeThrowsMade.length + playerFreeThrowsMiss.length > 0 ? Math.round((playerFreeThrowsMade.length / (playerFreeThrowsMade.length + playerFreeThrowsMiss.length)) * 100) : 0}%)`,
       twoPoints: `${playerTwoPointsMade.length} / ${playerTwoPointsMade.length + playerTwoPointsMiss.length} (${playerTwoPointsMade.length + playerTwoPointsMiss.length > 0 ? Math.round((playerTwoPointsMade.length / (playerTwoPointsMade.length + playerTwoPointsMiss.length)) * 100) : 0}%)`,
       threePoints: `${playerThreePointsMade.length} / ${playerThreePointsMade.length + playerThreePointsMiss.length} (${playerThreePointsMade.length + playerThreePointsMiss.length > 0 ? Math.round((playerThreePointsMade.length / (playerThreePointsMade.length + playerThreePointsMiss.length)) * 100) : 0}%)`,
       freeThrowsShort: `${playerFreeThrowsMade.length} / ${playerFreeThrowsMade.length + playerFreeThrowsMiss.length}`,
       twoPointsShort: `${playerTwoPointsMade.length} / ${playerTwoPointsMade.length + playerTwoPointsMiss.length}`,
       threePointsShort: `${playerThreePointsMade.length} / ${playerThreePointsMade.length + playerThreePointsMiss.length}`,
+      fouls: playerFouls,
       shots: playerShots,
       assists: playerAssists,
       steals: playerSteals,
@@ -188,7 +195,7 @@ const TEAMS = [
 
   const selectedPlayerStats = GamePlayersStats?.find(stat => stat.playerId === selectedPlayer);
 
-  const TeamStats = (selectedTeam === "Home" ? HomeStats : AwayStats);
+  const TeamStats = (selectedTeam === "h" ? HomeStats : AwayStats);
 
   const [originXStats, setOriginXStats] = useState<number>(0);
   const [originYStats, setOriginYStats] = useState<number>(0);
@@ -197,31 +204,61 @@ const TEAMS = [
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-      
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
-      
-      drawCourt({ctx, canvas, setOriginX: setOriginXStats, setOriginY: setOriginYStats, setScale: setScaleStats});
+    const canvas = canvasRef.current;
+    if (!canvas) return;
 
-      switch (selectedAction) {
-        case 'sh': {
-          selectedPlayerStats?.shots.map(sh => {
-            const cl = (sh.actionId === '3' || sh.actionId === '5') ? 'green' : 'red';
-            drawAction({ctx, originX: originXStats, originY: originYStats, scale: scaleStats, shotX: sh.positionX, shotY: sh.positionY, color: cl});
-          });
-        };
-        case 'reb': {
-          selectedPlayerStats?.rebounds.map(reb => {
-            const cl = (reb.actionId === '11') ? 'green' : 'red';
-            drawAction({ctx, originX: originXStats, originY: originYStats, scale: scaleStats, shotX: reb.positionX, shotY: reb.positionY, color: cl})
-          });
-        };
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    drawCourt({ ctx, canvas, setOriginX: setOriginXStats, setOriginY: setOriginYStats, setScale: setScaleStats });
+    
+    switch (selectedAction) {
+      case 'sh': {
+        selectedPlayerStats?.shots.map(sh => {
+          const cl = (sh.actionId === '3' || sh.actionId === '5') ? 'green' : 'red';
+          drawAction({ ctx, originX: originXStats, originY: originYStats, scale: scaleStats, shotX: sh.positionX, shotY: sh.positionY, color: cl });
+        });
+        break;
       };
+      case 'reb': {
+        selectedPlayerStats?.rebounds.map(reb => {
+          const cl = (reb.actionId === '11') ? 'green' : 'red';
+          drawAction({ ctx, originX: originXStats, originY: originYStats, scale: scaleStats, shotX: reb.positionX, shotY: reb.positionY, color: cl })
+        });
+        break;
+      };
+      case 'ass': {
+        selectedPlayerStats?.assists.map(ass => {
+          const cl = 'green';
+          drawAction({ ctx, originX: originXStats, originY: originYStats, scale: scaleStats, shotX: ass.positionX, shotY: ass.positionY, color: cl });
+        });
+        break;
+      };
+      case 'st': {
+        selectedPlayerStats?.steals.map(st => {
+          const cl = 'green';
+          drawAction({ ctx, originX: originXStats, originY: originYStats, scale: scaleStats, shotX: st.positionX, shotY: st.positionY, color: cl });
+        });
+        break;
+      };
+      case 'to': {
+        selectedPlayerStats?.turnovers.map(to => {
+          const cl = 'red';
+          drawAction({ ctx, originX: originXStats, originY: originYStats, scale: scaleStats, shotX: to.positionX, shotY: to.positionY, color: cl });
+        });
+        break;
+      };
+      case 'fls': {
+        selectedPlayerStats?.fouls.map(fl => {
+          const cl = 'red';
+          drawAction({ ctx, originX: originXStats, originY: originYStats, scale: scaleStats, shotX: fl.positionX, shotY: fl.positionY, color: cl });
+        });
+        break;
+      };
+    };
 
-    },[isOpen, game, selectedPlayer, selectedAction]);
-  
+  }, [isOpen, game, selectedPlayer, selectedAction]);
+
   if (!isOpen) return null;
 
   return (
@@ -242,18 +279,18 @@ const TEAMS = [
               <p>Loading game...</p>
             ) : isGameError ? (
               <p>Could not load team</p>
-            ) : (      
+            ) : (
               <div className='stats-container'>
                 <div className='stats-team-switch-container'>
                   {TEAMS.map((t) => (
-                      <button
-                        key={t.id}
-                        onClick={() => setSelectedTeam(t.id)}
-                        className={`btn ${selectedTeam === t.id ? 'selected' : ''}`}
-                      >
-                        {t.label}
-                      </button>
-                    ))}
+                    <button
+                      key={t.id}
+                      onClick={() => setSelectedTeam(t.id)}
+                      className={`btn ${selectedTeam === t.id ? 'selected' : ''}`}
+                    >
+                      {t.label}
+                    </button>
+                  ))}
                 </div>
                 <div className='stats-details'>
                   <div className="stats-detail-container">
@@ -274,37 +311,37 @@ const TEAMS = [
                   {GamePlayersStats?.map((pl) => {
                     const isTeam = (selectedTeam === "h" ? pl.homeTeam : !pl.homeTeam);
                     return isTeam &&
-                    <div className="stats-detail-container" onClick={() => PlayerClicked(pl.playerId)}>
-                      <div className="stats-detail XS">{pl.shirtNumber}</div>
-                      <div className="stats-detail L">{players?.find((p) => p.id === pl.playerId)?.firstName}</div>
-                      <div className="stats-detail">{pl.freeThrowsShort}</div>
-                      <div className="stats-detail">{pl.twoPointsShort}</div>
-                      <div className="stats-detail">{pl.threePointsShort}</div>
-                      <div className="stats-detail XS">{pl.assistsText}</div>
-                      <div className="stats-detail XS">{pl.stealsText}</div>
-                      <div className="stats-detail XS">{pl.turnoversText}</div>
-                      <div className="stats-detail XS">{pl.defreboundsText}</div>
-                      <div className="stats-detail XS">{pl.offreboundsText}</div>
-                      <div className="stats-detail XS">{pl.blocksText}</div>
-                      <div className="stats-detail XS">{pl.fouls}</div>
-                      <div className="stats-detail XS">{pl.points}</div>
-                    </div>  
+                      <div className={`stats-detail-container ${selectedPlayer === pl.playerId ? 'selected' : ''}`} onClick={() => PlayerClicked(pl.playerId)}>
+                        <div className="stats-detail XS">{pl.shirtNumber}</div>
+                        <div className="stats-detail L">{players?.find((p) => p.id === pl.playerId)?.firstName}</div>
+                        <div className="stats-detail">{pl.freeThrowsShort}</div>
+                        <div className="stats-detail">{pl.twoPointsShort}</div>
+                        <div className="stats-detail">{pl.threePointsShort}</div>
+                        <div className="stats-detail XS">{pl.assistsText}</div>
+                        <div className="stats-detail XS">{pl.stealsText}</div>
+                        <div className="stats-detail XS">{pl.turnoversText}</div>
+                        <div className="stats-detail XS">{pl.defreboundsText}</div>
+                        <div className="stats-detail XS">{pl.offreboundsText}</div>
+                        <div className="stats-detail XS">{pl.blocksText}</div>
+                        <div className="stats-detail XS">{pl.foulsText}</div>
+                        <div className="stats-detail XS">{pl.points}</div>
+                      </div>
                   })}
-                    <div className="stats-team-container">
-                      <div className="stats-detail XS bold"></div>
-                      <div className="stats-detail L bold"></div>
-                      <div className="stats-detail bold">{TeamStats.freeThrows}</div>
-                      <div className="stats-detail bold">{TeamStats.twoPoints}</div>
-                      <div className="stats-detail bold">{TeamStats.threePoints}</div>
-                      <div className="stats-detail XS bold">{TeamStats.assists}</div>
-                      <div className="stats-detail XS bold">{TeamStats.steals}</div>
-                      <div className="stats-detail XS bold">{TeamStats.turnovers}</div>
-                      <div className="stats-detail XS bold">{TeamStats.defrebounds}</div>
-                      <div className="stats-detail XS bold">{TeamStats.offrebounds}</div>
-                      <div className="stats-detail XS bold">{TeamStats.blocks}</div>
-                      <div className="stats-detail XS bold">{TeamStats.fouls}</div>
-                      <div className="stats-detail XS bold">{TeamStats.points}</div>
-                    </div> 
+                  <div className="stats-team-container">
+                    <div className="stats-detail XS bold"></div>
+                    <div className="stats-detail L bold"></div>
+                    <div className="stats-detail bold">{TeamStats.freeThrowsShort}</div>
+                    <div className="stats-detail bold">{TeamStats.twoPointsShort}</div>
+                    <div className="stats-detail bold">{TeamStats.threePointsShort}</div>
+                    <div className="stats-detail XS bold">{TeamStats.assists}</div>
+                    <div className="stats-detail XS bold">{TeamStats.steals}</div>
+                    <div className="stats-detail XS bold">{TeamStats.turnovers}</div>
+                    <div className="stats-detail XS bold">{TeamStats.defrebounds}</div>
+                    <div className="stats-detail XS bold">{TeamStats.offrebounds}</div>
+                    <div className="stats-detail XS bold">{TeamStats.blocks}</div>
+                    <div className="stats-detail XS bold">{TeamStats.fouls}</div>
+                    <div className="stats-detail XS bold">{TeamStats.points}</div>
+                  </div>
                 </div>
                 <div className='stats-player-detail-container'>
                   <div className='stats-player-selection'>
@@ -318,9 +355,9 @@ const TEAMS = [
                       </button>
                     ))}
                   </div>
-                  <canvas className='stats-court' ref={canvasRef}/>
+                  <canvas className='stats-court' ref={canvasRef} />
+                </div>
               </div>
-            </div>
             )}
           </div>
         </div>
