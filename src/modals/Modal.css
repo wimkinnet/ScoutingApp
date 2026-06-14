@@ -111,7 +111,7 @@
 
 .modal-body {
     max-height: 100%;
-    overflow-y: auto;
+    /*overflow-y: auto;*/
     padding: 16px;
 }
 
@@ -119,7 +119,7 @@
     display: flex;
     flex-direction: column;
     flex-grow: 1;
-    overflow-y: auto;
+    /*overflow-y: auto;*/
 }
 
 h2 {
@@ -177,6 +177,10 @@ label {
 
 canvas {
     width: 70%;
+}
+
+canvas.court-stats {
+    width: 100%;
 }
 
 .team-players-left {
@@ -257,17 +261,6 @@ canvas {
     overflow-y: auto;
 }
 
-.stats-container {
-    display: flex;
-    flex-direction: column;
-}
-
-.team-switch-container {
-    display: flex;
-    flex: row;
-    gap: 1rem;
-} 
-
 .timer {
     width: 30%;
 }
@@ -294,14 +287,6 @@ canvas {
     padding: 50px 25px 0px 0px;
 }
 
-.stats-details {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    padding-top: 1rem;
-    gap: 5px;
-}
-
 .court-players-details.right {
     padding: 50px 0px 0px 25px;
 }
@@ -318,39 +303,6 @@ canvas {
     color: #B9D1EA;
     text-align: center;
     width: 30%;
-}
-
-.stats-detail-container {
-    display: flex;
-    transition: background-color 0.3s ease-in-out;
-    width: min-content;
-}
-
-.stats-detail {
-    font-size: 1rem;
-    color: #B9D1EA;
-    text-align: center;
-    width: 4rem;
-}
-
-.stats-detail.XS {
-    width: 2rem;
-    text-align: center;
-}
-
-.stats-detail.L {
-    width: 7rem;
-    text-align: left;
-}
-
-.stats-detail-container:hover{
-    background-color: #D9531E;
-    cursor: pointer;
-}
-
-.stats-detail.bold {
-    font-weight: bold;
-    color: #D9531E;
 }
 
 .court-player {

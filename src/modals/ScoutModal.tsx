@@ -4,6 +4,7 @@ import type { RootState } from '../app/store';
 import { openActionModal } from '../features/ui/uiSlice';
 import { useAddLogMutation } from '../services/ScoutingApi';
 import type { ModalProps } from '../app/types';
+import  { drawCourt } from '../utils/drawCourt';
 import { 
   useGetGameByIdQuery,
   useGetPlayersQuery,
@@ -61,8 +62,8 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
   const possessions = [Home,Away]
   const directions = ["Left", "Right"];
   
-  const [x, setX] = useState<number | null>(null);
-  const [y, setY] = useState<number | null>(null);
+  const [x, setX] = useState<number | undefined>(undefined);
+  const [y, setY] = useState<number | undefined>(undefined);
   
   const [quarter, setQuarter] = useState<number>(1);
   const [possession, setPossession] = useState<string | null>("");
@@ -116,7 +117,7 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const drawCourt = (ctx: CanvasRenderingContext2D) => {
+  /*const drawCourt = (ctx: CanvasRenderingContext2D) => {
     
     const canvas = canvasRef.current;
 
@@ -256,7 +257,7 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
       ctx.stroke();
     };
 
-  };
+  };*/
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -265,7 +266,8 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     
-    drawCourt(ctx);
+    drawCourt({ctx, canvas, setOriginX, setOriginY, setScale, shotX: x, shotY: y})
+    //drawCourt(ctx);
   },[isOpen, game, x, y]);
 
   window.addEventListener('resize', () => {
@@ -275,7 +277,8 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     
-    drawCourt(ctx);
+    drawCourt({ctx, canvas, setOriginX, setOriginY, setScale, shotX: x, shotY: y})
+    //drawCourt(ctx);
   });
 
   const playerAction = async (pl: GamePlayer, action: string) => {
@@ -347,8 +350,8 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
       playerAction(playerIn, '21');
     };
 
-    setX(null);
-    setY(null);
+    setX(undefined);
+    setY(undefined);
   }
 
   const AwayBenchClick = (e: any) => {
@@ -396,8 +399,8 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
       playerAction(playerIn, '21');
     };
 
-    setX(null);
-    setY(null);
+    setX(undefined);
+    setY(undefined);
   }
 
   const CourtPlayerClick = (e: any) => {
@@ -451,8 +454,8 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
       setSelectedPlayer(undefined);
     };
     setPlayerInSelected(undefined);
-    setX(null);
-    setY(null);
+    setX(undefined);
+    setY(undefined);
   }
 
   const QuarterClick = (e: any) => {
@@ -480,7 +483,6 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
     const canvas = document.getElementById('court');
     const rect = canvas?.getBoundingClientRect(); // Absolute position of canvas
     // relative to top left corner of the court
-    console.log(originX, originY, scale);
     if (originX && originY && scale) {
       const x = rect ? (e.clientX - rect.left - originX) / scale : 0; 
       const y = rect ? (e.clientY - rect.top - originY) / scale : 0;
@@ -502,8 +504,8 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
         dispatch(openActionModal(payload));
         setSelectedPlayer(undefined)
       } else {
-        setX(null);
-        setY(null);
+        setX(undefined);
+        setY(undefined);
       }
     };
   };

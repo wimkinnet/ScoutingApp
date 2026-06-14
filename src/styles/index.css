@@ -98,6 +98,12 @@ html {
 	color: var(--text-inverse-bg);
 	border-color: var(--bg-soft);
 }
+
+.btn.selected { 
+	background: var(--bg-soft); 
+	color: var(--text-inverse-bg);
+	border-color: var(--bg-soft);
+}
 .btn.primary { background: var(--primary); border-color: var(--primary-600); }
 .btn.primary:hover { background: var(--primary-600); }
 .btn.secondary { background: var(--accent); border-color: #2c7ec4; color: #10141a; }

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import type { RootState } from '../app/store';
 import type { ModalProps } from '../app/types';
@@ -9,12 +9,29 @@ import {
   useGetTeamsQuery,
   useGetLogsQuery,
  } from '../services/ScoutingApi';
+import './GameStatsModal.css';
 import './Modal.css';
 import '../styles/index.css'
 import '../styles/_tokens.css'
+import { drawCourt, drawAction } from '../utils/drawCourt';
 //import type { GamePlayer } from '../app/types';
 
 export default function GameStatsModal({ isOpen, onClose }: ModalProps) {
+  
+  const ACTIONS = [
+  { id: 'sh', label: 'Schooting' },
+  { id: 'reb', label: 'Rebounds' },
+  { id: 'ass', label: 'Assists' },
+  { id: 'st', label: 'Steals' },
+  { id: 'to', label: 'Turnovers' },
+  { id: 'fls', label: 'Fouls' },
+] as const;
+
+const TEAMS = [
+  { id: 'h', label: 'Home' },
+  { id: 'a', label: 'Away' },
+] as const;
+  
   const { id } = useSelector((s: RootState) => s.ui.gameStatsModal);
 
   const { data: game, isLoading: isLoadingGame, isError: isGameError } = useGetGameByIdQuery(id ?? '', {
@@ -34,8 +51,9 @@ export default function GameStatsModal({ isOpen, onClose }: ModalProps) {
   const Home = `${HomeClub?.name}`;
   const Away = `${AwayClub?.name}`;
 
-  //const [selectedPlayer, setSelectedPlayer] = useState<GamePlayer>();
-  const [selectedTeam, setSelectedTeam] = useState("Home");
+  const [selectedPlayer, setSelectedPlayer] = useState<string>();
+  const [selectedAction, setSelectedAction] = useState<string>(ACTIONS[0].id);
+  const [selectedTeam, setSelectedTeam] = useState<string>(TEAMS[0].id);
 
   const homePlayersId = game?.homePlayers.map ((player) => (player.playerId));
   const awayPlayersId = game?.awayPlayers.map ((player) => (player.playerId));
@@ -46,12 +64,14 @@ export default function GameStatsModal({ isOpen, onClose }: ModalProps) {
   const twoPointsMiss = gameActions?.filter((log) => log.actionId === "4") || [];
   const threePointsMade = gameActions?.filter((log) => log.actionId === "5") || [];
   const threePointsMiss = gameActions?.filter((log) => log.actionId === "6") || [];
+  const shots = gameActions?.filter((log) => (Number(log.actionId) > 2) && (Number(log.actionId) < 7)) || [];
   const assists = gameActions?.filter((log) => log.actionId === "7") || [];
   const steals = gameActions?.filter((log) => log.actionId === "9") || [];
   const turnovers = gameActions?.filter((log) => log.actionId === "8") || [];
   const blocks = gameActions?.filter((log) => log.actionId === "10") || [];
   const offrebounds = gameActions?.filter((log) => log.actionId === "11") || [];
   const defrebounds = gameActions?.filter((log) => log.actionId === "12") || [];
+  const rebounds = gameActions?.filter((log) => (Number(log.actionId) > 10) && (Number(log.actionId) < 13)) || [];
 
   const homeFreeThrowsMade = freeThrowsMade.filter((log) => homePlayersId?.includes(log.playerId));
   const awayFreeThrowsMade = freeThrowsMade.filter((log) => awayPlayersId?.includes(log.playerId));
@@ -125,12 +145,14 @@ export default function GameStatsModal({ isOpen, onClose }: ModalProps) {
     const playerTwoPointsMiss = twoPointsMiss.filter((log) => log.playerId === pl.playerId);
     const playerThreePointsMade = threePointsMade.filter((log) => log.playerId === pl.playerId);
     const playerThreePointsMiss = threePointsMiss.filter((log) => log.playerId === pl.playerId);
+    const playerShots = shots.filter((log) => log.playerId === pl.playerId);
     const playerAssists = assists.filter((log) => log.playerId === pl.playerId);
     const playerSteals = steals.filter((log) => log.playerId === pl.playerId);
     const playerTurnovers = turnovers.filter((log) => log.playerId === pl.playerId);
     const playerBlocks = blocks.filter((log) => log.playerId === pl.playerId);
     const playerOffRebounds = offrebounds.filter((log) => log.playerId === pl.playerId);
     const playerDefRebounds = defrebounds.filter((log) => log.playerId === pl.playerId);
+    const playerRebounds = rebounds.filter((log) => log.playerId === pl.playerId);
     const playerFouls = Fouls.filter((log) => log.playerId === pl.playerId);
     return {
       ...pl,
@@ -142,22 +164,64 @@ export default function GameStatsModal({ isOpen, onClose }: ModalProps) {
       freeThrowsShort: `${playerFreeThrowsMade.length} / ${playerFreeThrowsMade.length + playerFreeThrowsMiss.length}`,
       twoPointsShort: `${playerTwoPointsMade.length} / ${playerTwoPointsMade.length + playerTwoPointsMiss.length}`,
       threePointsShort: `${playerThreePointsMade.length} / ${playerThreePointsMade.length + playerThreePointsMiss.length}`,
-      assists: `${playerAssists.length}`,
-      steals: `${playerSteals.length}`,
-      turnovers: `${playerTurnovers.length}`,
-      blocks: `${playerBlocks.length}`,
-      offrebounds: `${playerOffRebounds.length}`,
-      defrebounds: `${playerDefRebounds.length}`,
-      rebounds: `${playerOffRebounds.length + playerDefRebounds.length}`,
+      shots: playerShots,
+      assists: playerAssists,
+      steals: playerSteals,
+      turnovers: playerTurnovers,
+      blocks: playerBlocks,
+      offrebounds: playerOffRebounds,
+      defrebounds: playerDefRebounds,
+      rebounds: playerRebounds,
+      assistsText: `${playerAssists.length}`,
+      stealsText: `${playerSteals.length}`,
+      turnoversText: `${playerTurnovers.length}`,
+      blocksText: `${playerBlocks.length}`,
+      offreboundsText: `${playerOffRebounds.length}`,
+      defreboundsText: `${playerDefRebounds.length}`,
+      reboundsText: `${playerRebounds.length}`,
     }
   });
 
-  const TeamSwitch = ((team: any) => {
-    setSelectedTeam(team)
+  const PlayerClicked = ((plId: string) => {
+    setSelectedPlayer(plId)
   });
 
+  const selectedPlayerStats = GamePlayersStats?.find(stat => stat.playerId === selectedPlayer);
+
   const TeamStats = (selectedTeam === "Home" ? HomeStats : AwayStats);
-    
+
+  const [originXStats, setOriginXStats] = useState<number>(0);
+  const [originYStats, setOriginYStats] = useState<number>(0);
+  const [scaleStats, setScaleStats] = useState<number>(0);
+
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      
+      drawCourt({ctx, canvas, setOriginX: setOriginXStats, setOriginY: setOriginYStats, setScale: setScaleStats});
+
+      switch (selectedAction) {
+        case 'sh': {
+          selectedPlayerStats?.shots.map(sh => {
+            const cl = (sh.actionId === '3' || sh.actionId === '5') ? 'green' : 'red';
+            drawAction({ctx, originX: originXStats, originY: originYStats, scale: scaleStats, shotX: sh.positionX, shotY: sh.positionY, color: cl});
+          });
+        };
+        case 'reb': {
+          selectedPlayerStats?.rebounds.map(reb => {
+            const cl = (reb.actionId === '11') ? 'green' : 'red';
+            drawAction({ctx, originX: originXStats, originY: originYStats, scale: scaleStats, shotX: reb.positionX, shotY: reb.positionY, color: cl})
+          });
+        };
+      };
+
+    },[isOpen, game, selectedPlayer, selectedAction]);
+  
   if (!isOpen) return null;
 
   return (
@@ -180,9 +244,16 @@ export default function GameStatsModal({ isOpen, onClose }: ModalProps) {
               <p>Could not load team</p>
             ) : (      
               <div className='stats-container'>
-                <div className='team-switch-container'>
-                  <button className='btn' onClick = {() => TeamSwitch("Home")}>Home</button>
-                  <button className='btn' onClick = {() => TeamSwitch("Away")}>Away</button>
+                <div className='stats-team-switch-container'>
+                  {TEAMS.map((t) => (
+                      <button
+                        key={t.id}
+                        onClick={() => setSelectedTeam(t.id)}
+                        className={`btn ${selectedTeam === t.id ? 'selected' : ''}`}
+                      >
+                        {t.label}
+                      </button>
+                    ))}
                 </div>
                 <div className='stats-details'>
                   <div className="stats-detail-container">
@@ -201,26 +272,26 @@ export default function GameStatsModal({ isOpen, onClose }: ModalProps) {
                     <div className="stats-detail XS">Pts</div>
                   </div>
                   {GamePlayersStats?.map((pl) => {
-                    const isTeam = (selectedTeam === "Home" ? pl.homeTeam : !pl.homeTeam);
+                    const isTeam = (selectedTeam === "h" ? pl.homeTeam : !pl.homeTeam);
                     return isTeam &&
-                    <div className="stats-detail-container">
+                    <div className="stats-detail-container" onClick={() => PlayerClicked(pl.playerId)}>
                       <div className="stats-detail XS">{pl.shirtNumber}</div>
                       <div className="stats-detail L">{players?.find((p) => p.id === pl.playerId)?.firstName}</div>
                       <div className="stats-detail">{pl.freeThrowsShort}</div>
                       <div className="stats-detail">{pl.twoPointsShort}</div>
                       <div className="stats-detail">{pl.threePointsShort}</div>
-                      <div className="stats-detail XS">{pl.assists}</div>
-                      <div className="stats-detail XS">{pl.steals}</div>
-                      <div className="stats-detail XS">{pl.turnovers}</div>
-                      <div className="stats-detail XS">{pl.defrebounds}</div>
-                      <div className="stats-detail XS">{pl.offrebounds}</div>
-                      <div className="stats-detail XS">{pl.blocks}</div>
+                      <div className="stats-detail XS">{pl.assistsText}</div>
+                      <div className="stats-detail XS">{pl.stealsText}</div>
+                      <div className="stats-detail XS">{pl.turnoversText}</div>
+                      <div className="stats-detail XS">{pl.defreboundsText}</div>
+                      <div className="stats-detail XS">{pl.offreboundsText}</div>
+                      <div className="stats-detail XS">{pl.blocksText}</div>
                       <div className="stats-detail XS">{pl.fouls}</div>
                       <div className="stats-detail XS">{pl.points}</div>
                     </div>  
                   })}
-                    <div className="stats-detail-container">
-                      <div className="stats-detail XS"></div>
+                    <div className="stats-team-container">
+                      <div className="stats-detail XS bold"></div>
                       <div className="stats-detail L bold"></div>
                       <div className="stats-detail bold">{TeamStats.freeThrows}</div>
                       <div className="stats-detail bold">{TeamStats.twoPoints}</div>
@@ -235,7 +306,21 @@ export default function GameStatsModal({ isOpen, onClose }: ModalProps) {
                       <div className="stats-detail XS bold">{TeamStats.points}</div>
                     </div> 
                 </div>
+                <div className='stats-player-detail-container'>
+                  <div className='stats-player-selection'>
+                    {ACTIONS.map((a) => (
+                      <button
+                        key={a.id}
+                        onClick={() => setSelectedAction(a.id)}
+                        className={`btn ${selectedAction === a.id ? 'selected' : ''}`}
+                      >
+                        {a.label}
+                      </button>
+                    ))}
+                  </div>
+                  <canvas className='stats-court' ref={canvasRef}/>
               </div>
+            </div>
             )}
           </div>
         </div>
