@@ -267,7 +267,6 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
     if (!ctx) return;
     
     drawCourt({ctx, canvas, setOriginX, setOriginY, setScale, shotX: x, shotY: y})
-    //drawCourt(ctx);
   },[isOpen, game, x, y]);
 
   window.addEventListener('resize', () => {
@@ -278,7 +277,6 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
     if (!ctx) return;
     
     drawCourt({ctx, canvas, setOriginX, setOriginY, setScale, shotX: x, shotY: y})
-    //drawCourt(ctx);
   });
 
   const playerAction = async (pl: GamePlayer, action: string) => {
@@ -483,7 +481,8 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
     const canvas = document.getElementById('court');
     const rect = canvas?.getBoundingClientRect(); // Absolute position of canvas
     // relative to top left corner of the court
-    if (originX && originY && scale) {
+
+    if (originX != null && originY != null && scale != null) {
       const x = rect ? (e.clientX - rect.left - originX) / scale : 0; 
       const y = rect ? (e.clientY - rect.top - originY) / scale : 0;
 
@@ -665,7 +664,9 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
                       )
                     })}
                   </div>
+                  
                   <canvas id='court' ref={canvasRef} onClick={(e) => CourtClick(e)}/>
+                  
                   <div className='court-players'>
                     {courtPlayersAway.map((pl) => {
                       const isSelected = (selectedPlayer === pl);

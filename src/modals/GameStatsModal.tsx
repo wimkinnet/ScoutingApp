@@ -14,7 +14,7 @@ import './Modal.css';
 import '../styles/index.css'
 import '../styles/_tokens.css'
 import { drawCourt, drawAction } from '../utils/drawCourt';
-//import type { GamePlayer } from '../app/types';
+import { useMediaQuery } from 'react-responsive';
 
 export default function GameStatsModal({ isOpen, onClose }: ModalProps) {
 
@@ -51,7 +51,7 @@ export default function GameStatsModal({ isOpen, onClose }: ModalProps) {
   const Home = `${HomeClub?.name}`;
   const Away = `${AwayClub?.name}`;
 
-  const [selectedPlayer, setSelectedPlayer] = useState<string>();
+  const [selectedPlayer, setSelectedPlayer] = useState<string | undefined>(undefined);
   const [selectedAction, setSelectedAction] = useState<string>(ACTIONS[0].id);
   const [selectedTeam, setSelectedTeam] = useState<string>(TEAMS[0].id);
 
@@ -79,9 +79,13 @@ export default function GameStatsModal({ isOpen, onClose }: ModalProps) {
   const awayTwoPoints = twoPointsMade.filter((log) => awayPlayersId?.includes(log.playerId));
   const homeThreePoints = threePointsMade.filter((log) => homePlayersId?.includes(log.playerId));
   const awayThreePoints = threePointsMade.filter((log) => awayPlayersId?.includes(log.playerId));
+  const shotsHome = shots.filter((log) => homePlayersId?.includes(log.playerId));
+  const shotsAway = shots.filter((log) => awayPlayersId?.includes(log.playerId));
   const homeScore = homeFreeThrowsMade.length + homeTwoPoints?.length * 2 + homeThreePoints?.length * 3;
   const awayScore = awayFreeThrowsMade.length + awayTwoPoints?.length * 2 + awayThreePoints?.length * 3;
-  const Fouls = gameActions?.filter((log) => (Number(log.actionId) > 12) && (Number(log.actionId) < 21)) || [];
+  const fouls = gameActions?.filter((log) => (Number(log.actionId) > 12) && (Number(log.actionId) < 21)) || [];
+  const foulsHome = fouls.filter((log) => homePlayersId?.includes(log.playerId));
+  const foulsAway = fouls.filter((log) => awayPlayersId?.includes(log.playerId));
   const freeTrowsMadeHome = freeThrowsMade.filter((log) => homePlayersId?.includes(log.playerId));
   const freeTrowsMadeAway = freeThrowsMade.filter((log) => awayPlayersId?.includes(log.playerId));
   const twoPointsMadeHome = twoPointsMade.filter((log) => homePlayersId?.includes(log.playerId));
@@ -106,36 +110,52 @@ export default function GameStatsModal({ isOpen, onClose }: ModalProps) {
   const offreboundsAway = offrebounds.filter((log) => awayPlayersId?.includes(log.playerId));
   const defreboundsHome = defrebounds.filter((log) => homePlayersId?.includes(log.playerId));
   const defreboundsAway = defrebounds.filter((log) => awayPlayersId?.includes(log.playerId));
+  const reboundsHome = rebounds.filter((log) => homePlayersId?.includes(log.playerId));
+  const reboundsAway = rebounds.filter((log) => awayPlayersId?.includes(log.playerId));
   const HomeStats = {
     freeThrows: `${freeTrowsMadeHome.length} / ${freeTrowsMadeHome.length + freeTrowsMissHome.length} (${freeTrowsMadeHome.length + freeTrowsMissHome.length > 0 ? Math.round((freeTrowsMadeHome.length / (freeTrowsMadeHome.length + freeTrowsMissHome.length)) * 100) : 0}%)`,
     twoPoints: `${twoPointsMadeHome.length} / ${twoPointsMadeHome.length + twoPointsMissHome.length} (${twoPointsMadeHome.length + twoPointsMissHome.length > 0 ? Math.round((twoPointsMadeHome.length / (twoPointsMadeHome.length + twoPointsMissHome.length)) * 100) : 0}%)`,
     threePoints: `${threePointsMadeHome.length} / ${threePointsMadeHome.length + threePointsMissHome.length} (${threePointsMadeHome.length + threePointsMissHome.length > 0 ? Math.round((threePointsMadeHome.length / (threePointsMadeHome.length + threePointsMissHome.length)) * 100) : 0}%)`,
-    assists: `${assistsHome.length}`,
+    assistsText: `${assistsHome.length}`,
     freeThrowsShort: `${freeTrowsMadeHome.length} / ${freeTrowsMadeHome.length + freeTrowsMissHome.length}`,
     twoPointsShort: `${twoPointsMadeHome.length} / ${twoPointsMadeHome.length + twoPointsMissHome.length}`,
     threePointsShort: `${threePointsMadeHome.length} / ${threePointsMadeHome.length + threePointsMissHome.length}`,
-    steals: `${stealsHome.length}`,
-    turnovers: `${turnoversHome.length}`,
-    blocks: `${blocksHome.length}`,
-    offrebounds: `${offreboundsHome.length}`,
-    defrebounds: `${defreboundsHome.length}`,
-    fouls: `${Fouls.filter((log) => homePlayersId?.includes(log.playerId)).length}`,
+    shots: shotsHome,
+    assists: assistsHome,
+    rebounds: reboundsHome,
+    steals: stealsHome,
+    turnovers: turnoversHome,
+    blocks: blocksHome,
+    fouls: foulsHome,
+    stealsText: `${stealsHome.length}`,
+    turnoversText: `${turnoversHome.length}`,
+    blocksText: `${blocksHome.length}`,
+    offreboundsText: `${offreboundsHome.length}`,
+    defreboundsText: `${defreboundsHome.length}`,
+    foulsText: `${fouls.filter((log) => homePlayersId?.includes(log.playerId)).length}`,
     points: `${homeScore}`,
   }
   const AwayStats = {
     freeThrows: `${freeTrowsMadeAway.length} / ${freeTrowsMadeAway.length + freeTrowsMissAway.length} (${freeTrowsMadeAway.length + freeTrowsMissAway.length > 0 ? Math.round((freeTrowsMadeAway.length / (freeTrowsMadeAway.length + freeTrowsMissAway.length)) * 100) : 0}%)`,
     twoPoints: `${twoPointsMadeAway.length} / ${twoPointsMadeAway.length + twoPointsMissAway.length} (${twoPointsMadeAway.length + twoPointsMissAway.length > 0 ? Math.round((twoPointsMadeAway.length / (twoPointsMadeAway.length + twoPointsMissAway.length)) * 100) : 0}%)`,
     threePoints: `${threePointsMadeAway.length} / ${threePointsMadeAway.length + threePointsMissAway.length} (${threePointsMadeAway.length + threePointsMissAway.length > 0 ? Math.round((threePointsMadeAway.length / (threePointsMadeAway.length + threePointsMissAway.length)) * 100) : 0}%)`,
-    assists: `${assistsAway.length}`,
+    assistsText: `${assistsAway.length}`,
     freeThrowsShort: `${freeTrowsMadeAway.length} / ${freeTrowsMadeAway.length + freeTrowsMissAway.length}`,
     twoPointsShort: `${twoPointsMadeAway.length} / ${twoPointsMadeAway.length + twoPointsMissAway.length}`,
     threePointsShort: `${threePointsMadeAway.length} / ${threePointsMadeAway.length + threePointsMissAway.length}`,
-    steals: `${stealsAway.length}`,
-    turnovers: `${turnoversAway.length}`,
-    blocks: `${blocksAway.length}`,
-    offrebounds: `${offreboundsAway.length}`,
-    defrebounds: `${defreboundsAway.length}`,
-    fouls: `${Fouls.filter((log) => awayPlayersId?.includes(log.playerId)).length}`,
+    shots: shotsAway,
+    assists: assistsAway,
+    rebounds: reboundsAway,
+    steals: stealsAway,
+    turnovers: turnoversAway,
+    blocks: blocksAway,
+    fouls: foulsAway,
+    stealsText: `${stealsAway.length}`,
+    turnoversText: `${turnoversAway.length}`,
+    blocksText: `${blocksAway.length}`,
+    offreboundsText: `${offreboundsAway.length}`,
+    defreboundsText: `${defreboundsAway.length}`,
+    foulsText: `${fouls.filter((log) => awayPlayersId?.includes(log.playerId)).length}`,
     points: `${awayScore}`,
   }
 
@@ -159,7 +179,7 @@ export default function GameStatsModal({ isOpen, onClose }: ModalProps) {
     const playerOffRebounds = offrebounds.filter((log) => log.playerId === pl.playerId);
     const playerDefRebounds = defrebounds.filter((log) => log.playerId === pl.playerId);
     const playerRebounds = rebounds.filter((log) => log.playerId === pl.playerId);
-    const playerFouls = Fouls.filter((log) => log.playerId === pl.playerId);
+    const playerFouls = fouls.filter((log) => log.playerId === pl.playerId);
     return {
       ...pl,
       points: playerFreeThrowsMade.length + playerTwoPointsMade.length * 2 + playerThreePointsMade.length * 3,
@@ -193,15 +213,21 @@ export default function GameStatsModal({ isOpen, onClose }: ModalProps) {
     setSelectedPlayer(plId)
   });
 
-  const selectedPlayerStats = GamePlayersStats?.find(stat => stat.playerId === selectedPlayer);
+  const TeamClicked = (() => {
+    setSelectedPlayer(undefined)
+  });
 
   const TeamStats = (selectedTeam === "h" ? HomeStats : AwayStats);
+
+  const selectedPlayerStats = (selectedPlayer !== undefined) ? GamePlayersStats?.find(stat => stat.playerId === selectedPlayer) : TeamStats;
 
   const [originXStats, setOriginXStats] = useState<number>(0);
   const [originYStats, setOriginYStats] = useState<number>(0);
   const [scaleStats, setScaleStats] = useState<number>(0);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  const isNarrowScreen = useMediaQuery({ maxWidth: 1024 });
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -257,7 +283,7 @@ export default function GameStatsModal({ isOpen, onClose }: ModalProps) {
       };
     };
 
-  }, [isOpen, game, selectedPlayer, selectedAction]);
+  }, [isOpen, game, selectedPlayer, selectedAction, selectedTeam]);
 
   if (!isOpen) return null;
 
@@ -280,67 +306,69 @@ export default function GameStatsModal({ isOpen, onClose }: ModalProps) {
             ) : isGameError ? (
               <p>Could not load team</p>
             ) : (
-              <div className='stats-container'>
-                <div className='stats-team-switch-container'>
-                  {TEAMS.map((t) => (
-                    <button
-                      key={t.id}
-                      onClick={() => setSelectedTeam(t.id)}
-                      className={`btn ${selectedTeam === t.id ? 'selected' : ''}`}
-                    >
-                      {t.label}
-                    </button>
-                  ))}
-                </div>
-                <div className='stats-details'>
-                  <div className="stats-detail-container">
-                    <div className="stats-detail XS"></div>
-                    <div className="stats-detail L"></div>
-                    <div className="stats-detail">1P</div>
-                    <div className="stats-detail">2P</div>
-                    <div className="stats-detail">3P</div>
-                    <div className="stats-detail XS">ASS</div>
-                    <div className="stats-detail XS">ST</div>
-                    <div className="stats-detail XS">TO</div>
-                    <div className="stats-detail XS">DR</div>
-                    <div className="stats-detail XS">OR</div>
-                    <div className="stats-detail XS">BS</div>
-                    <div className="stats-detail XS">Fls</div>
-                    <div className="stats-detail XS">Pts</div>
+              <div className={`stats-container ${isNarrowScreen ? 'column': 'row'}`}>
+                <div className='statsteam-detail'>
+                  <div className='stats-team-switch-container'>
+                    {TEAMS.map((t) => (
+                      <button
+                        key={t.id}
+                        onClick={() => setSelectedTeam(t.id)}
+                        className={`btn ${selectedTeam === t.id ? 'selected' : ''}`}
+                      >
+                        {t.label}
+                      </button>
+                    ))}
                   </div>
-                  {GamePlayersStats?.map((pl) => {
-                    const isTeam = (selectedTeam === "h" ? pl.homeTeam : !pl.homeTeam);
-                    return isTeam &&
-                      <div className={`stats-detail-container ${selectedPlayer === pl.playerId ? 'selected' : ''}`} onClick={() => PlayerClicked(pl.playerId)}>
-                        <div className="stats-detail XS">{pl.shirtNumber}</div>
-                        <div className="stats-detail L">{players?.find((p) => p.id === pl.playerId)?.firstName}</div>
-                        <div className="stats-detail">{pl.freeThrowsShort}</div>
-                        <div className="stats-detail">{pl.twoPointsShort}</div>
-                        <div className="stats-detail">{pl.threePointsShort}</div>
-                        <div className="stats-detail XS">{pl.assistsText}</div>
-                        <div className="stats-detail XS">{pl.stealsText}</div>
-                        <div className="stats-detail XS">{pl.turnoversText}</div>
-                        <div className="stats-detail XS">{pl.defreboundsText}</div>
-                        <div className="stats-detail XS">{pl.offreboundsText}</div>
-                        <div className="stats-detail XS">{pl.blocksText}</div>
-                        <div className="stats-detail XS">{pl.foulsText}</div>
-                        <div className="stats-detail XS">{pl.points}</div>
-                      </div>
-                  })}
-                  <div className="stats-team-container">
-                    <div className="stats-detail XS bold"></div>
-                    <div className="stats-detail L bold"></div>
-                    <div className="stats-detail bold">{TeamStats.freeThrowsShort}</div>
-                    <div className="stats-detail bold">{TeamStats.twoPointsShort}</div>
-                    <div className="stats-detail bold">{TeamStats.threePointsShort}</div>
-                    <div className="stats-detail XS bold">{TeamStats.assists}</div>
-                    <div className="stats-detail XS bold">{TeamStats.steals}</div>
-                    <div className="stats-detail XS bold">{TeamStats.turnovers}</div>
-                    <div className="stats-detail XS bold">{TeamStats.defrebounds}</div>
-                    <div className="stats-detail XS bold">{TeamStats.offrebounds}</div>
-                    <div className="stats-detail XS bold">{TeamStats.blocks}</div>
-                    <div className="stats-detail XS bold">{TeamStats.fouls}</div>
-                    <div className="stats-detail XS bold">{TeamStats.points}</div>
+                  <div className='stats-details'>
+                    <div className="stats-detail-container">
+                      <div className="stats-detail XS"></div>
+                      <div className="stats-detail L"></div>
+                      <div className="stats-detail">1P</div>
+                      <div className="stats-detail">2P</div>
+                      <div className="stats-detail">3P</div>
+                      <div className="stats-detail XS">ASS</div>
+                      <div className="stats-detail XS">ST</div>
+                      <div className="stats-detail XS">TO</div>
+                      <div className="stats-detail XS">DR</div>
+                      <div className="stats-detail XS">OR</div>
+                      <div className="stats-detail XS">BS</div>
+                      <div className="stats-detail XS">Fls</div>
+                      <div className="stats-detail XS">Pts</div>
+                    </div>
+                    {GamePlayersStats?.map((pl) => {
+                      const isTeam = (selectedTeam === "h" ? pl.homeTeam : !pl.homeTeam);
+                      return isTeam &&
+                        <div className={`stats-detail-container ${selectedPlayer === pl.playerId ? 'selected' : ''}`} onClick={() => PlayerClicked(pl.playerId)}>
+                          <div className="stats-detail XS">{pl.shirtNumber}</div>
+                          <div className="stats-detail L">{players?.find((p) => p.id === pl.playerId)?.firstName}</div>
+                          <div className="stats-detail">{pl.freeThrowsShort}</div>
+                          <div className="stats-detail">{pl.twoPointsShort}</div>
+                          <div className="stats-detail">{pl.threePointsShort}</div>
+                          <div className="stats-detail XS">{pl.assistsText}</div>
+                          <div className="stats-detail XS">{pl.stealsText}</div>
+                          <div className="stats-detail XS">{pl.turnoversText}</div>
+                          <div className="stats-detail XS">{pl.defreboundsText}</div>
+                          <div className="stats-detail XS">{pl.offreboundsText}</div>
+                          <div className="stats-detail XS">{pl.blocksText}</div>
+                          <div className="stats-detail XS">{pl.foulsText}</div>
+                          <div className="stats-detail XS">{pl.points}</div>
+                        </div>
+                    })}
+                    <div className="stats-team-container" onClick={() => TeamClicked()}>
+                      <div className="stats-detail XS bold"></div>
+                      <div className="stats-detail L bold"></div>
+                      <div className="stats-detail bold">{TeamStats.freeThrowsShort}</div>
+                      <div className="stats-detail bold">{TeamStats.twoPointsShort}</div>
+                      <div className="stats-detail bold">{TeamStats.threePointsShort}</div>
+                      <div className="stats-detail XS bold">{TeamStats.assistsText}</div>
+                      <div className="stats-detail XS bold">{TeamStats.stealsText}</div>
+                      <div className="stats-detail XS bold">{TeamStats.turnoversText}</div>
+                      <div className="stats-detail XS bold">{TeamStats.defreboundsText}</div>
+                      <div className="stats-detail XS bold">{TeamStats.offreboundsText}</div>
+                      <div className="stats-detail XS bold">{TeamStats.blocksText}</div>
+                      <div className="stats-detail XS bold">{TeamStats.foulsText}</div>
+                      <div className="stats-detail XS bold">{TeamStats.points}</div>
+                    </div>
                   </div>
                 </div>
                 <div className='stats-player-detail-container'>

@@ -1,4 +1,9 @@
-.stats-container {
+.stats-container.row{
+    display: flex;
+    flex-direction: row;
+}
+
+.stats-container.column{
     display: flex;
     flex-direction: column;
 }

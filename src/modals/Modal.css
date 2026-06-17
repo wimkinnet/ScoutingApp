@@ -176,13 +176,8 @@ label {
 }
 
 canvas {
-    width: 70%;
+    width: 65%;
     aspect-ratio: auto;
-}
-
-canvas.court-stats {
-    width: 100%;
-     aspect-ratio: auto;
 }
 
 .team-players-left {
@@ -260,7 +255,7 @@ canvas.court-stats {
     display: flex;
     flex-direction: row;
     flex-grow: 1;
-    overflow-y: auto;
+    margin-top: 2rem;
 }
 
 .timer {
@@ -270,10 +265,10 @@ canvas.court-stats {
 .court-players {
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
+    justify-content: center;
+    align-items: center;
     width: 5%;
-    padding: 50px 0;
-    gap: 30px;
+    gap: 2rem;
 }
 
 .court-players-details {
@@ -281,8 +276,7 @@ canvas.court-stats {
     flex-direction: column;
     justify-content: flex-start;
     width: 10%;
-    padding: 50px 25px 0px 0px;
-    gap: 10px;
+    gap: 1rem;
 }
 
 .court-players-details.left {
