@@ -4,14 +4,16 @@ import { useGetPlayersQuery, useDeletePlayerMutation } from '../services/Scoutin
 import './Lists.css';
 import '../styles/index.css'
 import '../styles/_tokens.css'
-import { openAddPlayerModal, openEditPlayerModal } from '../features/ui/uiSlice';
+import { openAddPlayerModal, openEditPlayerModal, openPlayerStatsModal } from '../features/ui/uiSlice';
 import PlayerModal from '../modals/PlayerModal';
+import PlayerStatsModal from '../modals/PlayerStatsModal';
 
 export default function PlayersIndex() {
   const { data: players = [], isLoading, isError, error } = useGetPlayersQuery();
   const dispatch = useAppDispatch();
   const [deletePlayer] = useDeletePlayerMutation();
   const [isOpen, setIsOpen] = useState(false);
+  const [isOpenStats, setIsOpenStats] = useState(false);
 
   if (isLoading) {
     return <p>Loading players ...</p>
@@ -33,8 +35,17 @@ export default function PlayersIndex() {
     dispatch(openEditPlayerModal(player.id))
   })
 
+  const onOpenPlayerStatsModal = ((player: any) => {
+    setIsOpenStats(true);
+    dispatch(openPlayerStatsModal(player.id))
+  })
+
   const onCloseModal = (() => {
     setIsOpen(false);
+  })
+
+  const onCloseStatsModal = (() => {
+    setIsOpenStats(false);
   })
   
   return (
@@ -65,6 +76,9 @@ export default function PlayersIndex() {
               <button className="btn" onClick={() => onOpenEditModal(player)}>
                 Edit
               </button>
+              <button className="btn" onClick={() => onOpenPlayerStatsModal(player)}>
+                Stats
+              </button>
               <button className="btn" onClick={() => deletePlayer(player.id)}>
                 Delete
               </button>
@@ -76,6 +90,10 @@ export default function PlayersIndex() {
       <PlayerModal 
         isOpen={isOpen}
         onClose={onCloseModal}
+      />
+      <PlayerStatsModal 
+        isOpen={isOpenStats}
+        onClose={onCloseStatsModal}
       />
     </div>
   );

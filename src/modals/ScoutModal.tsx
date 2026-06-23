@@ -117,148 +117,6 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  /*const drawCourt = (ctx: CanvasRenderingContext2D) => {
-    
-    const canvas = canvasRef.current;
-
-    const M = {
-      L: 28.0,
-      W:  15.0,
-      centreCircleR: 1.80,
-      LaneW: 4.90,
-      ftLaneFromEnd: 5.80,
-      threePtR: 6.75,
-      CentreRimFromEnd: 1.60,
-      ftCircleR: 1.80,
-      treePtMinSide: 0.75,
-      restrictedR: 1.25,
-    };
-
-    const Equip = {
-      backboardFromEnd: 1.20,
-      rimFromBoard: 0.175,
-      rimR: 0.225,
-      boardH: 1.83,
-      boardW: 0.03
-    };
-
-    const cssW = canvas ? canvas.clientWidth : 0;
-    const cssH = canvas ? canvas.clientHeight : 0;
-    canvas && (canvas.width = cssW ? cssW * devicePixelRatio : 0);
-    canvas && (canvas.height = cssH ? cssH * devicePixelRatio : 0);
-    ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
-    const MarginPx = 20;
-    const usableW = cssW - 2 * MarginPx;
-    const usableH = cssH - 2 * MarginPx;
-    const scale = Math.min(usableW / M.L, usableH / M.W);
-
-    const origin = {
-      x: (cssW - M.L * scale) / 2,
-      y: (cssH - M.W * scale) / 2,
-    };
-
-    setOriginX(origin.x);
-    setOriginY(origin.y);
-    setScale(scale);
-
-    const mx = (m: number) => origin.x + m * scale;
-    const my = (m: number) => origin.y + m * scale;
-
-    ctx.clearRect(0, 0, cssW, cssH);
-    
-    ctx.strokeStyle = 'white';
-    ctx.lineWidth = 2;
-    
-    // outer lines
-    ctx.strokeRect(mx(0), my(0), M.L * scale, M.W * scale);
-
-    // center line
-    ctx.beginPath();
-    ctx.moveTo(mx(M.L / 2), my(0));
-    ctx.lineTo(mx(M.L / 2), my(M.W));
-    ctx.stroke();
-
-    // center circle
-    ctx.beginPath();
-    ctx.arc(mx(M.L / 2), my(M.W / 2), M.centreCircleR * scale, 0, 2 * Math.PI);
-    ctx.stroke();
-
-    // free throw lanes
-    ctx.strokeRect(mx(0), my((M.W - M.LaneW) / 2), M.ftLaneFromEnd * scale, M.LaneW * scale);
-    ctx.strokeRect(mx(M.L - M.ftLaneFromEnd), my((M.W - M.LaneW) / 2), M.ftLaneFromEnd * scale, M.LaneW * scale);
-    
-    // free throw circles
-    [0, M.L].forEach(x => {
-      const dir = x === 0 ? 1 : -1;
-      ctx.beginPath();
-      ctx.arc(mx(x + dir * M.ftLaneFromEnd), my(M.W / 2), M.ftCircleR * scale, Math.PI / 2, -Math.PI / 2, x === 0);
-      ctx.stroke();
-    });
-
-    // three point lines
-    [0, M.L].forEach(x => {
-      const dir = x === 0 ? 1 : -1;
-      ctx.beginPath();
-      ctx.moveTo(mx(x), my(M.treePtMinSide));
-      ctx.lineTo(mx(x + dir * M.CentreRimFromEnd), my(M.treePtMinSide));
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.moveTo(mx(x), my(M.W - M.treePtMinSide));
-      ctx.lineTo(mx(x + dir * M.CentreRimFromEnd), my(M.W - M.treePtMinSide));
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.arc(mx(x + dir * M.CentreRimFromEnd), my(M.W / 2), M.threePtR * scale, Math.PI / 2, -Math.PI / 2, x === 0);
-      ctx.stroke();
-    });
-
-    // restricted areas
-    [0, M.L].forEach(x => {
-      const dir = x === 0 ? 1 : -1;
-      ctx.beginPath();
-      ctx.arc(mx(x + dir * M.CentreRimFromEnd), my(M.W / 2), M.restrictedR * scale, Math.PI / 2, -Math.PI / 2, x === 0);
-      ctx.stroke();
-    });
-
-    //backboards
-    [0, M.L].forEach(x => {
-      const dir = x === 0 ? 1 : -1;
-      ctx.beginPath();
-      ctx.moveTo(mx(x + dir * Equip.backboardFromEnd), my((M.W - Equip.boardH) / 2));
-      ctx.lineTo(mx(x + dir * Equip.backboardFromEnd), my((M.W + Equip.boardH) / 2));
-      ctx.stroke();
-    });
-
-    // rims
-    [0, M.L].forEach(x => {
-      const dir = x === 0 ? 1 : -1;
-      ctx.beginPath();
-      ctx.arc(mx(x + dir * (Equip.backboardFromEnd + Equip.rimFromBoard + Equip.rimR)), my(M.W / 2), Equip.rimR * scale, 0, 2 * Math.PI);
-      ctx.stroke();
-    });
-
-    // from board to rim line
-    [0, M.L].forEach(x => {
-      const dir = x === 0 ? 1 : -1;
-      ctx.beginPath();
-      ctx.moveTo(mx(x + dir * (Equip.backboardFromEnd + Equip.boardW)), my(M.W / 2));
-      ctx.lineTo(mx(x + dir * (Equip.backboardFromEnd + Equip.rimFromBoard)), my(M.W / 2));
-      ctx.stroke();
-    });
-
-    if (x && y) { 
-      ctx.strokeStyle = 'rgba(215, 110, 50, 0.8)';
-      ctx.beginPath();
-      ctx.arc(mx(x), my(y), 0.05 * scale, 0, 2 * Math.PI);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.arc(mx(x), my(y), 0.2 * scale, 0, 2 * Math.PI);
-      ctx.stroke();
-    };
-
-  };*/
-
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -524,6 +382,8 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
 
   const onCloseModal = (() => {
     setIsOpenAction(false);
+    setX(undefined);
+    setY(undefined);
   })
     
   if (!isOpen) return null;
@@ -633,7 +493,7 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
                     </div>
                 </div>       
                 <div className='court-container'>
-                  <div className='court-players-details left'>
+                  <div className='court-players-details'>
                     <div className="player-detail-container">
                       <div className="player-detail">#</div>
                       <div className="player-detail">Fouls</div>
@@ -648,6 +508,8 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
                         <div className="player-detail">{pl.points}</div>
                       </div>  
                   })}
+                  </div>
+                  <div className='court-space-blank'>
                   </div>
                   <div className='court-players'>
                     {courtPlayersHome.map((pl) => {
@@ -682,7 +544,9 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
                       )
                     })}
                   </div>
-                  <div className='court-players-details right'>
+                  <div className='court-space-blank'>
+                  </div>
+                  <div className='court-players-details'>
                     <div className="player-detail-container">
                       <div className="player-detail">Pts</div>
                       <div className="player-detail">Fouls</div>

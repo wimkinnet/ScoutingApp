@@ -4,6 +4,7 @@ import type { RootState } from '../app/store';
 import { useAddLogMutation, useGetActionsQuery, useGetPlayerByIdQuery } from '../services/ScoutingApi';
 import type { ModalProps } from '../app/types';
 import './Modal.css';
+import './ActionModal.css'
 import '../styles/index.css'
 import '../styles/_tokens.css'
 

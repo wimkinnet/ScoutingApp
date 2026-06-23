@@ -1,0 +1,56 @@
+.action-set {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    gap: 10px;
+    justify-content: flex-start;
+}
+
+.action-label {
+    position: relative;
+    border: 1px solid var(--bg-soft);
+    padding: 5px;
+    margin: 5px;
+    height: 30px;
+    width: 30px;
+    text-align: center;
+    align-content: center;
+    color: var(--text-inverse-bg);
+    cursor: pointer;
+    background: var(--bg);
+}
+
+.action-label.other {
+    border: 1px solid var(--bg-soft);
+    padding: 5px;
+    margin: 5px;
+    height: 30px;
+    width: 30px;
+    text-align: center;
+    align-content: center;
+    color: var(--text-highlight);
+    cursor: pointer;
+    background: var(--bg-modal);
+}
+
+.action-tooltip {
+    visibility: hidden;
+    color: var(--text-highlight);
+    padding: 5px 0;
+    border-radius: 6px;
+    position: absolute;
+    z-index: 3;
+    width: 130px;
+    bottom: -20px;
+    left: -45px;
+    font-size: 0.7rem;
+}
+
+.action-label:hover .action-tooltip {
+    visibility: visible;
+}
+
+.action-label:hover {
+    background-color: var(--bg-soft);
+    color: var(--text-highlight);
+}

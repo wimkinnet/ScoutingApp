@@ -58,7 +58,7 @@ export const drawCourt = ({
   
   ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
   
-  const MarginPx = 0;
+  const MarginPx = 1;
   const usableW = cssW - 2 * MarginPx;
   const usableH = cssH - 2 * MarginPx;
   const scale = Math.min(usableW / M.L, usableH / M.W);
@@ -77,7 +77,7 @@ export const drawCourt = ({
   const my = (m: number) => origin.y + m * scale;
 
   ctx.clearRect(0, 0, cssW, cssH);
-  ctx.strokeStyle = 'white';
+  ctx.strokeStyle = 'rgb(0, 143, 67)';
   ctx.lineWidth = 2;
 
   // 1. Buitenste lijnen
@@ -169,7 +169,7 @@ export const drawCourt = ({
 
   // 11. Schotlocatie indicator
   if (shotX !== undefined && shotY !== undefined) {
-    ctx.strokeStyle = 'rgba(215, 110, 50, 0.8)';
+    ctx.strokeStyle = '#FBBF24';
     ctx.lineWidth = 3;
     
     ctx.beginPath();

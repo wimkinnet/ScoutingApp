@@ -1,8 +1,13 @@
 :root {
   /* Colors */
-  --bg: #203653;
-  --text-inverse-bg: #e9eef7;
-  --bg-soft: #246b8e8a;
+  --bg_orig: #203653;
+  --bg:  #008F43;
+  --text-inverse-bg-orig: #e9eef7;
+  --text-inverse-bg: #ffffff;
+  --bg-soft-orig: #246b8e8a;
+  --bg-soft: #FBBF24;
+  --bg-modal: #E5F3EC;
+  --text-highlight: #003318;
   --surface: #1b222c;
   --surface-2: #222a36;
   --text: #e9eef7;

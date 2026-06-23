@@ -16,10 +16,10 @@ import '../styles/_tokens.css'
 import { drawCourt, drawAction } from '../utils/drawCourt';
 import { useMediaQuery } from 'react-responsive';
 
-export default function GameStatsModal({ isOpen, onClose }: ModalProps) {
+export default function PlayerStatsModal({ isOpen, onClose }: ModalProps) {
 
   const ACTIONS = [
-    { id: 'sh', label: 'Schooting' },
+    { id: 'sh', label: 'Shooting' },
     { id: 'reb', label: 'Rebounds' },
     { id: 'ass', label: 'Assists' },
     { id: 'st', label: 'Steals' },
@@ -320,7 +320,7 @@ export default function GameStatsModal({ isOpen, onClose }: ModalProps) {
                     ))}
                   </div>
                   <div className='stats-details'>
-                    <div className="stats-detail-container">
+                    <div className="stats-header-container">
                       <div className="stats-detail XS"></div>
                       <div className="stats-detail L"></div>
                       <div className="stats-detail">1P</div>

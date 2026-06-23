@@ -64,8 +64,8 @@ export default function GamesIndex() {
           <button className="btn" onClick={() => onOpenAddModal()}>Add Game</button>
         )}
         <div className="listHeader">
-          <div className="listHeaderItem XL">Scout Team</div>
-          <div className="listHeaderItem XL">Opponent</div>
+          <div className="listHeaderItem XL">Home Team</div>
+          <div className="listHeaderItem XL">Away Team</div>
           <div className="listHeaderItem L">Date</div>
           <div className="listHeaderItem XL">Actions</div>
         </div>
