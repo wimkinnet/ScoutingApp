@@ -1,0 +1,355 @@
+.scout-modal { 
+    position: fixed; 
+    inset: 0; 
+    display: none; 
+}
+
+.scout-modal[aria-hidden="false"] { 
+    display: grid; 
+    place-items: start;
+    z-index: 2; 
+}
+
+.scout-modal-backdrop.action { 
+    position: absolute; 
+    inset: 0; 
+    background: rgba(0,0,0,0.2); 
+}
+
+.scout-modal-backdrop { 
+    position: absolute; 
+    inset: 0; 
+    background: rgba(0,0,0,1); 
+}
+
+.modal.action {
+    z-index: 5;
+    justify-content: flex-start;
+ }
+
+.scout-modal-content { 
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    width: 95%;
+    height: 95%;
+    margin: 2.5%;
+    background: var(--bg-modal); 
+    border: 1px solid var(--border); 
+    border-radius: var(--radius-lg); 
+    box-shadow: var(--shadow-1);
+    overflow: hidden;
+}
+
+.scout-modal-header {
+    display: flex; 
+    align-items: center; 
+    justify-content: flex-start; 
+    padding: 8px; 
+    background: var(--bg); 
+}
+
+.scout-modal-header-blank {
+    width: 2%;
+}
+
+.scout-modal-header-team {
+    width: 38%;
+    text-align: center;
+    color: white;
+    font-size: 1.5rem;
+}
+
+.scout-modal-header-score {
+    width: 20%;
+    text-align: center;
+    color: white;
+    font-size: 1.5rem;
+}
+
+.scout-modal-body {
+    max-height: 100%;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.scout-modal-info-container {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 0;
+    background: var(--bg-modal);
+    color: var(--text-highlight);
+    font-size: 1.2rem;
+}
+
+.timer {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+    padding: 8px;
+    background: var(--bg-modal);
+    color: var(--text-highlight);
+    font-size: 1.2rem;
+    margin-bottom: 2px;
+    width: 30%;
+}
+
+canvas {
+    width: 65%;
+}
+
+.scout-modal-team-players-left {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 5px;
+    width: 20%;
+    justify-content: left;
+    padding-left: 10px;
+    margin-top: 10px;
+}
+
+.scout-modal-team-player {
+    position: relative;
+    height: 30px;
+    width: 30px;
+    align-content: center;
+    text-align: center;
+    border: 1px solid var(--bg-soft);
+    font-size: 1rem;
+    cursor: pointer;
+    color: white;
+    background: var(--bg);
+}
+
+.scout-modal-team-player.selected {
+    color: var(--text-highlight);
+    background-color: var(--bg-soft);
+}
+
+.scout-modal-player-tooltip {
+    visibility: hidden;
+    color: var(--text-highlight);
+    background-color: var(--bg-soft);
+    padding: 5px 0;
+    border-radius: 6px;
+    position: absolute;
+    z-index: 3;
+    width: 130px;
+    bottom: -15px;
+    font-size: 0.7rem;
+}
+
+.scout-modal-player-tooltip.right {
+    left: -120px;
+}
+
+.scout-modal-team-player:hover .scout-modal-player-tooltip {
+    visibility: visible;
+}
+
+.scout-modal-court-player:hover .scout-modal-player-tooltip {
+    visibility: visible;
+}
+
+.scout-modal-team-players-right {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 5px;
+    width: 20%;
+    justify-content: right;
+    padding-right: 10px;
+    margin-top: 10px;
+}
+
+.scout-modal-court-container {
+    display: flex;
+    flex-direction: row;
+    flex-grow: 1;
+    margin-top: 2rem;
+}
+
+.scout-modal-court-players {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 5%;
+    gap: 2rem;
+}
+
+.scout-modal-court-space-blank {
+    width: 2.5%;
+}
+
+.scout-modal-court-players-details {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    width: 10%;
+    gap: 1rem;
+    background: var(--bg);
+    padding: 25px 0px;
+}
+
+.scout-modal-player-detail-container {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.scout-modal-player-detail {
+    font-size: 1rem;
+    color: var(--text-inverse-bg);
+    text-align: center;
+    width: 30%;
+}
+
+.scout-modal-court-player {
+    height: 50px;
+    width: 50px;
+    align-content: center;
+    text-align: center;
+    border: 1px solid var(--bg-soft);
+    font-size: 2rem;
+    cursor: pointer;
+    color: var(--text-inverse-bg);
+    position: relative;
+    background: var(--bg);
+}
+
+.scout-modal-court-player.selected {
+    color: var(--text-highlight);
+    background-color: var(--bg-soft);
+}
+
+.scout-modal-quarter-direction {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    width: 15%;
+    justify-content: flex-start;
+    height: 100%;
+}
+
+.scout-modal-quarter-header {
+    font-size: 1rem;
+    text-align: center;
+    margin: 10px 0 5px 0;
+    color: var(--bg);
+    font-weight: bold;
+}
+
+.scout-modal-quarter-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+}
+
+.scout-modal-quarter {
+    height: 20px;
+    width: 20px;
+    align-content: center;
+    text-align: center;
+    border: 1px solid var(--bg-soft);
+    font-size: 0.8rem;
+    cursor: pointer;
+    color: var(--text-inverse-bg);
+    background: var(--bg);
+}
+
+.scout-modal-quarter.selected {
+    color: var(--text-highlight);
+    background: var(--bg-soft);
+}
+
+.scout-modal-possession-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    width: 15%;
+    justify-content: flex-start;
+    height: 100%;
+}
+
+.scout-modal-possession-header {
+    font-size: 1rem;
+    text-align: center;
+    font-weight: bold;
+    margin: 10px 0 5px 0;
+    color: var(--bg);
+}
+
+.scout-modal-possession-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 10px;
+}
+
+.scout-modal-possession {
+    height: 15px;
+    align-content: center;
+    text-align: center;
+    border: 1px solid var(--bg-soft);
+    font-size: 0.8rem;
+    cursor: pointer;
+    color: var(--text-inverse-bg);
+    padding: 8px;
+    width: auto;
+    background: var(--bg);
+}
+
+.scout-modal-possession.selected {
+    color: var(--text-highlight);
+    background-color: var(--bg-soft);
+}
+
+.scout-modal-direction-header {
+    font-size: 1rem;
+    text-align: center;
+    font-weight: bold;
+    margin: 10px 0 5px 0;
+    color: var(--bg);
+}
+
+.scout-modal-direction-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 5px;
+}
+
+.scout-modal-direction {
+    height: 20px;
+    width: 40px;
+    align-content: center;
+    text-align: center;
+    border: 1px solid var(--bg-soft);
+    font-size: 0.8rem;
+    cursor: pointer;
+    color: var(--text-inverse-bg);
+    background: var(--bg);
+}
+
+.scout-modal-direction.selected {
+    color: var(--text-highlight);
+    background-color: var(--bg-soft);
+}
+
+.info-container.action {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    justify-content: flex-start;
+    gap: 10px;
+}

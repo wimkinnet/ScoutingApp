@@ -118,9 +118,9 @@
   	-webkit-appearance: none;
   	-moz-appearance: none;
 	appearance: none;
-	background: var(--surface);
-  	color: var(--text);
-  	border: 1px solid var(--border);
+	background: var(--bg);
+  	color: var(--text-inverse-bg);
+  	border: 1px solid var(--bg-soft);
   	border-radius: var(--radius-sm);
   	padding: 0.4rem 0.8rem;
     font-size: 1rem;

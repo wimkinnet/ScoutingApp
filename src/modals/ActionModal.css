@@ -1,3 +1,9 @@
+#ActionModalTitle {
+    font-size: 1rem;
+    color: white;
+    text-align: left;
+}
+
 .action-set {
     display: flex;
     flex-wrap: wrap;

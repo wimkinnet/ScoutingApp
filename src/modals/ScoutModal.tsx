@@ -13,7 +13,7 @@ import {
   useGetLogsQuery,
  } from '../services/ScoutingApi';
 import Timer from '../features/timer/timer';
-import './Modal.css';
+import './ScoutModal.css'
 import '../styles/index.css'
 import '../styles/_tokens.css'
 import type { GamePlayer } from '../app/types';
@@ -390,55 +390,55 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
 
   return (
     <div>
-      <div className="modal scout-modal" aria-hidden={isOpen ? 'false' : 'true'} role="dialog" aria-labelledby="GameModalTitle">
-        <div className="modal-backdrop" onClick={onClose} />
-        <div className="modal-content">
-          <header className="modal-header">
-            <div className='header-blank'></div>
-            <div className='header-team'>{Home}</div>
-            <div className="header-score">{homeScore} - {awayScore}
+      <div className="scout-modal" aria-hidden={isOpen ? 'false' : 'true'} role="dialog" aria-labelledby="GameModalTitle">
+        <div className="scout-modal-backdrop" onClick={onClose} />
+        <div className="scout-modal-content">
+          <header className="scout-modal-header">
+            <div className='scout-modal-header-blank'></div>
+            <div className='scout-modal-header-team'>{Home}</div>
+            <div className="scout-modal-header-score">{homeScore} - {awayScore}
             </div>
-            <div className='header-team'>{Away}</div>
+            <div className='scout-modal-header-team'>{Away}</div>
             <button className="btn small" onClick={onClose} aria-label="Close">✕</button>
           </header>
-          <div className="modal-body">
+          <div className="scout-modal-body">
             {isLoadingGame ? (
               <p>Loading game...</p>
             ) : isGameError ? (
               <p>Could not load team</p>
             ) : (
               <div>
-                <div className='info-container'>
-                  <div className='team-players-left'>
+                <div className='scout-modal-info-container'>
+                  <div className='scout-modal-team-players-left'>
                     {benchPlayersHome.map((pl) => {
                       const isSelected = (playerInSelected === pl);
                       const player = players?.find((p) => p.id === pl.playerId);
                       return isSelected ? (
-                        <div className='team-player selected' id={pl.shirtNumber.toString()} onClick={(e) => HomeBenchClick(e)}>{pl.shirtNumber}
-                          <span className='player-tooltip'>{player?.firstName} {player?.lastName}</span>
+                        <div className='scout-modal-team-player selected' id={pl.shirtNumber.toString()} onClick={(e) => HomeBenchClick(e)}>{pl.shirtNumber}
+                          <span className='scout-modal-player-tooltip'>{player?.firstName} {player?.lastName}</span>
                         </div>
                       ) : (
-                        <div className='team-player' id={pl.shirtNumber.toString()} onClick={(e) => HomeBenchClick(e)}>{pl.shirtNumber}
-                          <span className='player-tooltip'>{player?.firstName} {player?.lastName}</span>
+                        <div className='scout-modal-team-player' id={pl.shirtNumber.toString()} onClick={(e) => HomeBenchClick(e)}>{pl.shirtNumber}
+                          <span className='scout-modal-player-tooltip'>{player?.firstName} {player?.lastName}</span>
                         </div>
                       )
                     })}
-                    <div className='team-player' >AC
-                      <span className='player-tooltip'>Assistent Coach</span>
+                    <div className='scout-modal-team-player' >AC
+                      <span className='scout-modal-player-tooltip'>Assistent Coach</span>
                     </div>
-                    <div className='team-player' >C
-                      <span className='player-tooltip'>Coach</span>
+                    <div className='scout-modal-team-player' >C
+                      <span className='scout-modal-player-tooltip'>Coach</span>
                     </div>
                   </div>
-                  <div className='possession-selector'>
-                    <div className='possession-header'>Ball possession</div>
-                    <div className='possession-container'>
+                  <div className='scout-modal-possession-selector'>
+                    <div className='scout-modal-possession-header'>Ball possession</div>
+                    <div className='scout-modal-possession-container'>
                       {possessions.map((pos) => {
                         const isSelected = (possession === pos);
                         return isSelected ? (
-                          <div className='possession selected'>{pos}</div>
+                          <div className='scout-modal-possession selected'>{pos}</div>
                         ) : (
-                          <div className='possession' id={pos} onClick={(e) => PossessionClick(e)}>{pos}</div>
+                          <div className='scout-modal-possession' id={pos} onClick={(e) => PossessionClick(e)}>{pos}</div>
                         )
                       })}
                     </div>
@@ -446,82 +446,82 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
                   <div className="timer">
                     <Timer secondsLeft={secondsLeft} setSecondsLeft={setSecondsLeft} />
                   </div>
-                  <div className='quarter-direction'>
-                    <div className='quarter-header'>Current quarter</div>
-                    <div className='quarter-container'>
+                  <div className='scout-modal-quarter-direction'>
+                    <div className='scout-modal-quarter-header'>Current quarter</div>
+                    <div className='scout-modal-quarter-container'>
                       {quarters.map((q) => {
                         const isSelected = (quarter === q);
                         return isSelected ? (
-                          <div className='quarter selected'>{q}</div>
+                          <div className='scout-modal-quarter selected'>{q}</div>
                         ) : (
-                          <div className='quarter' id={q.toLocaleString()} onClick={(e) => QuarterClick(e)}>{q}</div>
+                          <div className='scout-modal-quarter' id={q.toLocaleString()} onClick={(e) => QuarterClick(e)}>{q}</div>
                         )
                       })}
                     </div>
-                    <div className='direction-header'>Away direction</div>
-                    <div className='direction-container'>
+                    <div className='scout-modal-direction-header'>Away direction</div>
+                    <div className='scout-modal-direction-container'>
                       {directions.map((dir) => {
                       const isSelected = (awayDir === dir);
                       return isSelected ? (
-                        <div className='direction selected'>{dir}</div>
+                        <div className='scout-modal-direction selected'>{dir}</div>
                       ) : (
-                        <div className='direction' id={dir} onClick={(e) => DirectionClick(e)}>{dir}</div>
+                        <div className='scout-modal-direction' id={dir} onClick={(e) => DirectionClick(e)}>{dir}</div>
                       )
                       })}
                     </div>
                   </div>
-                  <div className='team-players-right'>
-                    <div className='team-player right' >C
-                      <span className='player-tooltip right'>Coach</span>
+                  <div className='scout-modal-team-players-right'>
+                    <div className='scout-modal-team-player right' >C
+                      <span className='scout-modal-player-tooltip right'>Coach</span>
                     </div>
-                    <div className='team-player' >AC
-                      <span className='player-tooltip right'>Assistent Coach</span>
+                    <div className='scout-modal-team-player' >AC
+                      <span className='scout-modal-player-tooltip right'>Assistent Coach</span>
                     </div>
                     {benchPlayersAway.map((pl) => {
                       const isSelected = (playerInSelected === pl);
                       const player = players?.find((p) => p.id === pl.playerId);
                       return isSelected ? (
-                        <div className='team-player selected' id={pl.shirtNumber.toString()} onClick={(e) => AwayBenchClick(e)}>{pl.shirtNumber}
-                          <span className='player-tooltip right'>{player?.firstName} {player?.lastName}</span>
+                        <div className='scout-modal-team-player selected' id={pl.shirtNumber.toString()} onClick={(e) => AwayBenchClick(e)}>{pl.shirtNumber}
+                          <span className='scout-modal-player-tooltip right'>{player?.firstName} {player?.lastName}</span>
                         </div>
                       ) : (
-                        <div className='team-player' id={pl.shirtNumber.toString()} onClick={(e) => AwayBenchClick(e)}>{pl.shirtNumber}
-                          <span className='player-tooltip right'>{player?.firstName} {player?.lastName}</span>
+                        <div className='scout-modal-team-player' id={pl.shirtNumber.toString()} onClick={(e) => AwayBenchClick(e)}>{pl.shirtNumber}
+                          <span className='scout-modal-player-tooltip right'>{player?.firstName} {player?.lastName}</span>
                         </div>
                       )
                     })}
                     </div>
                 </div>       
-                <div className='court-container'>
-                  <div className='court-players-details'>
-                    <div className="player-detail-container">
-                      <div className="player-detail">#</div>
-                      <div className="player-detail">Fouls</div>
-                      <div className="player-detail">Pts</div>
+                <div className='scout-modal-court-container'>
+                  <div className='scout-modal-court-players-details'>
+                    <div className="scout-modal-player-detail-container">
+                      <div className="scout-modal-player-detail">#</div>
+                      <div className="scout-modal-player-detail">Fouls</div>
+                      <div className="scout-modal-player-detail">Pts</div>
                     </div>
                     {GamePlayersScores?.map((pl) => {
                       const isHome = (pl.homeTeam);
                       return isHome &&
-                      <div className="player-detail-container">
-                        <div className="player-detail">{pl.shirtNumber}</div>
-                        <div className="player-detail">{pl.fouls}</div>
-                        <div className="player-detail">{pl.points}</div>
+                      <div className="scout-modal-player-detail-container">
+                        <div className="scout-modal-player-detail">{pl.shirtNumber}</div>
+                        <div className="scout-modal-player-detail">{pl.fouls}</div>
+                        <div className="scout-modal-player-detail">{pl.points}</div>
                       </div>  
                   })}
                   </div>
-                  <div className='court-space-blank'>
+                  <div className='scout-modal-court-space-blank'>
                   </div>
-                  <div className='court-players'>
+                  <div className='scout-modal-court-players'>
                     {courtPlayersHome.map((pl) => {
                       const isSelected = (selectedPlayer === pl);
                       const player = players?.find((p) => p.id === pl.playerId);
                       return isSelected ? (
-                        <div className='court-player selected' id={pl.playerId} onClick={(e) => CourtPlayerClick(e)}>{pl.shirtNumber}
-                          <span className='player-tooltip'>{player?.firstName} {player?.lastName}</span>
+                        <div className='scout-modal-court-player selected' id={pl.playerId} onClick={(e) => CourtPlayerClick(e)}>{pl.shirtNumber}
+                          <span className='scout-modal-player-tooltip'>{player?.firstName} {player?.lastName}</span>
                         </div>
                       ) : (
-                        <div className='court-player' id={pl.playerId} onClick={(e) => CourtPlayerClick(e)}>{pl.shirtNumber}
-                          <span className='player-tooltip'>{player?.firstName} {player?.lastName}</span>
+                        <div className='scout-modal-court-player' id={pl.playerId} onClick={(e) => CourtPlayerClick(e)}>{pl.shirtNumber}
+                          <span className='scout-modal-player-tooltip'>{player?.firstName} {player?.lastName}</span>
                         </div>
                       )
                     })}
@@ -529,36 +529,36 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
                   
                   <canvas id='court' ref={canvasRef} onClick={(e) => CourtClick(e)}/>
                   
-                  <div className='court-players'>
+                  <div className='scout-modal-court-players'>
                     {courtPlayersAway.map((pl) => {
                       const isSelected = (selectedPlayer === pl);
                       const player = players?.find((p) => p.id === pl.playerId);
                       return isSelected ? (
-                        <div className='court-player selected' id={pl.playerId} onClick={(e) => CourtPlayerClick(e)}>{pl.shirtNumber}
-                          <span className='player-tooltip right'>{player?.firstName} {player?.lastName}</span>
+                        <div className='scout-modal-court-player selected' id={pl.playerId} onClick={(e) => CourtPlayerClick(e)}>{pl.shirtNumber}
+                          <span className='scout-modal-player-tooltip right'>{player?.firstName} {player?.lastName}</span>
                         </div>
                       ) : (
-                        <div className='court-player' id={pl.playerId} onClick={(e) => CourtPlayerClick(e)}>{pl.shirtNumber}
-                          <span className='player-tooltip right'>{player?.firstName} {player?.lastName}</span>
+                        <div className='scout-modal-court-player' id={pl.playerId} onClick={(e) => CourtPlayerClick(e)}>{pl.shirtNumber}
+                          <span className='scout-modal-player-tooltip right'>{player?.firstName} {player?.lastName}</span>
                         </div>
                       )
                     })}
                   </div>
-                  <div className='court-space-blank'>
+                  <div className='scout-modal-court-space-blank'>
                   </div>
-                  <div className='court-players-details'>
-                    <div className="player-detail-container">
-                      <div className="player-detail">Pts</div>
-                      <div className="player-detail">Fouls</div>
-                      <div className="player-detail">#</div>
+                  <div className='scout-modal-court-players-details'>
+                    <div className="scout-modal-player-detail-container">
+                      <div className="scout-modal-player-detail">Pts</div>
+                      <div className="scout-modal-player-detail">Fouls</div>
+                      <div className="scout-modal-player-detail">#</div>
                     </div>
                     {GamePlayersScores?.map((pl) => {
                       const isHome = (pl.homeTeam);
                       return !isHome &&
-                      <div className="player-detail-container">
-                        <div className="player-detail">{pl.points}</div>
-                        <div className="player-detail">{pl.fouls}</div>
-                        <div className="player-detail">{pl.shirtNumber}</div>
+                      <div className="scout-modal-player-detail-container">
+                        <div className="scout-modal-player-detail">{pl.points}</div>
+                        <div className="scout-modal-player-detail">{pl.fouls}</div>
+                        <div className="scout-modal-player-detail">{pl.shirtNumber}</div>
                       </div>  
                     })}
                   </div>

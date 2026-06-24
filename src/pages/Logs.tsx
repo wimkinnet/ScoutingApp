@@ -24,7 +24,6 @@ export default function TeamsIndex() {
   const [playerFilter, setPlayerFilter] = useState<string>('');
 
   return (
-    <div>
       <ul className="listContainer">
         <div className="filterContainer">
         <select
@@ -104,7 +103,6 @@ export default function TeamsIndex() {
             );
           })}
       </ul>
-    </div>
   );
 }
 

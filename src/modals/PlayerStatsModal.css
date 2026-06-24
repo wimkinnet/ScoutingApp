@@ -1,3 +1,55 @@
+.player-stats-modal { 
+    position: fixed; 
+    inset: 0; 
+    display: none; 
+}
+
+.player-stats-modal[aria-hidden="false"] { 
+    display: grid; 
+    place-items: start;
+    z-index: 2; 
+}
+
+.player-stats-modal-backdrop { 
+    position: absolute; 
+    inset: 0; 
+    background: rgba(0,0,0,0.5); 
+}
+
+.player-stats-modal-content { 
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    width: 95%;
+    height: 95%;
+    margin: 2.5%;
+    background: var(--bg-modal); 
+    border: 1px solid var(--border); 
+    border-radius: var(--radius-lg); 
+    box-shadow: var(--shadow-1);
+    overflow: hidden;
+}
+
+.player-stats-modal-header {
+    display: flex; 
+    align-items: center; 
+    justify-content: flex-start; 
+    padding: 8px; 
+    background: var(--bg); 
+}
+
+.player-stats-header-blank {
+    width: 2%;
+}
+
+.player-stats-modal-body {
+    max-height: 100%;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
 .playerstats-header-playername {
     width: 97%;
     text-align: center;
@@ -15,7 +67,7 @@
     flex-direction: column;
 }
 
-.stats-team-switch-container {
+.player-stats-select-container {
     display: flex;
     flex: row;
     gap: 1rem;
@@ -34,11 +86,28 @@
     width: min-content;
 }
 
+.player-stats-game-time-container {
+    display: flex;
+    flex-direction: row;
+    gap: 2rem;
+    margin: 2rem 0;
+}
+
+.player-stats-game-time {
+    font-size: 1rem;
+    color: #003318;
+}
+
 .player-stats-detail {
     font-size: 1rem;
     color: #003318;
     text-align: center;
     width: 3rem;
+}
+
+.player-stats-detail.XL {
+    width: 18rem;
+    text-align: right;
 }
 
 .player-stats-detail.L {

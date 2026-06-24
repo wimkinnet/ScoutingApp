@@ -289,18 +289,18 @@ export default function PlayerStatsModal({ isOpen, onClose }: ModalProps) {
 
   return (
     <div>
-      <div className="modal scout-modal" aria-hidden={isOpen ? 'false' : 'true'} role="dialog" aria-labelledby="GameModalTitle">
-        <div className="modal-backdrop" onClick={onClose} />
-        <div className="modal-content">
-          <header className="modal-header">
-            <div className='header-blank'></div>
-            <div className='header-team'>{Home}</div>
-            <div className="header-score">{homeScore} - {awayScore}
+      <div className="game-stats-modal" aria-hidden={isOpen ? 'false' : 'true'} role="dialog" aria-labelledby="GameModalTitle">
+        <div className="game-stats-modal-backdrop" onClick={onClose} />
+        <div className="game-stats-modal-content">
+          <header className="game-stats-modal-header">
+            <div className='game-stats-header-blank'></div>
+            <div className='game-stats-header-team'>{Home}</div>
+            <div className="game-stats-header-score">{homeScore} - {awayScore}
             </div>
-            <div className='header-team'>{Away}</div>
+            <div className='game-stats-header-team'>{Away}</div>
             <button className="btn small" onClick={onClose} aria-label="Close">✕</button>
           </header>
-          <div className="modal-body">
+          <div className="game-stats-modal-body">
             {isLoadingGame ? (
               <p>Loading game...</p>
             ) : isGameError ? (
