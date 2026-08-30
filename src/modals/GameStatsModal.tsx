@@ -283,7 +283,7 @@ export default function PlayerStatsModal({ isOpen, onClose }: ModalProps) {
       };
     };
 
-  }, [isOpen, game, selectedPlayer, selectedAction, selectedTeam]);
+  }, [isOpen, game, logs, selectedPlayer, selectedAction, selectedTeam]);
 
   if (!isOpen) return null;
 
