@@ -63,7 +63,7 @@ export interface Action {
 const getBaseUrl = () => {
         // If running locally on your computer (npm run dev / npm start)
         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-            return 'https://voice-control-9k4v.onrender.com'; // <-- Your NEW Render Dev URL
+            return 'https://voice-control-9k4v.onrender.com/api'; // <-- Your NEW Render Dev URL
         }
   
         // If running live on GitHub Pages (your-username.github.io)
