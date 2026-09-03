@@ -73,7 +73,6 @@ const getBaseUrl = () => {
 export const scoutingApi = createApi({
     reducerPath: 'scoutingApi',
     baseQuery: fetchBaseQuery({
-        //baseUrl: 'http://localhost:4000/api',
         baseUrl: getBaseUrl(),
     }),
     tagTypes: ['Player', 'Club', 'Season', 'Team', 'Game', 'Log', 'Action'],
