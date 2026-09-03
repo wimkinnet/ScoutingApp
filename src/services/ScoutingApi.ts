@@ -60,11 +60,21 @@ export interface Action {
 	label: string;
 }
 
+const getBaseUrl = () => {
+        // If running locally on your computer (npm run dev / npm start)
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            return 'https://voice-control-9k4v.onrender.com'; // <-- Your NEW Render Dev URL
+        }
+  
+        // If running live on GitHub Pages (your-username.github.io)
+        return 'https://scoutingapp-e1oh.onrender.com/api'; // <-- Your Render Production URL
+    };
+
 export const scoutingApi = createApi({
     reducerPath: 'scoutingApi',
     baseQuery: fetchBaseQuery({
         //baseUrl: 'http://localhost:4000/api',
-        baseUrl: 'https://scoutingapp-e1oh.onrender.com/api',
+        baseUrl: getBaseUrl(),
     }),
     tagTypes: ['Player', 'Club', 'Season', 'Team', 'Game', 'Log', 'Action'],
     endpoints: (builder) => ({
