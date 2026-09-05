@@ -381,7 +381,7 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
 
     // Luister naar de live tekst-tokens van de server
     socket.on('speech-text-delta', (textDelta: string) => {
-      console.log("👉 React ontving live tekst fragment:", textDelta); // Bekijk dit in je browser console!
+      console.log("👉 React ontving live tekst fragment:", textDelta);
       setConvertedText((prevText) => prevText + textDelta);
     });
 

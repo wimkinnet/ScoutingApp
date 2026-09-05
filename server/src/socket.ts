@@ -107,11 +107,11 @@ export const initSocket = (server: any) => {
 
 
     // 2. Event dat continu de audio-chunks ontvangt vanuit de React-microfoon
-    socket.on('audio-chunk', (base64AudioString: string) => {
-      // Controleer of de OpenAI verbinding open staat
+    socket.on('audio-chunk', (audioBuffer: Buffer) => {
       if (openAiWs && openAiWs.readyState === WebSocket.OPEN) {
+        // De server zet de binaire buffer om naar Base64
+        const base64AudioString = Buffer.from(audioBuffer).toString('base64');
     
-        // We sturen de reeds geconverteerde string direct door
         openAiWs.send(JSON.stringify({
           type: "input_audio_buffer.append",
           audio: base64AudioString
