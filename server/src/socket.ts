@@ -108,6 +108,7 @@ export const initSocket = (server: any) => {
 
     // 2. Event dat continu de audio-chunks ontvangt vanuit de React-microfoon
     socket.on('audio-chunk', (audioBuffer: Buffer) => {
+      console.log(`Ontvangen audio-chunk van client ${socket.id}, grootte: ${audioBuffer.length} bytes`);
       if (openAiWs && openAiWs.readyState === WebSocket.OPEN) {
         // De server zet de binaire buffer om naar Base64
         const base64AudioString = Buffer.from(audioBuffer).toString('base64');
@@ -121,6 +122,7 @@ export const initSocket = (server: any) => {
 
     // 3. Wanneer de gebruiker de knop weer loslaat in React
     socket.on('stop-speech-stream', () => {
+      console.log(`Live Speech-to-Text gestopt voor client: ${socket.id}`);
       if (openAiWs) {
         openAiWs.close();
         openAiWs = null;

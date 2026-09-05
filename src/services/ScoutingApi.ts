@@ -81,50 +81,46 @@ export const startLiveSpeechToText = async (onTextDelta: (text: string) => void)
       socket.connect();
     }
 
-    // 1. Vraag DIRECT microfoontoegang (als de gebruiker weigert, stopt het hier meteen)
-    stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-
     socket.on('speech-text-delta', (textDelta: string) => {
       onTextDelta(textDelta);
     });
 
     socket.emit('start-speech-stream');
 
-    // 2. Initialiseer de AudioContext pas NADAT de microfoon actief is
+    // 1. Vraag microfoontoegang
+    stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+    // 2. Initialiseer AudioContext
     const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
     audioCtx = new AudioContextClass({ sampleRate: 24000 });
 
-    // 3. Laad de worklet module
+    // 3. CRUCIAL: Dwing de AudioContext actief te worden (omzeil browser suspend)
+    if (audioCtx.state === 'suspended') {
+      await audioCtx.resume();
+    }
+
+    // 4. Laad de worklet module
     await audioCtx.audioWorklet.addModule(processorUrl);
 
-    // 4. Koppel de microfoon (stream kan nu nooit meer null zijn)
     const source = audioCtx.createMediaStreamSource(stream);
-
-    // 5. Maak de node aan
     workletNode = new AudioWorkletNode(audioCtx, 'pcm-processor');
 
+    // 5. Luister naar de worklet-thread
     workletNode.port.onmessage = (event) => {
-        if (!socket.connected) return;
-  
-        const pcmBuffer = event.data; // Dit is de Int16Array (ArrayBuffer) uit de worklet
-  
-        // Converteer de binaire PCM buffer live naar een veilige Base64 string voor Socket.io
-        const uint8Array = new Uint8Array(pcmBuffer);
-        let binaryString = '';
-        for (let i = 0; i < uint8Array.length; i++) {
-            binaryString += String.fromCharCode(uint8Array[i]);
-        }
-        const base64AudioChunk = btoa(binaryString);
-
-        // Stuur de Base64 tekst-chunk naar de server
-        socket.emit('audio-chunk', base64AudioChunk);
+      if (!socket.connected) return;
+      const pcmBuffer = event.data; // Dit is de ArrayBuffer van de worklet
+      
+      // Stuur de binaire chunk direct naar de backend
+      socket.emit('audio-chunk', pcmBuffer);
     };
 
     source.connect(workletNode);
     workletNode.connect(audioCtx.destination);
 
+    console.log("🎤 Audio pijplijn succesvol gestart in de browser. Status context:", audioCtx.state);
+
   } catch (err) {
-    console.error('Fout in moderne spraakstream:', err);
+    console.error('Fout in startLiveSpeechToText:', err);
     stopLiveSpeechToText();
     throw err;
   }
@@ -146,6 +142,7 @@ export const stopLiveSpeechToText = () => {
     audioCtx.close();
     audioCtx = null;
   }
+  console.log("🛑 Audio pijplijn netjes gesloten lokaal.");
 };
 
 export const scoutingApi = createApi({
