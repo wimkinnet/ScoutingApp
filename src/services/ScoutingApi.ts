@@ -106,9 +106,9 @@ export const startLiveSpeechToText = async (onTextDelta: (text: string) => void)
     workletNode.port.onmessage = (event) => {
         if (!socket.connected) return;
   
-        const pcmBuffer = event.data; // Dit is de Int16Array van de worklet
+        const pcmBuffer = event.data; // Dit is de Int16Array (ArrayBuffer) uit de worklet
   
-        // 1. Converteer de binaire PCM buffer live naar een veilige Base64 string in React
+        // Converteer de binaire PCM buffer live naar een veilige Base64 string voor Socket.io
         const uint8Array = new Uint8Array(pcmBuffer);
         let binaryString = '';
         for (let i = 0; i < uint8Array.length; i++) {
@@ -116,7 +116,7 @@ export const startLiveSpeechToText = async (onTextDelta: (text: string) => void)
         }
         const base64AudioChunk = btoa(binaryString);
 
-        // 2. Stuur het als TEXT (string) over Socket.io in plaats van een binaire buffer
+        // Stuur de Base64 tekst-chunk naar de server
         socket.emit('audio-chunk', base64AudioChunk);
     };
 

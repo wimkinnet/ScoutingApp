@@ -375,22 +375,19 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
   };
 
   useEffect(() => {
-    // 1. Open de verbinding PAS wanneer de modal mount/opent
     if (!socket.connected) {
-      console.log("Modal geopend: Socket handmatig verbinden...");
       socket.connect();
     }
 
-    // 2. Koppel de event listener voor de live tekst
+    // Luister naar de live tekst-tokens van de server
     socket.on('speech-text-delta', (textDelta: string) => {
+      console.log("👉 React ontving live tekst fragment:", textDelta); // Bekijk dit in je browser console!
       setConvertedText((prevText) => prevText + textDelta);
     });
 
-    // 3. CLEANUP: Verlaat de socket netjes zodra de modal sluit of de pagina refresht
     return () => {
-      console.log("Modal sluit: Socket netjes afkoppelen...");
       socket.off('speech-text-delta');
-      socket.disconnect(); // Dwing de verbinding dicht om spook-connecties te voorkomen
+      socket.disconnect();
     };
   }, []);
   
