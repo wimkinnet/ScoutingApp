@@ -19,7 +19,14 @@ html {
 	height: 35px;
 }
 
-.brand { display: flex; align-items: center; justify-content: center; gap: 12px; }
+.brand {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 12px;
+	width: 100%; 
+}
+
 .brand .logo { font-size: 2rem; }
 .brand-title { 
 	font-size: 2rem;  

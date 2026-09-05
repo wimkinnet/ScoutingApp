@@ -12,7 +12,7 @@ export default function AppLayout() {
 			<header className="app-header">
 				<div className="brand">
 					<span className="logo" aria-hidden>🏀</span>
-					<Link to="/" className="brand-title">SCOUTING APP WITH VOICE CONTROL</Link>
+					<Link to="/" className="brand-title">SCOUTING APP</Link>
 				</div>
 			</header>
 			

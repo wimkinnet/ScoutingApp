@@ -353,3 +353,41 @@ canvas {
     justify-content: flex-start;
     gap: 10px;
 }
+
+.scout-modal-speech-container {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 2rem;
+}
+
+.scout-modal-speech-split {
+	display: flex;
+	align-items: center;
+	justify-content: left;
+	width: 100%;
+}
+
+.scout-modal-speech-left {
+	width: 25%;
+}
+
+.scout-modal-speech-icon {
+	display: flex;
+  	justify-content: center;
+  	align-items: center; 
+	width: 60px;
+	height: 60px;
+	background: var(--bg);
+	border-radius: 50%;
+}
+
+.scout-modal-speech-icon:hover {
+    background: var(--bg-soft);
+}
+
+.scout-modal-speech-icon img {
+    width: 45px;
+    height: 45px;
+}

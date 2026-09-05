@@ -18,6 +18,8 @@ import '../styles/index.css'
 import '../styles/_tokens.css'
 import type { GamePlayer } from '../app/types';
 import ActionModal from './ActionModal';
+import micIcon from '../assets/mic.svg';
+import { Link } from 'react-router';
 
 export default function ScoutModal({ isOpen, onClose }: ModalProps) {
   const dispatch = useDispatch()
@@ -562,6 +564,14 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
                       </div>  
                     })}
                   </div>
+                </div>
+                <div className='scout-modal-speech-container'>
+                  <div className="scout-modal-speech-split">
+                    <div className="scout-modal-speech-left" />
+					          <div className="scout-modal-speech-icon">
+						          <img src={micIcon} alt="Voice Control" />
+					          </div>
+				          </div>
                 </div>
               </div>
             )}
