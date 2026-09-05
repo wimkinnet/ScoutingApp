@@ -403,8 +403,8 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
       socket.connect();
     
       // Wacht maximaal tot de connectie er daadwerkelijk is
-      await new Promise((resolve) => {
-        socket.once('connect', resolve);
+      await new Promise<void>((resolve) => {
+        socket.once('connect', () => resolve());
         setTimeout(resolve, 500); // Vangnet van 500ms
       });
     }
