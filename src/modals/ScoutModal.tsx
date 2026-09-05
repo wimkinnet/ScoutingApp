@@ -11,6 +11,8 @@ import {
   useGetClubsQuery,
   useGetTeamsQuery,
   useGetLogsQuery,
+  startLiveSpeechToText,
+  stopLiveSpeechToText
  } from '../services/ScoutingApi';
 import Timer from '../features/timer/timer';
 import './ScoutModal.css'
@@ -19,7 +21,7 @@ import '../styles/_tokens.css'
 import type { GamePlayer } from '../app/types';
 import ActionModal from './ActionModal';
 import micIcon from '../assets/mic.svg';
-import { Link } from 'react-router';
+import socket from '../socket';
 
 export default function ScoutModal({ isOpen, onClose }: ModalProps) {
   const dispatch = useDispatch()
@@ -73,6 +75,9 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
   const [awayDir, setAwayDir] = useState<string>("");
 
   const [playerInSelected, setPlayerInSelected] = useState<GamePlayer>()
+
+  const [convertedText, setConvertedText] = useState(''); 
+  const [isListening, setIsListening] = useState(false);
 
   const homePlayersId = game?.homePlayers.map ((player) => (player.playerId));
   const awayPlayersId = game?.awayPlayers.map ((player) => (player.playerId));
@@ -370,6 +375,64 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
   };
 
   useEffect(() => {
+    // 1. Open de verbinding PAS wanneer de modal mount/opent
+    if (!socket.connected) {
+      console.log("Modal geopend: Socket handmatig verbinden...");
+      socket.connect();
+    }
+
+    // 2. Koppel de event listener voor de live tekst
+    socket.on('speech-text-delta', (textDelta: string) => {
+      setConvertedText((prevText) => prevText + textDelta);
+    });
+
+    // 3. CLEANUP: Verlaat de socket netjes zodra de modal sluit of de pagina refresht
+    return () => {
+      console.log("Modal sluit: Socket netjes afkoppelen...");
+      socket.off('speech-text-delta');
+      socket.disconnect(); // Dwing de verbinding dicht om spook-connecties te voorkomen
+    };
+  }, []);
+  
+  const handleStartSpeech = async (e: React.MouseEvent | React.TouchEvent) => {
+    e.preventDefault(); // Voorkomt dat de modal sluit of verspringt
+    
+    // Controleer of de socket al succesvol verbonden is door de StrictMode-cyclus
+    if (!socket.connected) {
+      console.log("Socket is nog niet volledig verbonden, even geduld...");
+      socket.connect();
+    
+      // Wacht maximaal tot de connectie er daadwerkelijk is
+      await new Promise((resolve) => {
+        socket.once('connect', resolve);
+        setTimeout(resolve, 500); // Vangnet van 500ms
+      });
+    }
+
+    setIsListening(true);
+    
+    // Optioneel: Voeg automatisch een spatie toe als er al tekst in het vak staat
+    setConvertedText((prev) => (prev ? prev + ' ' : ''));
+
+    try {
+      // Start de stream en vertel wat er met de live tekst moet gebeuren
+      await startLiveSpeechToText((textDelta: string) => {
+        // Dit plakt elk live herkend woord direct achter de bestaande tekst
+        setConvertedText((prevText) => prevText + textDelta);
+      });
+    } catch (err) {
+      console.error("Spraakherkenning kon niet starten:", err);
+      setIsListening(false);
+    }
+  };
+
+  const handleStopSpeech = () => {
+    if (!isListening) return;
+    setIsListening(false);
+    stopLiveSpeechToText(); // Ruimt de microfoon en sockets netjes op via de service
+  };
+
+  useEffect(() => {
     const handleKeyDown = (event: any) => {
       if (event.repeat) return;
       (event.key === 'p') ? PossessionSwitch() : null;
@@ -568,9 +631,18 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
                 <div className='scout-modal-speech-container'>
                   <div className="scout-modal-speech-split">
                     <div className="scout-modal-speech-left" />
-					          <div className="scout-modal-speech-icon">
+					          <div className="scout-modal-speech-icon" 
+                        onMouseDown={handleStartSpeech} 
+                        onMouseUp={handleStopSpeech}
+                        onTouchStart={handleStartSpeech}
+                        onTouchEnd={handleStopSpeech}>
 						          <img src={micIcon} alt="Voice Control" />
 					          </div>
+                    <textarea
+                      value={convertedText}
+                      onChange={(e) => setConvertedText(e.target.value)}
+                      placeholder="Typ hier of gebruik de spraakknop om live te dicteren..."
+                    />
 				          </div>
                 </div>
               </div>

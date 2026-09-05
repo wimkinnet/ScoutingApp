@@ -1,5 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import socket from '../socket';
+import processorUrl from './pcm-processor?worker&url'; 
 
 export interface Player {
     id: string;
@@ -60,6 +61,10 @@ export interface Action {
 	label: string;
 }
 
+let audioCtx: AudioContext | null = null;
+let workletNode: AudioWorkletNode | null = null;
+let stream: MediaStream | null = null;
+
 const getBaseUrl = () => {
         // If running locally on your computer (npm run dev / npm start)
         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
@@ -69,6 +74,79 @@ const getBaseUrl = () => {
         // If running live on GitHub Pages (your-username.github.io)
         return 'https://scoutingapp-e1oh.onrender.com/api'; // <-- Your Render Production URL
     };
+
+export const startLiveSpeechToText = async (onTextDelta: (text: string) => void) => {
+  try {
+    if (!socket.connected) {
+      socket.connect();
+    }
+
+    // 1. Vraag DIRECT microfoontoegang (als de gebruiker weigert, stopt het hier meteen)
+    stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+    socket.on('speech-text-delta', (textDelta: string) => {
+      onTextDelta(textDelta);
+    });
+
+    socket.emit('start-speech-stream');
+
+    // 2. Initialiseer de AudioContext pas NADAT de microfoon actief is
+    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+    audioCtx = new AudioContextClass({ sampleRate: 24000 });
+
+    // 3. Laad de worklet module
+    await audioCtx.audioWorklet.addModule(processorUrl);
+
+    // 4. Koppel de microfoon (stream kan nu nooit meer null zijn)
+    const source = audioCtx.createMediaStreamSource(stream);
+
+    // 5. Maak de node aan
+    workletNode = new AudioWorkletNode(audioCtx, 'pcm-processor');
+
+    workletNode.port.onmessage = (event) => {
+        if (!socket.connected) return;
+  
+        const pcmBuffer = event.data; // Dit is de Int16Array van de worklet
+  
+        // 1. Converteer de binaire PCM buffer live naar een veilige Base64 string in React
+        const uint8Array = new Uint8Array(pcmBuffer);
+        let binaryString = '';
+        for (let i = 0; i < uint8Array.length; i++) {
+            binaryString += String.fromCharCode(uint8Array[i]);
+        }
+        const base64AudioChunk = btoa(binaryString);
+
+        // 2. Stuur het als TEXT (string) over Socket.io in plaats van een binaire buffer
+        socket.emit('audio-chunk', base64AudioChunk);
+    };
+
+    source.connect(workletNode);
+    workletNode.connect(audioCtx.destination);
+
+  } catch (err) {
+    console.error('Fout in moderne spraakstream:', err);
+    stopLiveSpeechToText();
+    throw err;
+  }
+};
+
+export const stopLiveSpeechToText = () => {
+  socket.off('speech-text-delta');
+  socket.emit('stop-speech-stream');
+
+  if (workletNode) {
+    workletNode.disconnect();
+    workletNode = null;
+  }
+  if (stream) {
+    stream.getTracks().forEach(track => track.stop());
+    stream = null;
+  }
+  if (audioCtx) {
+    audioCtx.close();
+    audioCtx = null;
+  }
+};
 
 export const scoutingApi = createApi({
     reducerPath: 'scoutingApi',
