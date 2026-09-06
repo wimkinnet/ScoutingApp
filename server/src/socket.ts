@@ -80,7 +80,12 @@ export const initSocket = (server: any) => {
             console.log("OpenAI Event Type:", openAiEvent.type);
 
             if (openAiEvent.type === 'conversation.item.input_audio_transcription.delta' && openAiEvent.delta) {
+              console.log("✍️ Delta ontvangen:", openAiEvent.delta);
               socket.emit('speech-text-delta', openAiEvent.delta);
+            }
+            else if (openAiEvent.type === 'conversation.item.input_audio_transcription.completed' && openAiEvent.transcript) {
+              console.log("📝 Volledige zin voltooid:", openAiEvent.transcript);
+              socket.emit('speech-text-delta', openAiEvent.transcript);
             } 
             else if (openAiEvent.type === 'error' && openAiEvent.error) {
               console.error("❌ OpenAI API inhoudelijke fout:", openAiEvent.error.message);
