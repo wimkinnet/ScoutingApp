@@ -42,6 +42,7 @@ export const initSocket = (server: any) => {
         openAiWs = new WebSocket(url, {
           headers: {
             "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
+            "OpenAI-Beta": "realtime=v1"
           },
         });
 
@@ -55,17 +56,27 @@ export const initSocket = (server: any) => {
           console.log("🟢 Succesvol een beveiligde pijp geopend naar OpenAI Realtime API!");
           
           const sessionUpdate = {
-            type: "transcription_session.update", // <-- DIT IS GEWIJZIGD (moest transcription_session zijn)
-            input_audio_format: "pcm24",          // <-- Matcht jouw 24000Hz (mag ook "pcm16" zijn mits je frontend matcht)
-            input_audio_transcription: {
-              model: "gpt-4o-mini-transcribe",
-              language: "nl"                      // <-- Dit dwingt Nederlands af en stopt Chinees/Turks
-            },
-            turn_detection: {
-              type: "server_vad",
-              threshold: 0.5,                     // Gevoeligheid voor ruis (0.0 tot 1.0)
-              prefix_padding_ms: 300,
-              silence_duration_ms: 500            // Wacht 500ms stilte voordat het model een zin afrondt
+            type: "session.update", // <-- Gebruik het universele session.update event
+            session: {
+              type: "transcription", // Dwingt pure live Speech-to-Text af
+              audio: {
+                input: {
+                  format: {
+                    type: "audio/pcm",
+                    rate: 24000 // Matcht exact met je frontend
+                  },
+                  transcription: {
+                    model: "gpt-4o-mini-transcribe", // Het officiële real-time STT model
+                    language: "nl" // Stopt het switchen naar Chinees/Turks bij stilte
+                  },
+                  turn_detection: {
+                    type: "server_vad",
+                    threshold: 0.5,           // Gevoeligheid voor omgevingsgeluid (0.0 - 1.0)
+                    prefix_padding_ms: 300,
+                    silence_duration_ms: 500  // Stuurt pas een event na 500ms stilte
+                  }
+                }
+              }
             }
           };
           
