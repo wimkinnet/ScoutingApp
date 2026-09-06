@@ -81,7 +81,10 @@ export const initSocket = (server: any) => {
             }
           };
           
-          openAiWs.send(JSON.stringify(sessionUpdate));
+          if (openAiWs && openAiWs.readyState === WebSocket.OPEN) {
+            openAiWs.send(JSON.stringify(sessionUpdate));
+          }
+          
         });
 
         // 2. Deze message handler gaat nu wél vuren om events te loggen
