@@ -64,6 +64,7 @@ export interface Action {
 let audioCtx: AudioContext | null = null;
 let workletNode: AudioWorkletNode | null = null;
 let stream: MediaStream | null = null;
+let isStreamingActive = false;
 
 const getBaseUrl = () => {
         // If running locally on your computer (npm run dev / npm start)
@@ -77,6 +78,13 @@ const getBaseUrl = () => {
 
 export const startLiveSpeechToText = async (onTextDelta: (text: string) => void) => {
   try {
+
+    if (isStreamingActive) {
+      console.warn("⚠️ Stream draait al, start niet opnieuw.");
+      return;
+    }
+    isStreamingActive = true; // <-- Zet de vlag aan
+
     if (!socket.connected) {
       socket.connect();
     }
@@ -107,10 +115,12 @@ export const startLiveSpeechToText = async (onTextDelta: (text: string) => void)
 
     // 5. Luister naar de worklet-thread
     workletNode.port.onmessage = (event) => {
-      if (!socket.connected) return;
-      const pcmBuffer = event.data; // Dit is de ArrayBuffer van de worklet
+      // DUBBELE VEILIGHEID: Als de vlag op false staat, sturen we absoluut NIETS naar socket.io
+      if (!socket.connected || !isStreamingActive) {
+        return; 
+      }
       
-      // Stuur de binaire chunk direct naar de backend
+      const pcmBuffer = event.data;
       socket.emit('audio-chunk', pcmBuffer);
     };
 
@@ -127,6 +137,8 @@ export const startLiveSpeechToText = async (onTextDelta: (text: string) => void)
 };
 
 export const stopLiveSpeechToText = () => {
+  isStreamingActive = false; 
+  
   socket.off('speech-text-delta');
   socket.emit('stop-speech-stream');
 
