@@ -30,28 +30,29 @@ export const initSocket = (server: any) => {
       console.log(`Live Speech-to-Text gestart voor client: ${socket.id}`);
 
       if (!process.env.OPENAI_API_KEY) {
-        console.error("CRITISCHE FOUT: process.env.OPENAI_API_KEY is leeg of niet gevonden op Render!");
+        console.error("CRITISCHE FOUT: process.env.OPENAI_API_KEY is leeg of niet gevonden!");
         socket.emit('speech-error', 'API key configuratiefout op de server.');
         return;
       }
 
-      // HIER STAAT NU DE JUISTE MODEL-URL INGEVULD
+      // 1. Maak verbinding met de transcription intent URL
       const url = "wss://api.openai.com/v1/realtime?intent=transcription";
       
       try {
         openAiWs = new WebSocket(url, {
           headers: {
             "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
-            "OpenAI-Beta": "realtime=v1"
+            "OpenAI-Beta": "realtime=v1" // <-- CRUCIAAL VERPLICHT: Zonder deze header weigert OpenAI de data stream!
           },
         });
 
-        // Belangrijk: Luister DIRECT naar fouten van de OpenAI websocket zelf
+        // Luister direct naar verbindingsfouten
         openAiWs.addEventListener('error', (err: any) => {
           console.error('⚠️ Directe OpenAI WebSocket Fout opgevangen:', err.message || err);
           socket.emit('speech-error', 'Verbinding met OpenAI mislukt.');
         });
 
+        // Zodra de verbinding open gaat, pushen we direct de juiste GA-structuur
         openAiWs.addEventListener('open', () => {
           console.log("🟢 Succesvol een beveiligde pijp geopend naar OpenAI Realtime API!");
           
@@ -66,7 +67,7 @@ export const initSocket = (server: any) => {
                     rate: 24000 // Matcht exact met je frontend
                   },
                   transcription: {
-                    model: "gpt-4o-mini-transcribe", // Het officiële real-time STT model
+                    model: "gpt-4o-mini-transcribe", // Het officiële real-time STT model van OpenAI
                     language: "nl" // Stopt het switchen naar Chinees/Turks bij stilte
                   },
                   turn_detection: {
@@ -80,24 +81,26 @@ export const initSocket = (server: any) => {
             }
           };
           
-          if (openAiWs && openAiWs.readyState === WebSocket.OPEN) {
-            openAiWs.send(JSON.stringify(sessionUpdate));
-          }
+          openAiWs.send(JSON.stringify(sessionUpdate));
         });
 
+        // 2. Deze message handler gaat nu wél vuren om events te loggen
         openAiWs.addEventListener('message', (event) => {
           try {
             const openAiEvent = JSON.parse(event.data.toString());
-            console.log("OpenAI Event Type:", openAiEvent.type);
+            console.log("OpenAI Event Type:", openAiEvent.type); // Dit gaat nu loggen!
 
+            // Vang de live tekst-fragmenten op
             if (openAiEvent.type === 'conversation.item.input_audio_transcription.delta' && openAiEvent.delta) {
               console.log("✍️ Delta ontvangen:", openAiEvent.delta);
               socket.emit('speech-text-delta', openAiEvent.delta);
             }
+            // Vang het event op als de zin volledig is afgerond door de VAD
             else if (openAiEvent.type === 'conversation.item.input_audio_transcription.completed' && openAiEvent.transcript) {
               console.log("📝 Volledige zin voltooid:", openAiEvent.transcript);
               socket.emit('speech-text-delta', openAiEvent.transcript);
             } 
+            // Vang OpenAI specifieke API fouten op
             else if (openAiEvent.type === 'error' && openAiEvent.error) {
               console.error("❌ OpenAI API inhoudelijke fout:", openAiEvent.error.message);
               socket.emit('speech-error', openAiEvent.error.message);
