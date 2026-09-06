@@ -57,25 +57,27 @@ export const initSocket = (server: any) => {
           const sessionUpdate = {
             type: "session.update",
             session: {
-              // 1. Schakel ingebouwde Server VAD in om stiltes te negeren
-              turn_detection: {
-                type: "server_vad",
-                threshold: 0.5,              // Gevoeligheid (0.0 tot 1.0). Verhoog naar 0.6 als hij nog ruis oppikt.
-                prefix_padding_ms: 300,      // Neem 300ms audio vóór het praten mee
-                silence_duration_ms: 600     // Wacht 600ms stilte voordat een zin wordt afgerond
-              },
-              
-              // 2. Configureer de audio-input (matcht je frontend 24kHz)
-              input_audio_format: "pcm24", 
-      
-              // 3. Forceer de taal en geef instructies mee om hallucinaties te stoppen
-              input_audio_transcription: {
-                model: "gpt-4o-mini-transcribe",
-                language: "en",              // VERPLICHT: Dit stopt het switchen naar Chinees/Turks/Engels
-                prompt: "This is a live English transcript. If it is silent or there is background noise, ignore it and do not transcribe anything. Do not hallucinate words."
+              type: "transcription", // Dwingt pure live Speech-to-Text af
+              audio: {
+                input: {
+                  format: {
+                    type: "audio/pcm",
+                    rate: 24000 // Matcht exact met je frontend
+                  },
+                  transcription: {
+                    model: "gpt-4o-mini-transcribe",
+                    language: "nl" // Forceert Nederlands en stopt Chinees/Turks
+                  },
+                  turn_detection: {
+                    type: "server_vad",
+                    threshold: 0.5,           // Gevoeligheid voor ruis (0.0 tot 1.0)
+                    prefix_padding_ms: 300,
+                    silence_duration_ms: 500  // Stuurt pas een event na 500ms stilte
+                  }
+                }
               }
             }
-        };
+          };
           
           if (openAiWs && openAiWs.readyState === WebSocket.OPEN) {
             openAiWs.send(JSON.stringify(sessionUpdate));
