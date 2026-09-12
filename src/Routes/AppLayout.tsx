@@ -34,7 +34,6 @@ export default function AppLayout() {
 			{isPhone && (
 			<main className="app-phone-main">
 				<nav className="app-nav">
-					<Link className={location.pathname.startsWith("/players") ? "nav-link active" : "nav-link"} to="/players">PLAYERS</Link>
 					<Link className={location.pathname.startsWith("/games") ? "nav-link active" : "nav-link"} to="/games">GAMES</Link>
 				</nav>
 				<div className='outlet-container'>
