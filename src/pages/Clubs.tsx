@@ -57,7 +57,12 @@ export default function ClubsIndex() {
               <button className="btn" onClick={() => onOpenEditModal(club)}>
                 Edit
               </button>
-              <button className="btn" onClick={() => {deleteClub(club.id)}}>
+              <button 
+              className="btn" onClick={() => {
+                if (window.confirm(`Are you sure you want to delete ${club.name}?`)) {
+                  deleteClub(club.id);
+                }
+              }}>
                 Delete
               </button>
             </div>

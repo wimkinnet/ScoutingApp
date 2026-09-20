@@ -109,7 +109,7 @@ canvas {
     align-items: flex-start;
     flex-wrap: wrap;
     gap: 5px;
-    width: 20%;
+    width: 25%;
     justify-content: left;
     padding-left: 10px;
     margin-top: 10px;
@@ -117,12 +117,12 @@ canvas {
 
 .scout-modal-team-player {
     position: relative;
-    height: 30px;
-    width: 30px;
+    height: 45px;
+    width: 45px;
     align-content: center;
     text-align: center;
     border: 1px solid var(--bg-soft);
-    font-size: 1rem;
+    font-size: 2rem;
     cursor: pointer;
     color: white;
     background: var(--bg);
@@ -164,7 +164,7 @@ canvas {
     flex-wrap: wrap;
     align-items: flex-start;
     gap: 5px;
-    width: 20%;
+    width: 25%;
     justify-content: right;
     padding-right: 10px;
     margin-top: 10px;
@@ -236,7 +236,7 @@ canvas {
     display: flex;
     flex-direction: column;
     gap: 5px;
-    width: 15%;
+    width: 10%;
     justify-content: flex-start;
     height: 100%;
 }
@@ -253,6 +253,45 @@ canvas {
     display: flex;
     flex-direction: row;
     justify-content: space-around;
+}
+
+.scout-modal-last-action-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 5px;
+}
+
+.scout-modal-last-action-label {
+    font-size: 1rem;
+    text-align: center;
+    margin: 5px 0 5px 0;
+    color: var(--bg);
+}
+
+.scout-modal-last-action {
+    font-size: 1rem;
+    text-align: center;
+    margin: 5px 0 5px 0;
+    color: var(--bg);
+}
+
+.scout-modal-last-action-button {
+    height: 25px;
+    width: 50px;
+    margin-left: 20px;
+    align-content: center;
+    text-align: center;
+    border: 1px solid var(--bg-soft);
+    font-size: 1rem;
+    cursor: pointer;
+    color: white;
+    background: var(--bg);
+}
+
+.scout-modal-last-action-button:hover {
+    color: var(--text-highlight);
+    background-color: var(--bg-soft);
 }
 
 .scout-modal-quarter {
@@ -276,7 +315,7 @@ canvas {
     display: flex;
     flex-direction: column;
     gap: 5px;
-    width: 15%;
+    width: 10%;
     justify-content: flex-start;
     height: 100%;
 }

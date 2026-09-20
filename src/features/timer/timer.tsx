@@ -84,13 +84,13 @@ const Timer = ({ secondsLeft, setSecondsLeft }: TimerProps) => {
     };
   });
 
-  const resetTimer = () => {
+  /*const resetTimer = () => {
     clearInterval(intervalRef.current);
     setIsActive(false);
     const totalSeconds = (parseInt(inputMin.toLocaleString()) || 0) * 60 + (parseInt(inputSec.toLocaleString()) || 0);
     pausedTimeLeftRef.current = totalSeconds * 1000;
     setSecondsLeft(totalSeconds);
-  };
+  };*/
 
   const handleTimeSubmit = (e: any) => {
     e.preventDefault();
@@ -112,7 +112,7 @@ const Timer = ({ secondsLeft, setSecondsLeft }: TimerProps) => {
     <div className="retro-timer-wrapper">
       <div className="controls">
         <button onClick={toggleTimer} className="btn-retro">{isActive ? 'PAUSE' : 'START'}</button>
-        <button onClick={resetTimer} className="btn-retro">RESET</button>
+        {/* <button onClick={resetTimer} className="btn-retro">RESET</button> */}
       </div>  
       <div className="display-panel">
         <SevenSegmentDigit value={Math.floor(minutes / 10)} />

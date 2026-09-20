@@ -92,7 +92,13 @@ export default function GamesIndex() {
                   <button className="btn" onClick={() => onOpenGameStatsModal(game)}>
                     Stats
                   </button>
-                  <button className="btn" onClick={() => deleteGame(game.id)}>
+                  <button 
+                  className="btn" onClick={() => {
+                    if (window.confirm(`Are you sure you want to delete this game?`)) {
+                      deleteGame(game.id);
+                    }
+                  }}
+                  >
                     Delete
                   </button>
                 </div>

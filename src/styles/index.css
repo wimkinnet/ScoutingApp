@@ -95,7 +95,25 @@ html {
 	font-size: 0.8rem;
   	padding: 0.2rem 0.5rem;
 	cursor: pointer;
+	height: 1.5rem;
 }
+
+.input {
+	appearance: none;
+	background: var(--bg);
+	color: var(--text-inverse-bg);
+	border: 1px solid var(--bg);
+	border-radius: 0.2rem;
+	font-size: 0.8rem;
+  	padding: 0.2rem 0.5rem;
+	cursor: pointer;
+	height: 1.5rem;
+}
+
+.input:focus {
+	outline: none;
+}
+
 .btn:hover { 
 	background: var(--bg-soft); 
 	color: var(--text-highlight);

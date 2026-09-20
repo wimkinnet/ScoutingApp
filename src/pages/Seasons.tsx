@@ -53,7 +53,14 @@ export default function SeasonsIndex() {
               <button className="btn" onClick={() => onOpenEditModal(season)}>
                 Edit
               </button>
-              <button className="btn" onClick={() => {deleteSeason(season.id)}}>
+              <button
+                className="btn"
+                onClick={() => {
+                  if (window.confirm(`Are you sure you want to delete ${season.name}?`)) {
+                    deleteSeason(season.id);
+                  }
+                }}
+              >
                 Delete
               </button>
             </div>

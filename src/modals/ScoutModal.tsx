@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { RootState } from '../app/store';
 import { openActionModal } from '../features/ui/uiSlice';
-import { useAddLogMutation } from '../services/ScoutingApi';
+import { useAddLogMutation, useDeleteLogMutation, useGetActionsQuery } from '../services/ScoutingApi';
 import type { ModalProps } from '../app/types';
 import  { drawCourt } from '../utils/drawCourt';
 import { 
@@ -30,9 +30,11 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
   const { data: clubs } = useGetClubsQuery(undefined, { skip: !isOpen });
   const { data: players } = useGetPlayersQuery(undefined, { skip: !isOpen });
   const { data: teams } = useGetTeamsQuery(undefined, { skip: !isOpen });
-  const { data: logs } = useGetLogsQuery(undefined, { skip: !isOpen });
+  const { data: logs } = useGetLogsQuery(undefined, {skip: !isOpen});
+  const { data: actions } = useGetActionsQuery(undefined, { skip: !isOpen });
 
   const [addLog] = useAddLogMutation();
+  const [deleteLog] = useDeleteLogMutation();
   
   const ht = teams?.find((t) => (t.id === game?.homeTeamId))
   const at = teams?.find((t) => (t.id === game?.awayTeamId))
@@ -75,6 +77,11 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
   const homePlayersId = game?.homePlayers.map ((player) => (player.playerId));
   const awayPlayersId = game?.awayPlayers.map ((player) => (player.playerId));
   const gameActions = logs?.filter((log) => log.gameId === id);
+  const lastLog = gameActions?.slice().sort((a, b) =>
+    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  ).at(0);
+  const lastLogPlayer = players?.find((player) => player.id === lastLog?.playerId);
+  const lastLogAction = actions?.find((action) => action.id === lastLog?.actionId);
   const freeThrows = gameActions?.filter((log) => log.actionId === "1") || [];
   const twoPoints = gameActions?.filter((log) => log.actionId === "3") || [];
   const threePoints = gameActions?.filter((log) => log.actionId === "5") || [];
@@ -423,12 +430,6 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
                         </div>
                       )
                     })}
-                    <div className='scout-modal-team-player' >AC
-                      <span className='scout-modal-player-tooltip'>Assistent Coach</span>
-                    </div>
-                    <div className='scout-modal-team-player' >C
-                      <span className='scout-modal-player-tooltip'>Coach</span>
-                    </div>
                   </div>
                   <div className='scout-modal-possession-selector'>
                     <div className='scout-modal-possession-header'>Ball possession</div>
@@ -471,12 +472,6 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
                     </div>
                   </div>
                   <div className='scout-modal-team-players-right'>
-                    <div className='scout-modal-team-player right' >C
-                      <span className='scout-modal-player-tooltip right'>Coach</span>
-                    </div>
-                    <div className='scout-modal-team-player' >AC
-                      <span className='scout-modal-player-tooltip right'>Assistent Coach</span>
-                    </div>
                     {benchPlayersAway.map((pl) => {
                       const isSelected = (playerInSelected === pl);
                       const player = players?.find((p) => p.id === pl.playerId);
@@ -492,6 +487,24 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
                     })}
                     </div>
                 </div>       
+                <div className='scout-modal-last-action-container'>
+                  <div className='scout-modal-last-action-label'>
+                    Last action: 
+                  </div>
+                  <div className='scout-modal-last-action'>
+                    {lastLog ? (
+                      <>
+                        {lastLogPlayer?.firstName} {lastLogPlayer?.lastName} - {lastLogAction?.name || lastLogAction?.label || lastLog.actionId}
+                        
+                      </>
+                    ) : 'None'}
+                  </div>
+                  {lastLog && (
+                    <div className='scout-modal-last-action-button' onClick={() => deleteLog(lastLog.id)}>
+                      Undo
+                    </div>
+                  )}
+                </div>
                 <div className='scout-modal-court-container'>
                   <div className='scout-modal-court-players-details'>
                     <div className="scout-modal-player-detail-container">

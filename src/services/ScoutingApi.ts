@@ -44,7 +44,8 @@ export interface Game {
 }
 
 export interface Log {
-	id: string;
+	createdAt: Date;
+    id: string;
 	gameId: string;
 	actionId: string;
 	playerId: string;

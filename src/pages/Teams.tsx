@@ -59,7 +59,13 @@ export default function TeamsIndex() {
               <button className="btn" onClick={() => onOpenEditModal(team)}>
                 Edit
               </button>
-              <button className="btn" onClick={() => deleteTeam(team.id)}>
+              <button 
+              className="btn" onClick={() => {
+                if (window.confirm(`Are you sure you want to delete ${team.name}?`)) {
+                  deleteTeam(team.id);
+                }
+              }}
+              >
                 Delete
               </button>
             </div>

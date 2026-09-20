@@ -94,7 +94,13 @@ export default function TeamsIndex() {
                 <div className="listItem XS">{log.quarter}</div>
                 <div className="listItem S">{Math.floor((600 - log.secRem) / 60)}:{Math.floor((600 - log.secRem) % 60).toString().padStart(2, '0')}</div>
                 <div className="listAction S">
-                  <button className="btn" onClick={() => deleteLog(log.id)}>
+                  <button 
+                  className="btn" onClick={() => {
+                    if (window.confirm(`Are you sure you want to delete this log entry?`)) {
+                      deleteLog(log.id);
+                    }
+                  }}
+                  >
                     Delete
                   </button>
                 </div>
