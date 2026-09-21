@@ -94,6 +94,8 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
   const homeScore = homeFreeThrows.length + homeTwoPoints?.length * 2 + homeThreePoints?.length * 3;
   const awayScore = awayFreeThrows.length + awayTwoPoints?.length * 2 + awayThreePoints?.length * 3;
   const Fouls = gameActions?.filter((log) => (Number(log.actionId) > 12) && (Number(log.actionId) < 21)) || [];
+  const Ins = gameActions?.filter((log) => (Number(log.actionId) === 21)) || [];
+  const Outs = gameActions?.filter((log) => (Number(log.actionId) === 22)) || [];
 
   const GamePlayers = game?.homePlayers ? [...game?.homePlayers, ...game?.awayPlayers].sort((a,b) => {
             if (a.shirtNumber < b.shirtNumber) return -1;
@@ -105,10 +107,18 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
     const playerTwoPoints = twoPoints.filter((log) => log.playerId === pl.playerId);
     const playerThreePoints = threePoints.filter((log) => log.playerId === pl.playerId);
     const playerFouls = Fouls.filter((log) => log.playerId === pl.playerId);
+    const playerIns = Ins.filter((log) => log.playerId === pl.playerId);
+    const playerOuts = Outs.filter((log) => log.playerId === pl.playerId);
+    const playerOnCourt = (playerIns.length > playerOuts.length) ? 1 : 0;
+    const seconds = playerIns.reduce((total, l) => total + l.secRem, 0) 
+                    - playerOuts.reduce((total, l) => total + l.secRem, 0)
+                    - playerOnCourt * secondsLeft;
     return {
       ...pl,
       points: playerFreeThrows.length + playerTwoPoints.length * 2 + playerThreePoints.length * 3,
       fouls: playerFouls.length,
+      minutes: Math.floor(seconds / 60),
+      seconds: seconds % 60,
     }
   });
   
@@ -511,6 +521,7 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
                       <div className="scout-modal-player-detail">#</div>
                       <div className="scout-modal-player-detail">Fouls</div>
                       <div className="scout-modal-player-detail">Pts</div>
+                      <div className="scout-modal-player-detail">Time</div>
                     </div>
                     {GamePlayersScores?.map((pl) => {
                       const isHome = (pl.homeTeam);
@@ -519,6 +530,7 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
                         <div className="scout-modal-player-detail">{pl.shirtNumber}</div>
                         <div className="scout-modal-player-detail">{pl.fouls}</div>
                         <div className="scout-modal-player-detail">{pl.points}</div>
+                        <div className="scout-modal-player-detail">{pl.minutes}:{pl.seconds.toString().padStart(2, '0')}</div>
                       </div>  
                   })}
                   </div>
@@ -561,6 +573,7 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
                   </div>
                   <div className='scout-modal-court-players-details'>
                     <div className="scout-modal-player-detail-container">
+                      <div className="scout-modal-player-detail">Time</div>
                       <div className="scout-modal-player-detail">Pts</div>
                       <div className="scout-modal-player-detail">Fouls</div>
                       <div className="scout-modal-player-detail">#</div>
@@ -569,6 +582,7 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
                       const isHome = (pl.homeTeam);
                       return !isHome &&
                       <div className="scout-modal-player-detail-container">
+                        <div className="scout-modal-player-detail">{pl.minutes}:{pl.seconds.toString().padStart(2, '0')}</div>
                         <div className="scout-modal-player-detail">{pl.points}</div>
                         <div className="scout-modal-player-detail">{pl.fouls}</div>
                         <div className="scout-modal-player-detail">{pl.shirtNumber}</div>
