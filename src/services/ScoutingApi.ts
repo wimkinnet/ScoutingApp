@@ -53,6 +53,7 @@ export interface Log {
 	positionY: number;
 	quarter: number;
 	secRem: number;
+	courtSide?: 'offensive' | 'defensive' | null;
 }
 
 export interface Action {

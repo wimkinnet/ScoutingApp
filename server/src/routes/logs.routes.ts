@@ -4,6 +4,12 @@ import { getIo } from '../socket';
 
 const router = Router();
 
+const COURT_SIDES = ['offensive', 'defensive'];
+
+function isValidCourtSide(value: unknown) {
+  return value === null || (typeof value === 'string' && COURT_SIDES.includes(value));
+}
+
 function createLogId() {
   return `lg-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 }
@@ -41,7 +47,7 @@ router.get('/:id', async (req, res) => {
 // POST /api/logs
 router.post('/', async (req, res) => {
   try {
-    const { gameId, actionId, playerId, positionX, positionY, quarter, secRem } = req.body as {
+    const { gameId, actionId, playerId, positionX, positionY, quarter, secRem, courtSide } = req.body as {
       gameId: string;
       actionId: string;
       playerId: string;
@@ -49,6 +55,7 @@ router.post('/', async (req, res) => {
       positionY: number;
       quarter: number;
       secRem: number;
+      courtSide?: 'offensive' | 'defensive' | null;
     };
 
     if (!gameId) {
@@ -68,6 +75,7 @@ router.post('/', async (req, res) => {
 
     if (quarter === undefined || quarter === null) return res.status(400).json({ message: 'Quarter is required' });
     if (secRem === undefined || secRem === null) return res.status(400).json({ message: 'Seconds remaining is required' });
+    if (courtSide !== undefined && !isValidCourtSide(courtSide)) return res.status(400).json({ message: 'Court side must be offensive, defensive or null' });
 
     const log = await Log.create({
       id: createLogId(),
@@ -78,6 +86,7 @@ router.post('/', async (req, res) => {
       positionY: positionY,
       quarter: quarter,
       secRem: secRem, 
+      courtSide: courtSide ?? null,
     });
 
     const io = getIo();
@@ -106,6 +115,7 @@ router.patch('/:id', async (req, res) => {
       positionY: number;
       quarter: number;
       secRem: number;
+      courtSide?: 'offensive' | 'defensive' | null;
     };
 
     const update: Record<string, unknown> = {};
@@ -136,6 +146,13 @@ router.patch('/:id', async (req, res) => {
 
     if (changes.secRem !== undefined) {
       update.secRem = changes.secRem;
+    }
+
+    if (changes.courtSide !== undefined) {
+      if (!isValidCourtSide(changes.courtSide)) {
+        return res.status(400).json({ message: 'Court side must be offensive, defensive or null' });
+      }
+      update.courtSide = changes.courtSide;
     }
 
     const log = await Log.findOneAndUpdate(

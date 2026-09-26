@@ -41,6 +41,13 @@ const LogSchema = new Schema(
             type: Number,
             required: [true, 'Seconds remaining is required'],
         },
+        // Half of the court where the action happened, seen from the acting player's team.
+        // null when the action has no court location (e.g. substitutions) or the direction is unknown.
+        courtSide: {
+            type: String,
+            enum: ['offensive', 'defensive'],
+            default: null,
+        },
     },
     {
         timestamps: true,

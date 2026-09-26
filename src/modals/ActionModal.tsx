@@ -20,6 +20,7 @@ export default function LogModal({ isOpen, onClose }: ModalProps) {
   const [probableActions, setProbableActions] = useState<string[]>([]);
   const [otherActions, setOtherActions] = useState<string[]>([]);
   const [isLeft, setIsLeft] = useState<boolean>(false);
+  const [courtSide, setCourtSide] = useState<'offensive' | 'defensive' | null>(null);
 
   const [addLog] = useAddLogMutation();
 
@@ -39,6 +40,7 @@ export default function LogModal({ isOpen, onClose }: ModalProps) {
 	    positionY: posY || 0,
 	    quarter: quarter || 0,
 	    secRem: secRem || 0,
+	    courtSide: courtSide,
     };
 
     try {
@@ -67,6 +69,8 @@ export default function LogModal({ isOpen, onClose }: ModalProps) {
     const isFreeThrowRange = (inFreeThrowCircleLeft && !(defensiveCourtIsLeft)) || (inFreeThrowCircleRight && defensiveCourtIsLeft);
     const playerpossession = (player?.homeTeam && possession === "Home") || (!(player?.homeTeam) && possession === "Away")
     const offense = ((defensiveCourtIsLeft && isLeftValue === false) || (!defensiveCourtIsLeft && isLeftValue === true))
+    // Without a known playing direction we can't tell which half is offensive
+    setCourtSide((direction === "Left" || direction === "Right") ? (offense ? 'offensive' : 'defensive') : null);
     console.log(isTreePointRange, isFreeThrowRange, playerpossession, offense);
     let probable: string[] = [];
     if (playerpossession) {
