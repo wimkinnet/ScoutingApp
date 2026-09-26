@@ -157,6 +157,19 @@
     justify-content: space-around;
 }
 
+.stats-court-sides {
+    display: flex;
+    flex-direction: row;
+    margin-bottom: -0.5rem;
+}
+
+.stats-court-side {
+    flex: 1;
+    text-align: center;
+    font-weight: bold;
+    color: var(--text-highlight);
+}
+
 .stats-court {
     width: 100%;
     flex-grow: 1;

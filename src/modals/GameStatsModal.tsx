@@ -248,7 +248,7 @@ export default function PlayerStatsModal({ isOpen, onClose }: ModalProps) {
       };
       case 'reb': {
         selectedPlayerStats?.rebounds.map(reb => {
-          const cl = (reb.actionId === '11') ? 'green' : 'red';
+          const cl = 'green';
           drawAction({ ctx, originX: originXStats, originY: originYStats, scale: scaleStats, shotX: reb.positionX, shotY: reb.positionY, courtSide: reb.courtSide, color: cl })
         });
         break;
@@ -382,6 +382,10 @@ export default function PlayerStatsModal({ isOpen, onClose }: ModalProps) {
                         {a.label}
                       </button>
                     ))}
+                  </div>
+                  <div className='stats-court-sides'>
+                    <div className='stats-court-side'>Defense</div>
+                    <div className='stats-court-side'>Offense</div>
                   </div>
                   <canvas className='stats-court' ref={canvasRef} />
                 </div>
