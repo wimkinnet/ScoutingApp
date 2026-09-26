@@ -170,7 +170,6 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
       quarter: quarter,
       secRem: secondsLeft,
     };
-    console.log(payload);
     try {
       await addLog(payload as any).unwrap();
     } catch (err: any) {

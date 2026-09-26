@@ -128,42 +128,42 @@ export default function PlayerStatsModal({ isOpen, onClose }: ModalProps) {
       case 'sh': {
         shots.map(sh => {
           const cl = (sh.actionId === '3' || sh.actionId === '5') ? 'green' : 'red';
-          drawAction({ ctx, originX: originXStats, originY: originYStats, scale: scaleStats, shotX: sh.positionX, shotY: sh.positionY, color: cl });
+          drawAction({ ctx, originX: originXStats, originY: originYStats, scale: scaleStats, shotX: sh.positionX, shotY: sh.positionY, courtSide: sh.courtSide, color: cl });
         });
         break;
       };
       case 'reb': {
         rebounds.map(reb => {
           const cl = (reb.actionId === '11') ? 'green' : 'red';
-          drawAction({ ctx, originX: originXStats, originY: originYStats, scale: scaleStats, shotX: reb.positionX, shotY: reb.positionY, color: cl })
+          drawAction({ ctx, originX: originXStats, originY: originYStats, scale: scaleStats, shotX: reb.positionX, shotY: reb.positionY, courtSide: reb.courtSide, color: cl })
         });
         break;
       };
       case 'ass': {
         assists.map(ass => {
           const cl = 'green';
-          drawAction({ ctx, originX: originXStats, originY: originYStats, scale: scaleStats, shotX: ass.positionX, shotY: ass.positionY, color: cl });
+          drawAction({ ctx, originX: originXStats, originY: originYStats, scale: scaleStats, shotX: ass.positionX, shotY: ass.positionY, courtSide: ass.courtSide, color: cl });
         });
         break;
       };
       case 'st': {
         steals.map(st => {
           const cl = 'green';
-          drawAction({ ctx, originX: originXStats, originY: originYStats, scale: scaleStats, shotX: st.positionX, shotY: st.positionY, color: cl });
+          drawAction({ ctx, originX: originXStats, originY: originYStats, scale: scaleStats, shotX: st.positionX, shotY: st.positionY, courtSide: st.courtSide, color: cl });
         });
         break;
       };
       case 'to': {
         turnovers.map(to => {
           const cl = 'red';
-          drawAction({ ctx, originX: originXStats, originY: originYStats, scale: scaleStats, shotX: to.positionX, shotY: to.positionY, color: cl });
+          drawAction({ ctx, originX: originXStats, originY: originYStats, scale: scaleStats, shotX: to.positionX, shotY: to.positionY, courtSide: to.courtSide, color: cl });
         });
         break;
       };
       case 'fls': {
         fouls.map(fl => {
           const cl = 'red';
-          drawAction({ ctx, originX: originXStats, originY: originYStats, scale: scaleStats, shotX: fl.positionX, shotY: fl.positionY, color: cl });
+          drawAction({ ctx, originX: originXStats, originY: originYStats, scale: scaleStats, shotX: fl.positionX, shotY: fl.positionY, courtSide: fl.courtSide, color: cl });
         });
         break;
       };

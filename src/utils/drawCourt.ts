@@ -16,7 +16,20 @@ interface DrawActionConfig {
   shotX: number;
   shotY: number;
   color: string;
+  courtSide?: 'offensive' | 'defensive' | null;
 }
+
+const COURT_L = 28.0;
+const COURT_W = 15.0;
+
+// Offensive actions are always shown on the right half, defensive on the left,
+// regardless of the direction a team played in that quarter. Switching ends is a
+// 180° rotation around the centre, so a left-corner shot stays a left-corner shot.
+const normalizeToCourtSide = (x: number, y: number, courtSide?: 'offensive' | 'defensive' | null) => {
+  const isOnLeft = x < COURT_L / 2;
+  const shouldFlip = (courtSide === 'offensive' && isOnLeft) || (courtSide === 'defensive' && !isOnLeft);
+  return shouldFlip ? { x: COURT_L - x, y: COURT_W - y } : { x, y };
+};
 
 export const drawCourt = ({
   ctx,
@@ -190,6 +203,7 @@ export const drawAction = ({
   shotX,
   shotY,
   color,
+  courtSide,
 }: DrawActionConfig) => {
   
   ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
@@ -198,11 +212,12 @@ export const drawAction = ({
   const my = (m: number) => originY + m * scale;
 
   if (shotX !== undefined && shotY !== undefined) {
+    const { x, y } = normalizeToCourtSide(shotX, shotY, courtSide);
     ctx.strokeStyle = color;
     ctx.lineWidth = 3;
     
     ctx.beginPath();
-    ctx.arc(mx(shotX), my(shotY), 0.1 * scale, 0, 2 * Math.PI);
+    ctx.arc(mx(x), my(y), 0.1 * scale, 0, 2 * Math.PI);
     ctx.stroke();
   }
 };
