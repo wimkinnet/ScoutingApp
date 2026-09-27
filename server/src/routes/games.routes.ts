@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { Game } from '../models/Game'
 import { getIo } from '../socket';
+import { generateGameReport, GameNotFoundError } from '../services/gameReport';
 
 const router = Router();
 
@@ -36,6 +37,21 @@ router.get('/:id', async (req, res) => {
   } catch (error) {
     console.error(`GET /api/games/${req.params.id} failed`, error);
     res.status(500).json({ message: 'Failed to fetch game' });
+  }
+});
+
+// POST /api/games/:id/report - Let OpenAI write a home and away report from the game's analytics.
+// POST rather than GET because every call is a paid OpenAI request.
+router.post('/:id/report', async (req, res) => {
+  try {
+    const report = await generateGameReport(req.params.id);
+    res.json(report);
+  } catch (error) {
+    if (error instanceof GameNotFoundError) {
+      return res.status(404).json({ message: 'Game not found' });
+    }
+    console.error(`POST /api/games/${req.params.id}/report failed`, error);
+    res.status(500).json({ message: 'Failed to generate game report' });
   }
 });
 

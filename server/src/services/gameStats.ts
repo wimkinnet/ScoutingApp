@@ -382,18 +382,18 @@ export function findRuns(
 // ---------------------------------------------------------------------------
 
 /**
- * Zone boundaries are placeholders based on the ~28 x 15 unit court system
- * referenced in ScoutModal's CourtClick handler. Adjust the thresholds to
- * match your actual drawCourt() dimensions (paint width/depth, 3pt arc radius).
+ * Court is 28 x 15 (m), baskets at both ends. Three-pointers are decided by the
+ * logged action; a 2pt shot is in the paint when it sits inside the box in front
+ * of either basket (5.05 <= y <= 9.95 and x < 5.8 or x > 22.2,
+ * i.e. the 4.9 m wide lane drawn in drawCourt), otherwise mid-range.
  */
-function zoneFromXY(x: number, y: number): ShotZone {
-  const basketX = 1.575; // approx free-throw-line-adjacent basket position, adjust to drawCourt()
-  const basketY = 7.5;   // half of 15, adjust if your court height differs
-  const dist = Math.sqrt((x - basketX) ** 2 + (y - basketY) ** 2);
+function zoneFromShot(actionId: string, x: number, y: number): ShotZone {
+  if (actionId === ACTION_IDS.THREE_POINT_MADE || actionId === ACTION_IDS.THREE_POINT_MISSED) {
+    return 'Three-point range';
+  }
 
-  if (dist < 2) return 'Paint';
-  if (dist < 6.4) return 'Mid-range';       // 6.4 ~ approx just inside 3pt arc, tune this
-  return 'Three-point range';
+  const isPaint = y >= 5.05 && y <= 9.95 && (x < 5.8 || x > 22.2);
+  return isPaint ? 'Paint' : 'Mid-range';
 }
 
 export function summarizeShotZones(logs: RawLog[], playerIds: Set<string>): ShotZoneSummary {
@@ -415,7 +415,7 @@ export function summarizeShotZones(logs: RawLog[], playerIds: Set<string>): Shot
   );
 
   for (const log of shotLogs) {
-    const zone = zoneFromXY(log.positionX as number, log.positionY as number);
+    const zone = zoneFromShot(log.actionId, log.positionX as number, log.positionY as number);
     zones[zone].attempted += 1;
     if (log.actionId === ACTION_IDS.TWO_POINT_MADE || log.actionId === ACTION_IDS.THREE_POINT_MADE) {
       zones[zone].made += 1;
