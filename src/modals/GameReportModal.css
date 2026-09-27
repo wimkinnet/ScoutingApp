@@ -1,0 +1,62 @@
+.report-body {
+    overflow-y: auto;
+    color: var(--text-highlight);
+}
+
+.report-container.row {
+    display: flex;
+    flex-direction: row;
+    gap: 2rem;
+}
+
+.report-container.column {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.report-team {
+    flex: 1;
+    min-width: 0;
+}
+
+.report-team-name {
+    margin: 0 0 0.5rem;
+    color: var(--bg);
+}
+
+.report-note {
+    margin: 0 0 0.5rem;
+    font-style: italic;
+    opacity: 0.8;
+}
+
+.report-headline {
+    font-weight: bold;
+}
+
+.report-team h3 {
+    margin: 1rem 0 0.25rem;
+    color: var(--bg);
+}
+
+.report-team ul {
+    margin: 0;
+    padding-left: 1.25rem;
+}
+
+.report-team li {
+    margin-bottom: 0.25rem;
+}
+
+.report-footer {
+    margin-top: 1.5rem;
+    font-size: 0.8rem;
+    opacity: 0.7;
+}
+
+.report-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}

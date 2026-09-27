@@ -15,6 +15,7 @@ interface UIState {
   scoutModal: { id: string | null };
   gameStatsModal: { id: string | null };
   playerStatsModal: {id: string | null };
+  gameReportModal: { id: string | null };
   actionModal: { 
     game: string | null; player: GamePlayer | null; posX: number | null, posY: number | null,
     possession: string | null, direction: string | null, quarter: number | null, secRem: number | null
@@ -30,6 +31,7 @@ const initialState: UIState = {
   scoutModal: { id: null },
   gameStatsModal: { id: null },
   playerStatsModal: { id: null },
+  gameReportModal: { id: null },
   actionModal: { game: null, player: null, posX: null, posY: null, possession: null, direction: null, quarter: null, secRem: null }
 };
 
@@ -50,6 +52,7 @@ const slice = createSlice({
     openScoutModal(state, action: PayloadAction<string>) { state.scoutModal = { id: action.payload}; },
     openGameStatsModal(state, action: PayloadAction<string>) { state.gameStatsModal = { id: action.payload}; },
     openPlayerStatsModal(state, action: PayloadAction<string>) { state.playerStatsModal = { id: action.payload}; },
+    openGameReportModal(state, action: PayloadAction<string>) { state.gameReportModal = { id: action.payload}; },
     openActionModal(state, action) { 
       const { game, player, posX, posY, possession, direction, quarter, secRem } = action.payload;
       state.actionModal = { game: game, player: player, posX: posX, posY: posY, possession: possession, direction: direction, quarter: quarter, secRem: secRem};
@@ -65,6 +68,7 @@ export const {
   openAddGameModal, openEditGameModal,
   openScoutModal, openGameStatsModal,
   openPlayerStatsModal, openActionModal,
+  openGameReportModal,
 } = slice.actions;
 
 export default slice.reducer;

@@ -8,7 +8,11 @@ import { buildGameAnalytics, GameAnalytics, RawGamePlayer, RawLog } from './game
 
 const DEFAULT_OPENAI_MODEL = 'gpt-5-mini';
 
+export type ScoutedTeam = 'home' | 'away';
+
 export interface TeamReport {
+  // false for the team that was only partly scouted: then the report covers its scorers only
+  scouted: boolean;
   headline: string;
   summary: string;
   strengths: string[];
@@ -20,6 +24,7 @@ export interface GameReport {
   gameId: string;
   model: string;
   generatedAt: string;
+  scoutedTeam: ScoutedTeam;
   home: TeamReport;
   away: TeamReport;
 }
@@ -27,8 +32,16 @@ export interface GameReport {
 // Thrown when the game doesn't exist, so the route can answer 404 instead of 500
 export class GameNotFoundError extends Error {}
 
+// Thrown when the server isn't set up for OpenAI, so the route can say so
+export class OpenAIConfigError extends Error {}
+
 const INSTRUCTIONS = `You are a basketball analyst writing a scouting report on one game.
-You receive the game's statistics as JSON. Analyze the game as a basketball match and write a separate report for the home team and for the away team.
+You receive the game's statistics as JSON. Only one team was fully scouted ("scoutedTeam"): all its actions were logged.
+For the other team ("otherTeam") only its scorers are known: who scored and with which made shots. Its misses, rebounds, assists, turnovers and other actions were NOT logged.
+
+Write:
+- "scouted": a full analysis of the scouted team as a basketball match.
+- "other": a short report on the other team limited to its scoring: who scored, how (free throws, twos, threes) and how the points were spread. Say nothing about its efficiency, misses, rebounds, assists, turnovers or defense.
 
 Rules:
 - Only use statistics that are present in the JSON. Never invent or estimate numbers, players, plays or events that are not in the data.
@@ -63,13 +76,35 @@ const teamReportSchema = {
   },
 };
 
+const scorersReportSchema = {
+  type: 'object',
+  additionalProperties: false,
+  required: ['headline', 'summary', 'scorers'],
+  properties: {
+    headline: { type: 'string', description: 'One-line takeaway about how this team scored.' },
+    summary: { type: 'string', description: 'A short paragraph about this team\'s scoring only.' },
+    scorers: {
+      type: 'array',
+      items: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['name', 'note'],
+        properties: {
+          name: { type: 'string' },
+          note: { type: 'string', description: 'How this player scored, backed by their made shots.' },
+        },
+      },
+    },
+  },
+};
+
 const gameReportSchema = {
   type: 'object',
   additionalProperties: false,
-  required: ['home', 'away'],
+  required: ['scouted', 'other'],
   properties: {
-    home: teamReportSchema,
-    away: teamReportSchema,
+    scouted: teamReportSchema,
+    other: scorersReportSchema,
   },
 };
 
@@ -114,20 +149,62 @@ export async function loadGameAnalytics(gameId: string): Promise<GameAnalytics> 
   );
 }
 
-export async function generateGameReport(gameId: string): Promise<GameReport> {
+// What the model gets to see: everything for the scouted team, only made shots per scorer for the other
+export function buildReportInput(analytics: GameAnalytics, scoutedTeam: ScoutedTeam) {
+  const scoutedIsHome = scoutedTeam === 'home';
+  const scoutedPlayers = analytics.players.filter((p) => p.homeTeam === scoutedIsHome);
+  const otherPlayers = analytics.players.filter((p) => p.homeTeam !== scoutedIsHome);
+  const scoutedIds = new Set(scoutedPlayers.map((p) => p.playerId));
+
+  return {
+    gameId: analytics.gameId,
+    homeTeamName: analytics.homeTeamName,
+    awayTeamName: analytics.awayTeamName,
+    homeScore: analytics.homeScore,
+    awayScore: analytics.awayScore,
+    scoutedTeam: {
+      side: scoutedTeam,
+      name: scoutedIsHome ? analytics.homeTeamName : analytics.awayTeamName,
+      totals: scoutedIsHome ? analytics.homeTotals : analytics.awayTotals,
+      shotZones: scoutedIsHome ? analytics.shotZones.home : analytics.shotZones.away,
+      players: scoutedPlayers,
+      assistNetwork: analytics.assistNetwork.filter((a) => scoutedIds.has(a.assistBy)),
+    },
+    otherTeam: {
+      side: scoutedIsHome ? 'away' : 'home',
+      name: scoutedIsHome ? analytics.awayTeamName : analytics.homeTeamName,
+      points: scoutedIsHome ? analytics.awayScore : analytics.homeScore,
+      scorers: otherPlayers
+        .filter((p) => p.points > 0)
+        .map((p) => ({
+          name: p.name,
+          shirtNumber: p.shirtNumber,
+          points: p.points,
+          freeThrowsMade: p.freeThrows.made,
+          twoPointersMade: p.twoPointers.made,
+          threePointersMade: p.threePointers.made,
+        })),
+    },
+    // Runs only use made baskets, which are logged for both teams
+    runs: analytics.runs,
+  };
+}
+
+export async function generateGameReport(gameId: string, scoutedTeam: ScoutedTeam): Promise<GameReport> {
+  const analytics = await loadGameAnalytics(gameId);
+
   if (!process.env.OPENAI_API_KEY) {
-    throw new Error('OPENAI_API_KEY is not set');
+    throw new OpenAIConfigError('OPENAI_API_KEY is not set on the server');
   }
 
   // Read at call time: index.ts runs dotenv.config() after the routes are imported
   const model = process.env.OPENAI_MODEL || DEFAULT_OPENAI_MODEL;
-  const analytics = await loadGameAnalytics(gameId);
   const client = new OpenAI();
 
   const response = await client.responses.create({
     model,
     instructions: INSTRUCTIONS,
-    input: `Game statistics (JSON):\n${JSON.stringify(analytics)}`,
+    input: `Game statistics (JSON):\n${JSON.stringify(buildReportInput(analytics, scoutedTeam))}`,
     text: {
       format: {
         type: 'json_schema',
@@ -138,13 +215,27 @@ export async function generateGameReport(gameId: string): Promise<GameReport> {
     },
   });
 
-  const report = JSON.parse(response.output_text) as { home: TeamReport; away: TeamReport };
+  const output = JSON.parse(response.output_text) as {
+    scouted: Omit<TeamReport, 'scouted'>;
+    other: { headline: string; summary: string; scorers: { name: string; note: string }[] };
+  };
+
+  const scoutedReport: TeamReport = { scouted: true, ...output.scouted };
+  const otherReport: TeamReport = {
+    scouted: false,
+    headline: output.other.headline,
+    summary: output.other.summary,
+    strengths: [],
+    weaknesses: [],
+    keyPlayers: output.other.scorers,
+  };
 
   return {
     gameId,
     model,
     generatedAt: new Date().toISOString(),
-    home: report.home,
-    away: report.away,
+    scoutedTeam,
+    home: scoutedTeam === 'home' ? scoutedReport : otherReport,
+    away: scoutedTeam === 'away' ? scoutedReport : otherReport,
   };
 }

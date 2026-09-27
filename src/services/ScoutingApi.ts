@@ -56,6 +56,27 @@ export interface Log {
 	courtSide?: 'offensive' | 'defensive' | null;
 }
 
+export type ScoutedTeam = 'home' | 'away';
+
+export interface TeamReport {
+	// false for the team that was only partly scouted: its keyPlayers are its scorers
+	scouted: boolean;
+	headline: string;
+	summary: string;
+	strengths: string[];
+	weaknesses: string[];
+	keyPlayers: { name: string; note: string }[];
+}
+
+export interface GameReport {
+	gameId: string;
+	model: string;
+	generatedAt: string;
+	scoutedTeam: ScoutedTeam;
+	home: TeamReport;
+	away: TeamReport;
+}
+
 export interface Action {
 	id: string;
 	name: string;
@@ -529,6 +550,15 @@ export const scoutingApi = createApi({
             providesTags: (_result, _error, id) => [{ type: 'Game', id }],
         }),
 
+        // Paid OpenAI call on the server, so it's a mutation: it only runs when asked
+        generateGameReport: builder.mutation<GameReport, { id: string; scoutedTeam: ScoutedTeam }>({
+            query: ({ id, scoutedTeam }) => ({
+                url: `/games/${id}/report`,
+                method: 'POST',
+                body: { scoutedTeam },
+            }),
+        }),
+
         addGame: builder.mutation<Game, Omit<Game, 'id'>>({
         query: (body) => ({
             url: '/games',
@@ -705,6 +735,7 @@ export const {
     useAddGameMutation,
     useUpdateGameMutation,
     useDeleteGameMutation,
+    useGenerateGameReportMutation,
     useGetLogByIdQuery,
     useGetLogsQuery,
     useAddLogMutation,

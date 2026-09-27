@@ -1,7 +1,8 @@
 import { Router } from 'express';
 import { Game } from '../models/Game'
 import { getIo } from '../socket';
-import { generateGameReport, GameNotFoundError } from '../services/gameReport';
+import OpenAI from 'openai';
+import { generateGameReport, GameNotFoundError, OpenAIConfigError } from '../services/gameReport';
 
 const router = Router();
 
@@ -44,13 +45,24 @@ router.get('/:id', async (req, res) => {
 // POST rather than GET because every call is a paid OpenAI request.
 router.post('/:id/report', async (req, res) => {
   try {
-    const report = await generateGameReport(req.params.id);
+    const { scoutedTeam } = req.body as { scoutedTeam?: string };
+    if (scoutedTeam !== 'home' && scoutedTeam !== 'away') {
+      return res.status(400).json({ message: 'scoutedTeam must be "home" or "away"' });
+    }
+
+    const report = await generateGameReport(req.params.id, scoutedTeam);
     res.json(report);
   } catch (error) {
     if (error instanceof GameNotFoundError) {
       return res.status(404).json({ message: 'Game not found' });
     }
     console.error(`POST /api/games/${req.params.id}/report failed`, error);
+    if (error instanceof OpenAIConfigError) {
+      return res.status(500).json({ message: error.message });
+    }
+    if (error instanceof OpenAI.APIError) {
+      return res.status(502).json({ message: `OpenAI error (${error.status}): ${error.message}` });
+    }
     res.status(500).json({ message: 'Failed to generate game report' });
   }
 });
