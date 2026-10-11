@@ -164,10 +164,14 @@ function perTenMin(count: number, secondsPlayed: number): number | null {
   return +((count / (secondsPlayed / 600))).toFixed(1);
 }
 
-/** Chronological sort: earlier quarter first, then higher secRem first (clock counting down). */
+/**
+ * Chronological sort: earlier quarter first, then higher secRem first (clock counting down),
+ * then the order the logs were made (e.g. an Out and In at the same clock time).
+ */
 function chronologicalSort(a: RawLog, b: RawLog): number {
   if (a.quarter !== b.quarter) return a.quarter - b.quarter;
-  return b.secRem - a.secRem;
+  if (a.secRem !== b.secRem) return b.secRem - a.secRem;
+  return new Date(a.createdAt ?? 0).getTime() - new Date(b.createdAt ?? 0).getTime();
 }
 
 // ---------------------------------------------------------------------------
@@ -214,6 +218,8 @@ export function computeMinutesPlayedPerQuarter(
 
     for (const log of subLogsByQuarter[quarter]) {
       if (log.actionId === ACTION_IDS.SUB_IN) {
+        // A second In without an Out in between: the player was already on court
+        if (onCourtSince[log.playerId] != null) continue;
         onCourtSince[log.playerId] = log.secRem;
       } else if (log.actionId === ACTION_IDS.SUB_OUT) {
         const checkInSecRem = onCourtSince[log.playerId];

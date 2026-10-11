@@ -5,6 +5,7 @@ import { openActionModal } from '../features/ui/uiSlice';
 import { useAddLogMutation, useDeleteLogMutation, useGetActionsQuery } from '../services/ScoutingApi';
 import type { ModalProps } from '../app/types';
 import  { drawCourt } from '../utils/drawCourt';
+import { secondsPlayed } from '../utils/playingTime';
 import { 
   useGetGameByIdQuery,
   useGetPlayersQuery,
@@ -94,8 +95,6 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
   const homeScore = homeFreeThrows.length + homeTwoPoints?.length * 2 + homeThreePoints?.length * 3;
   const awayScore = awayFreeThrows.length + awayTwoPoints?.length * 2 + awayThreePoints?.length * 3;
   const Fouls = gameActions?.filter((log) => (Number(log.actionId) > 12) && (Number(log.actionId) < 21)) || [];
-  const Ins = gameActions?.filter((log) => (Number(log.actionId) === 21)) || [];
-  const Outs = gameActions?.filter((log) => (Number(log.actionId) === 22)) || [];
 
   const GamePlayers = game?.homePlayers ? [...game?.homePlayers, ...game?.awayPlayers].sort((a,b) => {
             if (a.shirtNumber < b.shirtNumber) return -1;
@@ -107,12 +106,7 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
     const playerTwoPoints = twoPoints.filter((log) => log.playerId === pl.playerId);
     const playerThreePoints = threePoints.filter((log) => log.playerId === pl.playerId);
     const playerFouls = Fouls.filter((log) => log.playerId === pl.playerId);
-    const playerIns = Ins.filter((log) => log.playerId === pl.playerId);
-    const playerOuts = Outs.filter((log) => log.playerId === pl.playerId);
-    const playerOnCourt = (playerIns.length > playerOuts.length) ? 1 : 0;
-    const seconds = playerIns.reduce((total, l) => total + l.secRem, 0) 
-                    - playerOuts.reduce((total, l) => total + l.secRem, 0)
-                    - playerOnCourt * secondsLeft;
+    const seconds = secondsPlayed(gameActions ?? [], pl.playerId, quarter, secondsLeft);
     return {
       ...pl,
       points: playerFreeThrows.length + playerTwoPoints.length * 2 + playerThreePoints.length * 3,
