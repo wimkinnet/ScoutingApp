@@ -580,14 +580,16 @@ export const scoutingApi = createApi({
         ],
         }),
     
-        deleteGame: builder.mutation<{ success: boolean; id: string }, string>({
+        deleteGame: builder.mutation<{ success: boolean; id: string; deletedLogs: number }, string>({
         query: (id) => ({
             url: `/games/${id}`,
             method: 'DELETE',
         }),
+        // The server deletes the game's logs too
         invalidatesTags: (_result, _error, id) => [
             { type: 'Game', id },
             { type: 'Game', id: 'LIST' },
+            { type: 'Log', id: 'LIST' },
         ],
         }),
 
@@ -635,15 +637,22 @@ export const scoutingApi = createApi({
                         });
                     };
 
+                    // Deleting a game deletes its logs on the server
+                    const gameDeletedHandler = (deletedGameId: string) => {
+                        updateCachedData((draft) => draft.filter((l) => l.gameId !== deletedGameId));
+                    };
+
                     socket.on('logCreated', logCreatedHandler);
                     socket.on('logUpdated', logUpdatedHandler);
                     socket.on('logDeleted', logDeletedHandler);
+                    socket.on('gameDeleted', gameDeletedHandler);
 
                     await cacheEntryRemoved;
                     
                     socket.off('logCreated', logCreatedHandler);
                     socket.off('logUpdated', logUpdatedHandler);
                     socket.off('logDeleted', logDeletedHandler);
+                    socket.off('gameDeleted', gameDeletedHandler);
                     
                     socket.disconnect();
                 } catch {

@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { Game } from '../models/Game'
+import { Log } from '../models/Log';
 import { getIo } from '../socket';
 import OpenAI from 'openai';
 import { generateGameReport, GameNotFoundError, OpenAIConfigError } from '../services/gameReport';
@@ -154,12 +155,15 @@ router.delete('/:id', async (req, res) => {
   try {
     const deleted = await Game.findOneAndDelete({ id: req.params.id }).lean();
 
+    if (!deleted) return res.status(404).json({ message: 'Game not found' });
+
+    // A game's logs mean nothing without the game
+    const { deletedCount } = await Log.deleteMany({ gameId: req.params.id });
+
     const io = getIo();
     io.emit('gameDeleted', req.params.id);
 
-    if (!deleted) return res.status(404).json({ message: 'Game not found' });
-    
-    res.json({ success: true, id: req.params.id });
+    res.json({ success: true, id: req.params.id, deletedLogs: deletedCount });
   } catch (error) {
     console.error(`DELETE /api/games/${req.params.id} failed`, error);
     res.status(500).json({ message: 'Failed to delete game' });

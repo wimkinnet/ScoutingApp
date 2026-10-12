@@ -178,12 +178,21 @@ canvas {
 }
 
 .scout-modal-court-players {
+    position: relative;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     width: 5%;
     gap: 2rem;
+}
+
+/* Fixed at the top of each team's lineup column, whatever the number of players on court */
+.scout-modal-subs-button {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 .scout-modal-court-space-blank {

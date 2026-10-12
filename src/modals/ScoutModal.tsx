@@ -18,6 +18,7 @@ import '../styles/index.css'
 import '../styles/_tokens.css'
 import type { GamePlayer } from '../app/types';
 import ActionPopover from './ActionPopover';
+import SubstitutionPanel from './SubstitutionPanel';
 import { possessionAfter } from '../utils/actionLogic';
 import type { Side } from '../utils/actionLogic';
 
@@ -44,6 +45,15 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
   const AwayClub = clubs?.find((cl) => (cl.id === at?.clubId));
   const Home = `${HomeClub?.name}`;
   const Away = `${AwayClub?.name}`;
+
+  type TeamSide = 'home' | 'away';
+  // Substitution panel that is open, the lineups that finished the previous quarter (preselected at
+  // the start of the next one) and the last substitution done with the panel (so Undo can revert all of it)
+  const [subsTeam, setSubsTeam] = useState<TeamSide | null>(null);
+  const [lastLineup, setLastLineup] = useState<Record<TeamSide, GamePlayer[]>>({ home: [], away: [] });
+  const [lastSubBatch, setLastSubBatch] = useState<{
+    team: TeamSide; logIds: string[]; court: GamePlayer[]; bench: GamePlayer[];
+  } | null>(null);
 
   // Open action popover: where and when the court was clicked, and the player picked beforehand (if any)
   const [popover, setPopover] = useState<{
@@ -327,6 +337,66 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
     setY(undefined);
   }
 
+  const byShirt = (a: GamePlayer, b: GamePlayer) => a.shirtNumber - b.shirtNumber;
+
+  // Logs all Outs, then all Ins, at the current clock time. If one fails, the ones already saved
+  // are removed again so a substitution is never half-logged.
+  const applySubstitution = async (team: TeamSide, outs: GamePlayer[], ins: GamePlayer[]) => {
+    if (!game?.id) return;
+    const court = team === 'home' ? courtPlayersHome : courtPlayersAway;
+    const bench = team === 'home' ? benchPlayersHome : benchPlayersAway;
+    const logIds: string[] = [];
+    try {
+      for (const [pl, actionId] of [...outs.map((p) => [p, '22'] as const), ...ins.map((p) => [p, '21'] as const)]) {
+        const log = await addLog({
+          gameId: game.id, actionId, playerId: pl.playerId,
+          positionX: 0, positionY: 0, quarter, secRem: secondsLeft,
+        }).unwrap();
+        logIds.push(log.id);
+      }
+    } catch (err) {
+      await Promise.all(logIds.map((logId) => deleteLog(logId)));
+      alert((err as { data?: { message?: string } })?.data?.message || 'Could not save the substitution');
+      throw err;
+    }
+
+    const outIds = new Set(outs.map((p) => p.playerId));
+    const inIds = new Set(ins.map((p) => p.playerId));
+    const newCourt = [...court.filter((p) => !outIds.has(p.playerId)), ...ins].sort(byShirt);
+    const newBench = [...bench.filter((p) => !inIds.has(p.playerId)), ...outs].sort(byShirt);
+    if (team === 'home') {
+      setCourtPlayersHome(newCourt);
+      setBenchPlayersHome(newBench);
+    } else {
+      setCourtPlayersAway(newCourt);
+      setBenchPlayersAway(newBench);
+    }
+    setSelectedPlayer(undefined);
+    setPlayerInSelected(undefined);
+    setLastSubBatch({ team, logIds, court, bench });
+  }
+
+  // Undo removes the last log; for a substitution done with the panel it removes all of it
+  // and puts the lineup back
+  const UndoClick = async (lastLogId: string) => {
+    if (lastSubBatch?.logIds.includes(lastLogId)) {
+      const { team, logIds, court, bench } = lastSubBatch;
+      await Promise.all(logIds.map((logId) => deleteLog(logId)));
+      if (team === 'home') {
+        setCourtPlayersHome(court);
+        setBenchPlayersHome(bench);
+      } else {
+        setCourtPlayersAway(court);
+        setBenchPlayersAway(bench);
+      }
+      setLastSubBatch(null);
+    } else {
+      deleteLog(lastLogId);
+    }
+  }
+
+  const onCloseSubs = useCallback(() => setSubsTeam(null), []);
+
   const quarterLength = (q: number) => (q <= 4 ? 600 : 300); // overtime is 5 minutes
 
   const EndOfQuarterClick = async () => {
@@ -341,7 +411,7 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
     // Logged while quarter and clock still read the ending quarter at 0:00
     await Promise.all(onCourt.map((pl) => playerAction(pl, '22')));
 
-    const byShirt = (a: GamePlayer, b: GamePlayer) => a.shirtNumber - b.shirtNumber;
+    setLastLineup({ home: courtPlayersHome, away: courtPlayersAway });
     setBenchPlayersHome((prev) => [...prev, ...courtPlayersHome].sort(byShirt));
     setBenchPlayersAway((prev) => [...prev, ...courtPlayersAway].sort(byShirt));
     setCourtPlayersHome([]);
@@ -380,25 +450,35 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
     setAwayDir(e.target.id)
   }
 
-  const CourtClick = (e: any) => {
-    const canvas = document.getElementById('court');
-    const rect = canvas?.getBoundingClientRect(); // Absolute position of canvas
+  // Court position in metres for a point on the screen, or null when it's outside the court
+  const courtPosition = (clientX: number, clientY: number) => {
+    const rect = canvasRef.current?.getBoundingClientRect(); // Absolute position of canvas
+    if (!rect || originX == null || originY == null || scale == null) return null;
     // relative to top left corner of the court
+    const x = (clientX - rect.left - originX) / scale;
+    const y = (clientY - rect.top - originY) / scale;
+    return (x > 0 && x < 28 && y > 0 && y < 15) ? { x, y } : null;
+  };
 
-    if (originX != null && originY != null && scale != null) {
-      const x = rect ? (e.clientX - rect.left - originX) / scale : 0; 
-      const y = rect ? (e.clientY - rect.top - originY) / scale : 0;
+  // Where the drawn court (28 x 15 m) is on the screen, in viewport pixels
+  const courtBox = () => {
+    const rect = canvasRef.current?.getBoundingClientRect();
+    if (!rect || originX == null || originY == null || scale == null) return null;
+    const left = rect.left + originX, top = rect.top + originY;
+    return { left, top, right: left + 28 * scale, bottom: top + 15 * scale };
+  };
 
-      if ((x > 0) && (x < 28) && (y > 0) && (y < 15)) {
-        setX(x);
-        setY(y);
-        setPopover({ anchor: { x: e.clientX, y: e.clientY }, posX: x, posY: y, quarter, secRem: secondsLeft, player: selectedPlayer });
-        setSelectedPlayer(undefined)
-      } else {
-        setX(undefined);
-        setY(undefined);
-      }
-    };
+  const CourtClick = (e: any) => {
+    const pos = courtPosition(e.clientX, e.clientY);
+    if (pos) {
+      setX(pos.x);
+      setY(pos.y);
+      setPopover({ anchor: { x: e.clientX, y: e.clientY }, posX: pos.x, posY: pos.y, quarter, secRem: secondsLeft, player: selectedPlayer });
+      setSelectedPlayer(undefined)
+    } else {
+      setX(undefined);
+      setY(undefined);
+    }
   };
 
   useEffect(() => {
@@ -538,7 +618,7 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
                     ) : 'None'}
                   </div>
                   {lastLog && (
-                    <div className='scout-modal-last-action-button' onClick={() => deleteLog(lastLog.id)}>
+                    <div className='scout-modal-last-action-button' onClick={() => UndoClick(lastLog.id)}>
                       Undo
                     </div>
                   )}
@@ -565,6 +645,7 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
                   <div className='scout-modal-court-space-blank'>
                   </div>
                   <div className='scout-modal-court-players'>
+                    <button className='btn scout-modal-subs-button' onClick={() => setSubsTeam('home')}>Subs</button>
                     {courtPlayersHome.map((pl) => {
                       const isSelected = (selectedPlayer === pl);
                       const player = players?.find((p) => p.id === pl.playerId);
@@ -583,6 +664,7 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
                   <canvas id='court' ref={canvasRef} onClick={(e) => CourtClick(e)}/>
                   
                   <div className='scout-modal-court-players'>
+                    <button className='btn scout-modal-subs-button' onClick={() => setSubsTeam('away')}>Subs</button>
                     {courtPlayersAway.map((pl) => {
                       const isSelected = (selectedPlayer === pl);
                       const player = players?.find((p) => p.id === pl.playerId);
@@ -623,6 +705,19 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
           </div>
         </div>
       </div>
+      {subsTeam && game && (
+        <SubstitutionPanel
+          teamName={subsTeam === 'home' ? Home : Away}
+          onCourt={subsTeam === 'home' ? courtPlayersHome : courtPlayersAway}
+          bench={subsTeam === 'home' ? benchPlayersHome : benchPlayersAway}
+          suggestedLineup={lastLineup[subsTeam]}
+          players={players}
+          quarter={quarter}
+          secondsLeft={secondsLeft}
+          onConfirm={(outs, ins) => applySubstitution(subsTeam, outs, ins)}
+          onClose={onCloseSubs}
+        />
+      )}
       {popover && game && (
         <ActionPopover
           anchor={popover.anchor}
@@ -633,11 +728,15 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
           secRem={popover.secRem}
           possession={posHomeAway}
           awayDirection={awayDir}
+          homeTeamName={Home}
+          awayTeamName={Away}
           homeOnCourt={courtPlayersHome}
           awayOnCourt={courtPlayersAway}
           preselectedPlayer={popover.player}
           players={players}
           actions={actions}
+          courtPosition={courtPosition}
+          courtBox={courtBox}
           onLogged={onActionLogged}
           onClose={onClosePopover}
         />

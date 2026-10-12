@@ -9,12 +9,16 @@
     inset: 0;
 }
 
+.popover-backdrop.picking {
+    cursor: crosshair;
+}
+
 .action-popover {
     position: fixed;
     display: flex;
     flex-direction: column;
     gap: 6px;
-    max-width: 290px;
+    max-width: 340px;
     padding: 8px;
     background: var(--bg-modal);
     border: 1px solid var(--bg);
@@ -39,7 +43,19 @@
     gap: 4px;
 }
 
-.popover-row.away {
+.popover-row.inline {
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 12px;
+}
+
+.popover-team-label {
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: var(--bg);
+}
+
+.popover-team-label.away {
     padding-top: 6px;
     border-top: 1px solid var(--bg);
 }
@@ -58,8 +74,26 @@
 }
 
 .popover-player {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 44px;
+    line-height: 1.1;
+}
+
+.popover-player-number {
     font-size: 1rem;
     font-weight: bold;
+}
+
+.popover-player-name {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.7rem;
 }
 
 .popover-action.other {
