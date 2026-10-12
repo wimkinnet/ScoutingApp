@@ -657,7 +657,7 @@ export const scoutingApi = createApi({
             providesTags: (_result, _error, id) => [{ type: 'Log', id }],
         }),
 
-        addLog: builder.mutation<Log, Omit<Log, 'id'>>({
+        addLog: builder.mutation<Log, Omit<Log, 'id' | 'createdAt'>>({
         query: (body) => ({
             url: '/logs',
             method: 'POST',

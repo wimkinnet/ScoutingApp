@@ -69,6 +69,13 @@ const Timer = ({ secondsLeft, setSecondsLeft }: TimerProps) => {
     return () => clearInterval(intervalRef.current);
   }, [isActive, setSecondsLeft]);
 
+  // Pick up a new time set by the parent while paused (e.g. the clock reset at the start of a quarter)
+  useEffect(() => {
+    if (!isActive && Math.ceil(pausedTimeLeftRef.current / 1000) !== secondsLeft) {
+      pausedTimeLeftRef.current = secondsLeft * 1000;
+    }
+  }, [secondsLeft, isActive]);
+
   const toggleTimer = () => setIsActive(!isActive);
 
   useEffect(() => {

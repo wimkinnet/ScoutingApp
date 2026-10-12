@@ -1,0 +1,84 @@
+.popover-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 3;
+}
+
+.popover-backdrop {
+    position: absolute;
+    inset: 0;
+}
+
+.action-popover {
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-width: 290px;
+    padding: 8px;
+    background: var(--bg-modal);
+    border: 1px solid var(--bg);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-2);
+}
+
+.popover-title {
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: var(--text-highlight);
+}
+
+.popover-hint {
+    font-size: 0.8rem;
+    color: var(--text-highlight);
+}
+
+.popover-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.popover-row.away {
+    padding-top: 6px;
+    border-top: 1px solid var(--bg);
+}
+
+.popover-player,
+.popover-action {
+    min-width: 40px;
+    height: 34px;
+    padding: 0 4px;
+    font-size: 0.85rem;
+    color: var(--text-inverse-bg);
+    background: var(--bg);
+    border: 1px solid var(--bg-soft);
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.popover-player {
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+.popover-action.other {
+    color: var(--text-highlight);
+    background: var(--bg-modal);
+}
+
+.popover-action.wide {
+    width: 100%;
+}
+
+.popover-player:hover,
+.popover-action:hover {
+    color: var(--text-highlight);
+    background: var(--bg-soft);
+}
+
+.popover-player:disabled,
+.popover-action:disabled {
+    opacity: 0.5;
+    cursor: wait;
+}

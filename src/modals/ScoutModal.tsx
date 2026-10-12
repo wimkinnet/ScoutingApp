@@ -1,7 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useSelector } from 'react-redux';
 import type { RootState } from '../app/store';
-import { openActionModal } from '../features/ui/uiSlice';
 import { useAddLogMutation, useDeleteLogMutation, useGetActionsQuery } from '../services/ScoutingApi';
 import type { ModalProps } from '../app/types';
 import  { drawCourt } from '../utils/drawCourt';
@@ -18,10 +17,11 @@ import './ScoutModal.css'
 import '../styles/index.css'
 import '../styles/_tokens.css'
 import type { GamePlayer } from '../app/types';
-import ActionModal from './ActionModal';
+import ActionPopover from './ActionPopover';
+import { possessionAfter } from '../utils/actionLogic';
+import type { Side } from '../utils/actionLogic';
 
 export default function ScoutModal({ isOpen, onClose }: ModalProps) {
-  const dispatch = useDispatch()
   const { id } = useSelector((s: RootState) => s.ui.scoutModal);
 
   const { data: game, isLoading: isLoadingGame, isError: isGameError } = useGetGameByIdQuery(id ?? '', {
@@ -45,7 +45,10 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
   const Home = `${HomeClub?.name}`;
   const Away = `${AwayClub?.name}`;
 
-  const [isOpenAction, setIsOpenAction] = useState(false);
+  // Open action popover: where and when the court was clicked, and the player picked beforehand (if any)
+  const [popover, setPopover] = useState<{
+    anchor: { x: number; y: number }; posX: number; posY: number; quarter: number; secRem: number; player?: GamePlayer;
+  } | null>(null);
   
   const [benchPlayersHome, setBenchPlayersHome] = useState<GamePlayer[]>([]);
   const [courtPlayersHome, setCourtPlayersHome] = useState<GamePlayer[]>([])
@@ -324,6 +327,33 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
     setY(undefined);
   }
 
+  const quarterLength = (q: number) => (q <= 4 ? 600 : 300); // overtime is 5 minutes
+
+  const EndOfQuarterClick = async () => {
+    const nextQuarter = quarter + 1;
+    const onCourt = [...courtPlayersHome, ...courtPlayersAway];
+    const switchesSides = quarter === 2 && (awayDir === "Left" || awayDir === "Right");
+    const message = `End quarter ${quarter} and start quarter ${nextQuarter}?\n\n`
+      + `This logs "Player Out" at 0:00 for the ${onCourt.length} players on court`
+      + (switchesSides ? ` and switches the away direction to ${awayDir === "Left" ? "Right" : "Left"}.` : '.');
+    if (!window.confirm(message)) return;
+
+    // Logged while quarter and clock still read the ending quarter at 0:00
+    await Promise.all(onCourt.map((pl) => playerAction(pl, '22')));
+
+    const byShirt = (a: GamePlayer, b: GamePlayer) => a.shirtNumber - b.shirtNumber;
+    setBenchPlayersHome((prev) => [...prev, ...courtPlayersHome].sort(byShirt));
+    setBenchPlayersAway((prev) => [...prev, ...courtPlayersAway].sort(byShirt));
+    setCourtPlayersHome([]);
+    setCourtPlayersAway([]);
+    setSelectedPlayer(undefined);
+    setPlayerInSelected(undefined);
+
+    setQuarter(nextQuarter);
+    if (switchesSides) setAwayDir(awayDir === "Left" ? "Right" : "Left");
+    setSecondsLeft(quarterLength(nextQuarter));
+  }
+
   const QuarterClick = (e: any) => {
     setQuarter(Number(e.target.id));
   }
@@ -334,6 +364,11 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
       setPossession(clickedClub.name)
     }
     game ? ((clickedClub === HomeClub) ? setPosHomeAway("Home") : setPosHomeAway("Away")) : setPosHomeAway ("");
+  }
+
+  const setPossessionSide = (side: Side) => {
+    setPosHomeAway(side);
+    setPossession(side === "Home" ? Home : Away);
   }
 
   const PossessionSwitch = () => {
@@ -354,21 +389,10 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
       const x = rect ? (e.clientX - rect.left - originX) / scale : 0; 
       const y = rect ? (e.clientY - rect.top - originY) / scale : 0;
 
-      if ((x > 0) && (x < 28) && (y > 0) && (y < 15) && selectedPlayer) {
+      if ((x > 0) && (x < 28) && (y > 0) && (y < 15)) {
         setX(x);
         setY(y);
-        const payload = {
-          game: game?.id,
-          player: selectedPlayer,
-          posX: x,
-          posY: y,
-          possession: posHomeAway,
-          direction: awayDir,
-          quarter: quarter,
-          secRem: secondsLeft,
-        };
-        setIsOpenAction(true);
-        dispatch(openActionModal(payload));
+        setPopover({ anchor: { x: e.clientX, y: e.clientY }, posX: x, posY: y, quarter, secRem: secondsLeft, player: selectedPlayer });
         setSelectedPlayer(undefined)
       } else {
         setX(undefined);
@@ -390,11 +414,17 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
     };
   });
 
-  const onCloseModal = (() => {
-    setIsOpenAction(false);
+  const onClosePopover = useCallback(() => {
+    setPopover(null);
     setX(undefined);
     setY(undefined);
-  })
+  }, []);
+
+  // Who has the ball next follows from the action that was just logged
+  const onActionLogged = (actionId: string, pl: GamePlayer) => {
+    const next = possessionAfter(actionId, pl.homeTeam);
+    if (next) setPossessionSide(next);
+  }
     
   if (!isOpen) return null;
 
@@ -462,6 +492,11 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
                         )
                       })}
                     </div>
+                    {secondsLeft === 0 && quarter < quarters.length && (
+                      <button className='btn scout-modal-end-quarter' onClick={() => EndOfQuarterClick()}>
+                        End of quarter {quarter}
+                      </button>
+                    )}
                     <div className='scout-modal-direction-header'>Away direction</div>
                     <div className='scout-modal-direction-container'>
                       {directions.map((dir) => {
@@ -588,10 +623,25 @@ export default function ScoutModal({ isOpen, onClose }: ModalProps) {
           </div>
         </div>
       </div>
-      < ActionModal 
-        isOpen={isOpenAction}
-        onClose={onCloseModal}
-      />
+      {popover && game && (
+        <ActionPopover
+          anchor={popover.anchor}
+          posX={popover.posX}
+          posY={popover.posY}
+          gameId={game.id}
+          quarter={popover.quarter}
+          secRem={popover.secRem}
+          possession={posHomeAway}
+          awayDirection={awayDir}
+          homeOnCourt={courtPlayersHome}
+          awayOnCourt={courtPlayersAway}
+          preselectedPlayer={popover.player}
+          players={players}
+          actions={actions}
+          onLogged={onActionLogged}
+          onClose={onClosePopover}
+        />
+      )}
     </div>
   );
 }

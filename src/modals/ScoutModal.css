@@ -248,6 +248,11 @@ canvas {
     font-weight: bold;
 }
 
+.scout-modal-end-quarter {
+    align-self: center;
+    margin-top: 5px;
+}
+
 .scout-modal-quarter-container {
     display: flex;
     flex-direction: row;
